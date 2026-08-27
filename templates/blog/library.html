@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}My Library — Dony’s Notebook{% endblock %}
+{% block content %}
+<header class="library-hero">
+  <p class="eyebrow">Reading journal</p>
+  <h1>📚 My Library</h1>
+  <p>Books, ideas, and notes collected along the way.</p>
+</header>
+
+<dl class="library-stats">
+  <div><dt>Books I've Read</dt><dd>{{ stats.read }}</dd></div>
+  <div><dt>Currently Reading</dt><dd>{{ stats.reading }}</dd></div>
+  <div><dt>Want to Read</dt><dd>{{ stats.want }}</dd></div>
+</dl>
+
+{% if reading_books %}
+<section class="library-section">
+  <h2>Currently Reading</h2>
+  <div class="book-list">
+    {% for book in reading_books %}
+      <article class="book-row">
+        <a href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}</a>
+        <div class="book-row-content">
+          <span class="book-status status-reading">Reading</span>
+          <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+          <p class="book-author">{{ book.author }}</p>
+          {% if book.current_chapter and book.total_chapters %}<p class="book-chapter">Chapter {{ book.current_chapter }} of {{ book.total_chapters }}</p>{% endif %}
+          <div class="progress-row"><progress value="{{ book.progress }}" max="100">{{ book.progress }}%</progress><span>{{ book.progress }}%</span></div>
+          {% if book.started_at %}<p class="book-date">Started: {% language "en" %}{{ book.started_at|date:"F j, Y" }}{% endlanguage %}</p>{% endif %}
+          <a class="notes-link" href="{{ book.get_absolute_url }}">My notes →</a>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if favorite_books %}<section class="library-section"><h2>Favorites</h2><div class="book-grid">{% for book in favorite_books %}<a class="book-tile" href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div></section>{% endif %}
+{% if finished_books %}<section class="library-section"><h2>Finished</h2><div class="book-grid">{% for book in finished_books %}<a class="book-tile" href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div></section>{% endif %}
+{% if want_books %}<section class="library-section"><h2>Want to Read</h2><div class="book-grid">{% for book in want_books %}<a class="book-tile" href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div></section>{% endif %}
+{% if not reading_books and not favorite_books and not finished_books and not want_books %}<p class="empty">No books in the library yet.</p>{% endif %}
+{% endblock %}

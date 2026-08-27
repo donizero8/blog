@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{% if query %}Hasil “{{ query }}”{% else %}Pencarian{% endif %} — Dony’s Notebook{% endblock %}
+{% block content %}
+<header class="search-header">
+  <p class="eyebrow">Pencarian</p>
+  {% if query %}
+    <h1>Hasil untuk “{{ query }}”</h1>
+    <p>{{ posts|length }} artikel dan {{ books|length }} buku ditemukan.</p>
+  {% else %}
+    <h1>Cari di Dony’s Notebook</h1>
+    <p>Masukkan judul, isi artikel, tag, buku, atau nama penulis pada kolom pencarian.</p>
+  {% endif %}
+</header>
+
+{% if query %}
+  {% if posts %}
+    <section class="search-section">
+      <h2>Artikel</h2>
+      {% include "blog/_post_cards.html" %}
+    </section>
+  {% endif %}
+  {% if books %}
+    <section class="search-section">
+      <h2>Buku</h2>
+      <div class="search-books">
+        {% for book in books %}
+          <a class="search-book" href="{{ book.get_absolute_url }}">
+            {% include "blog/_book_cover.html" %}
+            <span><strong>{{ book.title }}</strong><small>{{ book.author }}</small></span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+  {% if not posts and not books %}
+    <div class="timeline-empty"><span aria-hidden="true">⌕</span><h2>Belum ada hasil</h2><p>Coba gunakan kata kunci yang lebih singkat atau berbeda.</p></div>
+  {% endif %}
+{% endif %}
+{% endblock %}

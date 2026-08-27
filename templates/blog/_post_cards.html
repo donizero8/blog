@@ -1,0 +1,8 @@
+{% for post in posts %}
+<article class="post-card">
+  <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
+  {% if post.excerpt %}<p>{{ post.excerpt }}</p>{% endif %}
+  {% if post.tags.all %}<div class="tag-list">{% for tag in post.tags.all %}<span>{{ tag.name }}</span>{% endfor %}</div>{% endif %}
+  <div class="meta">{{ post.author.get_full_name|default:post.author.username }} · {{ post.published_at|date:"j F Y" }}</div>
+</article>
+{% empty %}<p class="empty">Belum ada tulisan yang diterbitkan.</p>{% endfor %}

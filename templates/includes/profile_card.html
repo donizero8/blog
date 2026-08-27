@@ -1,0 +1,49 @@
+{% load i18n %}
+<aside class="profile-sidebar" aria-label="Profil penulis">
+  <section class="profile-card">
+    <div class="profile-cover" aria-hidden="true"></div>
+    <div class="profile-content">
+      {% if site_profile.photo %}
+        <img class="profile-photo" src="{{ site_profile.photo.url }}" alt="Foto profil {{ site_profile.name }}" width="104" height="104">
+      {% else %}
+        <div class="profile-photo profile-initial" aria-hidden="true">{{ site_profile.name|default:"Dony’s Notebook"|first|upper }}</div>
+      {% endif %}
+      <h2>{{ site_profile.name|default:"Dony’s Notebook" }}</h2>
+      {% if site_profile.headline %}<p class="profile-headline">{{ site_profile.headline }}</p>{% endif %}
+      {% if site_profile.location %}<p class="profile-location"><span aria-hidden="true">⌖</span> {{ site_profile.location }}</p>{% endif %}
+      {% if site_profile.bio %}<p class="profile-bio">{{ site_profile.bio }}</p>{% endif %}
+      {% if site_profile.linkedin_url or site_profile.github_url %}
+        <div class="profile-links">
+          {% if site_profile.linkedin_url %}
+            <a class="profile-link linkedin-link" href="{{ site_profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">
+              <span aria-hidden="true">in</span> LinkedIn
+            </a>
+          {% endif %}
+          {% if site_profile.github_url %}
+            <a class="profile-link github-link" href="{{ site_profile.github_url }}" target="_blank" rel="noopener noreferrer">
+              <span aria-hidden="true">⌘</span> GitHub
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% if currently_reading_book %}
+    <a class="reading-card" href="{{ currently_reading_book.get_absolute_url }}">
+      <div class="reading-card-heading"><span>Currently Reading</span><span aria-hidden="true">📖</span></div>
+      <div class="reading-card-book">
+        {% if currently_reading_book.cover %}
+          <img class="reading-cover" src="{{ currently_reading_book.cover.url }}" alt="Sampul {{ currently_reading_book.title }}" width="58" height="82">
+        {% else %}
+          <div class="reading-cover book-cover-placeholder" aria-hidden="true"><span>BOOK</span></div>
+        {% endif %}
+        <div><strong>{{ currently_reading_book.title }}</strong><span>{{ currently_reading_book.author }}</span></div>
+      </div>
+      {% if currently_reading_book.current_chapter and currently_reading_book.total_chapters %}
+        <p class="reading-chapter">Chapter {{ currently_reading_book.current_chapter }} of {{ currently_reading_book.total_chapters }}</p>
+      {% endif %}
+      <div class="progress-row"><progress value="{{ currently_reading_book.progress }}" max="100">{{ currently_reading_book.progress }}%</progress><span>{{ currently_reading_book.progress }}%</span></div>
+      {% if currently_reading_book.started_at %}<p class="reading-since">Reading since {% language "en" %}{{ currently_reading_book.started_at|date:"M j" }}{% endlanguage %}</p>{% endif %}
+    </a>
+  {% endif %}
+</aside>

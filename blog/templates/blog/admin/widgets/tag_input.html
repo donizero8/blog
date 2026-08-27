@@ -1,0 +1,11 @@
+<div class="tag-editor" data-tag-editor>
+  <div class="tag-control">
+    <div class="tag-chips" data-tag-chips></div>
+    <input type="text" class="tag-entry" list="{{ widget.attrs.id }}_suggestions" placeholder="Ketik tag lalu Enter…" autocomplete="off" data-tag-entry>
+  </div>
+  <input type="hidden" name="{{ widget.name }}" value="{{ widget.value|default_if_none:'' }}"{% include "django/forms/widgets/attrs.html" %} data-tag-value>
+  <datalist id="{{ widget.attrs.id }}_suggestions">
+    {% for suggestion in widget.suggestions %}<option value="{{ suggestion }}"></option>{% endfor %}
+  </datalist>
+  <p class="help">Tekan Enter atau koma untuk menambahkan. Tag baru akan dibuat saat tulisan disimpan.</p>
+</div>

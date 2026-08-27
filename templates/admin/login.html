@@ -1,0 +1,52 @@
+{% load i18n static %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Masuk — Dony’s Notebook</title>
+  <script src="{% static 'blog/theme.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'blog/admin/login.css' %}">
+</head>
+<body>
+  <button class="theme-toggle login-theme-toggle" type="button" data-theme-toggle aria-label="Aktifkan mode gelap" aria-pressed="false">
+    <span data-theme-icon aria-hidden="true">☾</span>
+    <span data-theme-label>Mode gelap</span>
+  </button>
+  <main class="login-shell">
+    <a class="login-brand" href="/" aria-label="Kembali ke Dony’s Notebook">
+      <span class="brand-mark" aria-hidden="true">D</span>
+      <span class="brand-name">Dony’s Notebook</span>
+    </a>
+
+    {% if form.errors and not form.non_field_errors %}
+      <div class="login-notice" role="alert">Nama pengguna atau sandi belum benar. Silakan coba kembali.</div>
+    {% endif %}
+    {% if form.non_field_errors %}
+      <div class="login-notice" role="alert">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+    {% endif %}
+
+    <form class="login-card" action="{{ app_path }}" method="post" novalidate>
+      {% csrf_token %}
+      <div class="field{% if form.username.errors %} has-error{% endif %}">
+        <label for="{{ form.username.id_for_label }}">Nama pengguna atau email</label>
+        {{ form.username }}
+        {% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field{% if form.password.errors %} has-error{% endif %}">
+        <label for="{{ form.password.id_for_label }}">Sandi</label>
+        {{ form.password }}
+        {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit">Masuk</button>
+    </form>
+
+    <a class="back-link" href="/"><span aria-hidden="true">←</span> Kembali ke Dony’s Notebook</a>
+    <p class="login-footer">Panel khusus pengelola konten.</p>
+  </main>
+</body>
+</html>

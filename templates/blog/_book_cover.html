@@ -1,0 +1,5 @@
+{% if book.cover %}
+  <img class="library-cover" src="{{ book.cover.url }}" alt="Sampul {{ book.title }}" width="112" height="158">
+{% else %}
+  <div class="library-cover book-cover-placeholder" aria-hidden="true"><span>BOOK<br>COVER</span></div>
+{% endif %}

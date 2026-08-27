@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Reading Timeline — Dony’s Notebook{% endblock %}
+{% block content %}
+<header class="library-hero timeline-hero">
+  <p class="eyebrow">Reading history</p>
+  <h1>Reading Timeline</h1>
+  <p>Buku-buku yang sedang dan telah menemani perjalanan membaca saya.</p>
+</header>
+
+{% for year_group in timeline_years %}
+  <section class="timeline-year" aria-labelledby="year-{{ year_group.year }}">
+    <h2 id="year-{{ year_group.year }}">{{ year_group.year }}</h2>
+    {% for month in year_group.months %}
+      <div class="timeline-month">
+        <h3>{% language "en" %}{{ month.date|date:"F" }}{% endlanguage %}</h3>
+        <ol class="timeline-list">
+          {% for entry in month.entries %}
+            <li>
+              <a href="{{ entry.book.get_absolute_url }}">
+                <span class="timeline-icon" aria-hidden="true">📖</span>
+                <span class="timeline-book">
+                  <strong>{{ entry.book.title }}</strong>
+                  <span>{{ entry.book.author }}</span>
+                  {% if entry.book.rating %}
+                    <span class="timeline-rating" aria-label="Rating {{ entry.book.rating }} dari 5">{{ entry.stars }} <small>{{ entry.book.rating }}</small></span>
+                  {% elif entry.book.status == "reading" %}
+                    <span class="timeline-status">Currently reading · {{ entry.book.progress }}%</span>
+                  {% endif %}
+                </span>
+              </a>
+            </li>
+          {% endfor %}
+        </ol>
+      </div>
+    {% endfor %}
+  </section>
+{% empty %}
+  <div class="timeline-empty">
+    <span aria-hidden="true">📚</span>
+    <h2>Timeline masih kosong</h2>
+    <p>Tambahkan tanggal mulai atau selesai pada buku di CMS untuk menampilkannya di sini.</p>
+  </div>
+{% endfor %}
+{% endblock %}

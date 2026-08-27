@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="hero"><h1>Books, English, code, and things I learn.</h1><p>Tempat sederhana untuk menulis hal-hal yang layak diingat.</p></section>
+<div id="post-list" data-post-list>{% include "blog/_post_cards.html" %}</div>
+{% if page.has_next %}
+  <div class="load-more-wrap">
+    <a class="load-more" href="?page={{ page.next_page_number }}" data-load-more data-next-page="{{ page.next_page_number }}">Muat lebih banyak</a>
+    <p class="load-more-status" data-load-status role="status" aria-live="polite"></p>
+  </div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}<script src="{% static 'blog/load-more.js' %}" defer></script>{% endblock %}

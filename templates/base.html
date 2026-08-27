@@ -1,0 +1,37 @@
+{% load static %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Dony’s Notebook{% endblock %}</title>
+  <script src="{% static 'blog/theme.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'blog/site.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Navigasi utama">
+      <a class="brand" href="/">Dony’s Notebook</a>
+      <div class="nav-actions">
+        <form class="site-search" action="{% url 'blog:search' %}" method="get" role="search">
+          <label class="sr-only" for="site-search-input">Cari artikel dan buku</label>
+          <span aria-hidden="true">⌕</span>
+          <input id="site-search-input" name="q" type="search" value="{% if request.resolver_match.url_name == 'search' %}{{ request.GET.q }}{% endif %}" placeholder="Cari" maxlength="100">
+        </form>
+        <a class="write-link" href="{% url 'blog:reading_timeline' %}">Reading</a>
+        <a class="write-link" href="{% url 'blog:library' %}">My Library</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Aktifkan mode gelap" aria-pressed="false">
+          <span class="theme-toggle-icon" data-theme-icon aria-hidden="true">☾</span>
+          <span class="theme-toggle-label" data-theme-label>Mode gelap</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+  <main class="container site-grid">
+    <div class="content-column">{% block content %}{% endblock %}</div>
+    {% include "includes/profile_card.html" %}
+  </main>
+  <footer class="site-footer"><p>Dony’s Notebook · Tempat ide dan cerita bertumbuh.</p></footer>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ book.title }} — My Library{% endblock %}
+{% block content %}
+<article class="book-journal">
+  <header class="book-journal-header">
+    {% include "blog/_book_cover.html" %}
+    <div>
+      <span class="book-status status-{{ book.status }}">{{ book.get_status_display }}</span>
+      <h1>{{ book.title }}</h1>
+      <p class="book-author">{{ book.author }}</p>
+      {% if book.rating %}<p class="book-rating"><span aria-label="Rating {{ book.rating }} dari 5">★★★★★</span> <strong>{{ book.rating }}</strong></p>{% endif %}
+      {% if book.finished_at %}<p class="book-date">Finished: {% language "en" %}{{ book.finished_at|date:"F Y" }}{% endlanguage %}</p>{% elif book.started_at %}<p class="book-date">Started: {% language "en" %}{{ book.started_at|date:"F j, Y" }}{% endlanguage %}</p>{% endif %}
+      {% if book.status == "reading" %}<div class="progress-row journal-progress"><progress value="{{ book.progress }}" max="100">{{ book.progress }}%</progress><span>{{ book.progress }}%</span></div>{% endif %}
+    </div>
+  </header>
+
+  {% if book.thoughts %}<section class="journal-section"><h2>My Thoughts</h2><div class="journal-copy">{{ book.thoughts|linebreaks }}</div></section>{% endif %}
+  {% if book.lessons_list %}<section class="journal-section"><h2>Things I Learned</h2><ul class="lesson-list">{% for lesson in book.lessons_list %}<li>{{ lesson }}</li>{% endfor %}</ul></section>{% endif %}
+  {% if book.notes.all %}<section class="journal-section"><h2>My Notes</h2><div class="journal-notes">{% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy">{{ note.body|linebreaks }}</div></article>{% endfor %}</div></section>{% endif %}
+  <a class="back-library" href="{% url 'blog:library' %}">← Back to My Library</a>
+</article>
+{% endblock %}
