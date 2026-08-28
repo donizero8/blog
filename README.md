@@ -46,6 +46,12 @@ sudo systemctl reload nginx
 sudo certbot --nginx -d example.com -d www.example.com
 ```
 
+Production memaksa HTTPS dan memulai HSTS selama satu jam
+(`SECURE_HSTS_SECONDS=3600`). Pastikan HTTP, HTTPS, admin, dan upload media bekerja
+normal sebelum menaikkan nilainya, misalnya ke `86400` lalu `31536000`. Jangan
+aktifkan `SECURE_HSTS_INCLUDE_SUBDOMAINS` atau `SECURE_HSTS_PRELOAD` sebelum semua
+subdomain dipastikan selalu mendukung HTTPS.
+
 Gunakan perintah production ini untuk operasi berikutnya:
 
 ```bash
