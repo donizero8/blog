@@ -7,6 +7,16 @@ from django.utils.text import slugify
 
 
 class SiteProfile(models.Model):
+    hero_title = models.CharField(
+        "judul beranda",
+        max_length=160,
+        default="Books, English, code, and things I learn.",
+    )
+    hero_description = models.CharField(
+        "deskripsi beranda",
+        max_length=240,
+        default="Tempat sederhana untuk menulis hal-hal yang layak diingat.",
+    )
     name = models.CharField("nama", max_length=100, default="Dony Wijaya")
     headline = models.CharField("headline", max_length=160, blank=True)
     bio = models.TextField("tentang", max_length=500, blank=True)

@@ -10,7 +10,20 @@ from django.urls import reverse
 from PIL import Image
 
 from .forms import PostAdminForm, optimize_uploaded_image
-from .models import Book, Post, Tag
+from .models import Book, Post, SiteProfile, Tag
+
+
+class HomepageCopyTests(TestCase):
+    def test_homepage_uses_copy_from_site_profile(self):
+        profile = SiteProfile.load()
+        profile.hero_title = "Judul beranda pilihan saya"
+        profile.hero_description = "Deskripsi yang dapat diedit melalui CMS."
+        profile.save()
+
+        response = self.client.get(reverse("blog:list"))
+
+        self.assertContains(response, "Judul beranda pilihan saya")
+        self.assertContains(response, "Deskripsi yang dapat diedit melalui CMS.")
 
 
 class ReadingTimelineTests(TestCase):

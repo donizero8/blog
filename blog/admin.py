@@ -118,6 +118,7 @@ class CommentAdmin(admin.ModelAdmin):
 class SiteProfileAdmin(admin.ModelAdmin):
     form = SiteProfileAdminForm
     fieldsets = (
+        ("Beranda", {"fields": ("hero_title", "hero_description")}),
         ("Identitas", {"fields": ("photo", "name", "headline", "bio", "location")}),
         ("Tautan", {"fields": ("linkedin_url", "github_url")}),
         ("Informasi", {"fields": ("updated_at",), "classes": ("collapse",)}),

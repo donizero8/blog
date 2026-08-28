@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<section class="hero"><h1>Books, English, code, and things I learn.</h1><p>Tempat sederhana untuk menulis hal-hal yang layak diingat.</p></section>
+<section class="hero"><h1>{{ site_profile.hero_title }}</h1><p>{{ site_profile.hero_description }}</p></section>
 <div id="post-list" data-post-list>{% include "blog/_post_cards.html" %}</div>
 {% if page.has_next %}
   <div class="load-more-wrap">
