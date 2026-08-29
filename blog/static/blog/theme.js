@@ -21,12 +21,12 @@
     document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
       const dark = theme === "dark";
       button.setAttribute("aria-pressed", String(dark));
-      button.setAttribute("aria-label", dark ? "Aktifkan mode terang" : "Aktifkan mode gelap");
-      button.title = dark ? "Aktifkan mode terang" : "Aktifkan mode gelap";
+      button.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+      button.title = dark ? "Switch to light mode" : "Switch to dark mode";
       const icon = button.querySelector("[data-theme-icon]");
       const label = button.querySelector("[data-theme-label]");
       if (icon) icon.textContent = dark ? "☀" : "☾";
-      if (label) label.textContent = dark ? "Mode terang" : "Mode gelap";
+      if (label) label.textContent = dark ? "Light mode" : "Dark mode";
     });
   }
 

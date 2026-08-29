@@ -1,27 +1,27 @@
 {% extends "base.html" %}
-{% block title %}{% if query %}Hasil “{{ query }}”{% else %}Pencarian{% endif %} — Dony’s Notebook{% endblock %}
+{% block title %}{% if query %}Results for “{{ query }}”{% else %}Search{% endif %} — Dony’s Notebook{% endblock %}
 {% block content %}
 <header class="search-header">
-  <p class="eyebrow">Pencarian</p>
+  <p class="eyebrow">Search</p>
   {% if query %}
-    <h1>Hasil untuk “{{ query }}”</h1>
-    <p>{{ posts|length }} artikel dan {{ books|length }} buku ditemukan.</p>
+    <h1>Results for “{{ query }}”</h1>
+    <p>{{ posts|length }} articles and {{ books|length }} books found.</p>
   {% else %}
-    <h1>Cari di Dony’s Notebook</h1>
-    <p>Masukkan judul, isi artikel, tag, buku, atau nama penulis pada kolom pencarian.</p>
+    <h1>Search Dony’s Notebook</h1>
+    <p>Search by title, article content, tag, book, or author.</p>
   {% endif %}
 </header>
 
 {% if query %}
   {% if posts %}
     <section class="search-section">
-      <h2>Artikel</h2>
+      <h2>Articles</h2>
       {% include "blog/_post_cards.html" %}
     </section>
   {% endif %}
   {% if books %}
     <section class="search-section">
-      <h2>Buku</h2>
+      <h2>Books</h2>
       <div class="search-books">
         {% for book in books %}
           <a class="search-book" href="{{ book.get_absolute_url }}">
@@ -33,7 +33,7 @@
     </section>
   {% endif %}
   {% if not posts and not books %}
-    <div class="timeline-empty"><span aria-hidden="true">⌕</span><h2>Belum ada hasil</h2><p>Coba gunakan kata kunci yang lebih singkat atau berbeda.</p></div>
+    <div class="timeline-empty"><span aria-hidden="true">⌕</span><h2>No results found</h2><p>Try a shorter or different search term.</p></div>
   {% endif %}
 {% endif %}
 {% endblock %}

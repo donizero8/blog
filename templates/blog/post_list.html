@@ -5,7 +5,7 @@
 <div id="post-list" data-post-list>{% include "blog/_post_cards.html" %}</div>
 {% if page.has_next %}
   <div class="load-more-wrap">
-    <a class="load-more" href="?page={{ page.next_page_number }}" data-load-more data-next-page="{{ page.next_page_number }}">Muat lebih banyak</a>
+    <a class="load-more" href="?page={{ page.next_page_number }}" data-load-more data-next-page="{{ page.next_page_number }}">Load more</a>
     <p class="load-more-status" data-load-status role="status" aria-live="polite"></p>
   </div>
 {% endif %}

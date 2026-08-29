@@ -10,19 +10,19 @@
 </head>
 <body>
   <header class="site-header">
-    <nav class="nav" aria-label="Navigasi utama">
+    <nav class="nav" aria-label="Main navigation">
       <a class="brand" href="/">Dony’s Notebook</a>
       <div class="nav-actions">
         <form class="site-search" action="{% url 'blog:search' %}" method="get" role="search">
-          <label class="sr-only" for="site-search-input">Cari artikel dan buku</label>
+          <label class="sr-only" for="site-search-input">Search articles and books</label>
           <span aria-hidden="true">⌕</span>
-          <input id="site-search-input" name="q" type="search" value="{% if request.resolver_match.url_name == 'search' %}{{ request.GET.q }}{% endif %}" placeholder="Cari" maxlength="100">
+          <input id="site-search-input" name="q" type="search" value="{% if request.resolver_match.url_name == 'search' %}{{ request.GET.q }}{% endif %}" placeholder="Search" maxlength="100">
         </form>
         <a class="write-link" href="{% url 'blog:reading_timeline' %}">Reading</a>
         <a class="write-link" href="{% url 'blog:library' %}">My Library</a>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Aktifkan mode gelap" aria-pressed="false">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode" aria-pressed="false">
           <span class="theme-toggle-icon" data-theme-icon aria-hidden="true">☾</span>
-          <span class="theme-toggle-label" data-theme-label>Mode gelap</span>
+          <span class="theme-toggle-label" data-theme-label>Dark mode</span>
         </button>
       </div>
     </nav>

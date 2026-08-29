@@ -10,29 +10,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!nextPage || button.getAttribute("aria-busy") === "true") return;
 
     button.setAttribute("aria-busy", "true");
-    button.textContent = "Memuat…";
-    if (status) status.textContent = "Sedang memuat tulisan berikutnya.";
+    button.textContent = "Loading…";
+    if (status) status.textContent = "Loading more posts.";
 
     try {
       const response = await fetch(`?page=${encodeURIComponent(nextPage)}`, {
         headers: {"X-Requested-With": "XMLHttpRequest"},
       });
-      if (!response.ok) throw new Error("Gagal memuat tulisan");
+      if (!response.ok) throw new Error("Failed to load posts");
       list.insertAdjacentHTML("beforeend", await response.text());
       const followingPage = response.headers.get("X-Next-Page");
       if (followingPage) {
         button.dataset.nextPage = followingPage;
         button.href = `?page=${followingPage}`;
-        button.textContent = "Muat lebih banyak";
+        button.textContent = "Load more";
         button.removeAttribute("aria-busy");
-        if (status) status.textContent = "Tulisan berikutnya berhasil dimuat.";
+        if (status) status.textContent = "More posts have been loaded.";
       } else {
         button.closest(".load-more-wrap").remove();
       }
     } catch (_error) {
-      button.textContent = "Coba lagi";
+      button.textContent = "Try again";
       button.removeAttribute("aria-busy");
-      if (status) status.textContent = "Tulisan belum berhasil dimuat. Silakan coba lagi.";
+      if (status) status.textContent = "Posts could not be loaded. Please try again.";
     }
   });
 });
