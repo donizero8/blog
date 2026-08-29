@@ -15,9 +15,9 @@
     </div>
   </header>
 
-  {% if book.thoughts %}<section class="journal-section"><h2>My Thoughts</h2><div class="journal-copy">{{ book.thoughts|linebreaks }}</div></section>{% endif %}
+  {% if book.thoughts %}<section class="journal-section"><h2>My Thoughts</h2><div class="journal-copy">{{ book.thoughts|safe }}</div></section>{% endif %}
   {% if book.lessons_list %}<section class="journal-section"><h2>Things I Learned</h2><ul class="lesson-list">{% for lesson in book.lessons_list %}<li>{{ lesson }}</li>{% endfor %}</ul></section>{% endif %}
-  {% if book.notes.all %}<section class="journal-section"><h2>My Notes</h2><div class="journal-notes">{% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy">{{ note.body|linebreaks }}</div></article>{% endfor %}</div></section>{% endif %}
+  {% if book.notes.all %}<section class="journal-section"><h2>My Notes</h2><div class="journal-notes">{% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy">{{ note.body|safe }}</div></article>{% endfor %}</div></section>{% endif %}
   <a class="back-library" href="{% url 'blog:library' %}">← Back to My Library</a>
 </article>
 {% endblock %}

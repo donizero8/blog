@@ -7,7 +7,13 @@ from django.http import HttpResponseNotAllowed, JsonResponse
 from django.urls import path
 from PIL import Image, UnidentifiedImageError
 
-from .forms import BookAdminForm, PostAdminForm, SiteProfileAdminForm, optimize_article_image
+from .forms import (
+    BookAdminForm,
+    BookNoteAdminForm,
+    PostAdminForm,
+    SiteProfileAdminForm,
+    optimize_article_image,
+)
 from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 
 admin.site.site_header = "Dony’s Notebook"
@@ -17,6 +23,7 @@ admin.site.index_title = "Kelola tulisan"
 
 class BookNoteInline(admin.StackedInline):
     model = BookNote
+    form = BookNoteAdminForm
     extra = 1
 
 

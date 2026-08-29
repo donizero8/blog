@@ -14,6 +14,7 @@
 .medium-image-controls button.is-active { border-color: #137c55; background: #137c55; color: #fff; }
 .medium-image-controls [data-image-remove] { margin-left: auto; color: #b42318; }
 .medium-canvas { box-sizing: border-box; min-height: 520px; padding: 42px 54px; outline: none; border: 1px solid #ddd; border-top: 0; border-radius: 0 0 10px 10px; background: #fff; color: #242424; font: 20px/1.65 Georgia, Cambria, serif; }
+.medium-editor-compact .medium-canvas { min-height: 280px; padding: 28px 34px; }
 .medium-canvas:empty::before { content: attr(data-placeholder); color: #aaa; }
 .medium-canvas > p, .medium-canvas > div { margin: 0 0 1em; font: inherit; }
 .medium-canvas > p:last-child, .medium-canvas > div:last-child { margin-bottom: 0; }

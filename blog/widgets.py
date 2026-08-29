@@ -3,6 +3,15 @@ from django import forms
 class MediumEditorWidget(forms.Textarea):
     template_name = "blog/admin/widgets/medium_editor.html"
 
+    def __init__(self, attrs=None, variant="default"):
+        super().__init__(attrs)
+        self.variant = variant
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context["widget"]["variant"] = self.variant
+        return context
+
     class Media:
         css = {"all": ("blog/admin/editor.css",)}
         js = ("blog/admin/editor.js",)

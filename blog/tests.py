@@ -9,8 +9,9 @@ from django.test import TestCase
 from django.urls import reverse
 from PIL import Image
 
-from .forms import PostAdminForm, optimize_uploaded_image
-from .models import Book, Post, SiteProfile, Tag
+from .forms import BookAdminForm, BookNoteAdminForm, PostAdminForm, optimize_uploaded_image
+from .models import Book, BookNote, Post, SiteProfile, Tag
+from .widgets import MediumEditorWidget
 
 
 class HomepageCopyTests(TestCase):
@@ -96,6 +97,69 @@ class ImageOptimizationTests(TestCase):
             self.assertEqual(image.size, (300, 424))
             self.assertEqual(image.format, "WEBP")
         self.assertTrue(optimized.name.endswith("-cover.webp"))
+
+
+class BookJournalEditorTests(TestCase):
+    def test_book_and_note_forms_use_medium_editor(self):
+        self.assertIsInstance(BookAdminForm().fields["thoughts"].widget, MediumEditorWidget)
+        note_widget = BookNoteAdminForm().fields["body"].widget
+        self.assertIsInstance(note_widget, MediumEditorWidget)
+        self.assertEqual(note_widget.variant, "compact")
+
+    def test_book_and_note_html_is_sanitized(self):
+        book_form = BookAdminForm(data={
+            "title": "Safe Book",
+            "slug": "safe-book",
+            "author": "Writer",
+            "status": "reading",
+            "progress": 10,
+            "current_chapter": "",
+            "total_chapters": "",
+            "started_at": "",
+            "finished_at": "",
+            "rating": "",
+            "thoughts": '<h2>Insight</h2><script>alert(1)</script><p onclick="bad()">Safe</p>',
+            "lessons": "One lesson",
+        })
+        self.assertTrue(book_form.is_valid(), book_form.errors)
+        self.assertNotIn("<script", book_form.cleaned_data["thoughts"])
+        self.assertNotIn("onclick", book_form.cleaned_data["thoughts"])
+
+        book = Book.objects.create(title="Notes", slug="notes", author="Writer")
+        note_form = BookNoteAdminForm(data={
+            "book": book.pk,
+            "heading": "Chapter 1",
+            "body": '<p><strong>Useful</strong></p><img src="javascript:bad" onerror="bad()">',
+            "order": 1,
+        })
+        self.assertTrue(note_form.is_valid(), note_form.errors)
+        cleaned = note_form.cleaned_data["body"]
+        self.assertIn("<strong>Useful</strong>", cleaned)
+        self.assertNotIn("javascript:", cleaned)
+        self.assertNotIn("onerror", cleaned)
+
+    def test_book_detail_renders_saved_rich_text_formatting(self):
+        book = Book.objects.create(
+            title="Formatted Journal",
+            slug="formatted-journal",
+            author="Writer",
+            thoughts=(
+                '<p><em>A highlighted thought</em></p>'
+                '<img src="/media/posts/example.webp" alt="Example" '
+                'class="article-image image-small" loading="lazy">'
+            ),
+        )
+        BookNote.objects.create(
+            book=book,
+            heading="Chapter 2",
+            body="<blockquote>A useful note</blockquote>",
+        )
+
+        response = self.client.get(book.get_absolute_url())
+
+        self.assertContains(response, "<em>A highlighted thought</em>", html=True)
+        self.assertContains(response, 'class="article-image image-small"')
+        self.assertContains(response, "<blockquote>A useful note</blockquote>", html=True)
 
 
 class ArticleImageUploadTests(TestCase):

@@ -6,10 +6,23 @@ from django import forms
 from django.core.files.base import ContentFile
 from PIL import Image, ImageOps
 
-from .models import Book, Comment, Post, SiteProfile, Tag
+from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget, TagInputWidget
 
 ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "u", "s", "a", "blockquote", "ul", "ol", "li", "pre", "code", "img"]
+
+
+def sanitize_editor_html(value):
+    return bleach.clean(
+        value,
+        tags=ALLOWED_TAGS,
+        attributes={
+            "a": ["href", "title", "target", "rel"],
+            "img": ["src", "alt", "class", "loading", "width", "height"],
+        },
+        protocols=["http", "https", "mailto"],
+        strip=True,
+    )
 
 
 def optimize_uploaded_image(upload, size, suffix):
@@ -62,16 +75,7 @@ class PostAdminForm(forms.ModelForm):
             self.initial["tags_input"] = ", ".join(self.instance.tags.values_list("name", flat=True))
 
     def clean_body(self):
-        return bleach.clean(
-            self.cleaned_data["body"],
-            tags=ALLOWED_TAGS,
-            attributes={
-                "a": ["href", "title", "target", "rel"],
-                "img": ["src", "alt", "class", "loading", "width", "height"],
-            },
-            protocols=["http", "https", "mailto"],
-            strip=True,
-        )
+        return sanitize_editor_html(self.cleaned_data["body"])
 
     def clean_tags_input(self):
         raw_names = self.cleaned_data.get("tags_input", "").split(",")
@@ -134,9 +138,23 @@ class BookAdminForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = "__all__"
+        widgets = {"thoughts": MediumEditorWidget()}
+
+    def clean_thoughts(self):
+        return sanitize_editor_html(self.cleaned_data["thoughts"])
 
     def clean_cover(self):
         cover = self.cleaned_data.get("cover")
         if cover and getattr(cover, "size", 0) > 5 * 1024 * 1024:
             raise forms.ValidationError("Ukuran sampul maksimal 5 MB.")
         return optimize_uploaded_image(cover, (300, 424), "cover")
+
+
+class BookNoteAdminForm(forms.ModelForm):
+    class Meta:
+        model = BookNote
+        fields = "__all__"
+        widgets = {"body": MediumEditorWidget(variant="compact")}
+
+    def clean_body(self):
+        return sanitize_editor_html(self.cleaned_data["body"])
