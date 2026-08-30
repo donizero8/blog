@@ -12,7 +12,7 @@
 </article>
 
 <section class="comments" id="komentar">
-  <h2>Komentar <span>{{ post.approved_comments|length }}</span></h2>
+  <h2>Comments <span>{{ post.approved_comments|length }}</span></h2>
   {% if messages %}
     {% for message in messages %}<div class="comment-notice">{{ message }}</div>{% endfor %}
   {% endif %}
@@ -27,22 +27,22 @@
         </div>
       </article>
     {% empty %}
-      <p class="no-comments">Belum ada komentar. Jadilah yang pertama.</p>
+      <p class="no-comments">No comments yet. Be the first to join the conversation.</p>
     {% endfor %}
   </div>
 
   <form class="comment-form" method="post" action="#komentar">
     {% csrf_token %}
     {{ comment_form.website }}
-    <h3>Tinggalkan komentar</h3>
-    <p class="form-note">Email Anda tidak akan ditampilkan. Semua kolom wajib diisi.</p>
+    <h3>Leave a comment</h3>
+    <p class="form-note">Your email address will not be published. All fields are required.</p>
     {% if comment_form.non_field_errors %}<div class="form-errors">{{ comment_form.non_field_errors }}</div>{% endif %}
     <div class="comment-fields">
-      <div><label for="{{ comment_form.name.id_for_label }}">Nama</label>{{ comment_form.name }}{{ comment_form.name.errors }}</div>
+      <div><label for="{{ comment_form.name.id_for_label }}">Name</label>{{ comment_form.name }}{{ comment_form.name.errors }}</div>
       <div><label for="{{ comment_form.email.id_for_label }}">Email</label>{{ comment_form.email }}{{ comment_form.email.errors }}</div>
     </div>
-    <div><label for="{{ comment_form.body.id_for_label }}">Komentar</label>{{ comment_form.body }}{{ comment_form.body.errors }}</div>
-    <button type="submit">Kirim komentar</button>
+    <div><label for="{{ comment_form.body.id_for_label }}">Comment</label>{{ comment_form.body }}{{ comment_form.body.errors }}</div>
+    <button type="submit">Post comment</button>
   </form>
 </section>
 {% endblock %}

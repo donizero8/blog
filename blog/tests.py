@@ -85,6 +85,38 @@ class SearchTests(TestCase):
         self.assertContains(book_response, "Clean Code")
 
 
+class PublicCommentCopyTests(TestCase):
+    def setUp(self):
+        author = get_user_model().objects.create_user(username="comment-author")
+        self.post = Post.objects.create(
+            title="Commentable Post",
+            slug="commentable-post",
+            body="<p>Post body</p>",
+            author=author,
+            status=Post.Status.PUBLISHED,
+        )
+
+    def test_comment_section_uses_english_copy(self):
+        response = self.client.get(self.post.get_absolute_url())
+
+        self.assertContains(response, "Comments")
+        self.assertContains(response, "No comments yet. Be the first to join the conversation.")
+        self.assertContains(response, "Leave a comment")
+        self.assertContains(response, "Post comment")
+        self.assertContains(response, 'placeholder="Your name"')
+        self.assertContains(response, 'placeholder="Write a comment…"')
+
+    def test_comment_submission_uses_english_moderation_notice(self):
+        response = self.client.post(
+            self.post.get_absolute_url(),
+            {"name": "Reader", "email": "reader@example.com", "body": "A useful post."},
+            follow=True,
+        )
+
+        self.assertContains(response, "Thank you. Your comment is awaiting approval.")
+        self.assertNotContains(response, "A useful post.")
+
+
 class ImageOptimizationTests(TestCase):
     def test_uploaded_image_is_cropped_and_converted_to_webp(self):
         source = BytesIO()

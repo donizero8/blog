@@ -29,7 +29,7 @@ def post_detail(request, slug):
         comment = form.save(commit=False)
         comment.post = post
         comment.save()
-        messages.success(request, "Terima kasih. Komentar Anda sedang menunggu persetujuan.")
+        messages.success(request, "Thank you. Your comment is awaiting approval.")
         return redirect(f"{post.get_absolute_url()}#komentar")
     return render(request, "blog/post_detail.html", {"post": post, "comment_form": form})
 

@@ -111,14 +111,28 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ("name", "email", "body")
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "Nama Anda", "autocomplete": "name"}),
-            "email": forms.EmailInput(attrs={"placeholder": "nama@email.com", "autocomplete": "email"}),
-            "body": forms.Textarea(attrs={"placeholder": "Tulis komentar…", "rows": 5}),
+            "name": forms.TextInput(attrs={"placeholder": "Your name", "autocomplete": "name"}),
+            "email": forms.EmailInput(attrs={"placeholder": "you@example.com", "autocomplete": "email"}),
+            "body": forms.Textarea(attrs={"placeholder": "Write a comment…", "rows": 5}),
+        }
+        error_messages = {
+            "name": {
+                "required": "Please enter your name.",
+                "max_length": "Your name is too long.",
+            },
+            "email": {
+                "required": "Please enter your email address.",
+                "invalid": "Enter a valid email address.",
+            },
+            "body": {
+                "required": "Please write a comment.",
+                "max_length": "Your comment is too long.",
+            },
         }
 
     def clean_website(self):
         if self.cleaned_data.get("website"):
-            raise forms.ValidationError("Komentar tidak dapat diproses.")
+            raise forms.ValidationError("Your comment could not be processed.")
         return ""
 
 
