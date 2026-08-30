@@ -117,6 +117,18 @@ class PublicCommentCopyTests(TestCase):
         self.assertContains(response, "August 21, 2026")
         self.assertNotContains(response, "Agustus")
 
+    def test_public_post_uses_english_url_and_legacy_url_redirects(self):
+        self.assertEqual(self.post.get_absolute_url(), "/posts/commentable-post/")
+
+        response = self.client.get("/tulisan/commentable-post/")
+
+        self.assertRedirects(
+            response,
+            "/posts/commentable-post/",
+            status_code=301,
+            fetch_redirect_response=False,
+        )
+
     def test_comment_submission_uses_english_moderation_notice(self):
         response = self.client.post(
             self.post.get_absolute_url(),
@@ -126,6 +138,7 @@ class PublicCommentCopyTests(TestCase):
 
         self.assertContains(response, "Thank you. Your comment is awaiting approval.")
         self.assertNotContains(response, "A useful post.")
+        self.assertEqual(response.redirect_chain[0][0], "/posts/commentable-post/#comments")
 
 
 class ImageOptimizationTests(TestCase):

@@ -12,7 +12,7 @@
   <div class="article-body">{{ post.body|safe }}</div>
 </article>
 
-<section class="comments" id="komentar">
+<section class="comments" id="comments">
   <h2>Comments <span>{{ post.approved_comments|length }}</span></h2>
   {% if messages %}
     {% for message in messages %}<div class="comment-notice">{{ message }}</div>{% endfor %}
@@ -32,7 +32,7 @@
     {% endfor %}
   </div>
 
-  <form class="comment-form" method="post" action="#komentar">
+  <form class="comment-form" method="post" action="#comments">
     {% csrf_token %}
     {{ comment_form.website }}
     <h3>Leave a comment</h3>

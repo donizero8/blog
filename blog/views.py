@@ -30,7 +30,7 @@ def post_detail(request, slug):
         comment.post = post
         comment.save()
         messages.success(request, "Thank you. Your comment is awaiting approval.")
-        return redirect(f"{post.get_absolute_url()}#komentar")
+        return redirect(f"{post.get_absolute_url()}#comments")
     return render(request, "blog/post_detail.html", {"post": post, "comment_form": form})
 
 
