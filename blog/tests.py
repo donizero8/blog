@@ -256,7 +256,7 @@ class ArticleImageUploadTests(TestCase):
             "title": "Artikel bergambar",
             "slug": "artikel-bergambar",
             "excerpt": "",
-            "body": '<p>Teks</p><img src="/media/posts/example.webp" alt="Contoh" class="article-image image-medium" loading="lazy" width="800" height="600" onclick="alert(1)" style="position:fixed">',
+            "body": '<p><b>Tebal</b> dan <i>miring</i></p><img src="/media/posts/example.webp" alt="Contoh" class="article-image image-medium" loading="lazy" width="800" height="600" onclick="alert(1)" style="position:fixed">',
             "tags_input": "",
             "author": self.user.pk,
             "status": "draft",
@@ -265,6 +265,8 @@ class ArticleImageUploadTests(TestCase):
 
         self.assertTrue(form.is_valid(), form.errors)
         cleaned = form.cleaned_data["body"]
+        self.assertIn("<b>Tebal</b>", cleaned)
+        self.assertIn("<i>miring</i>", cleaned)
         self.assertIn('class="article-image image-medium"', cleaned)
         self.assertNotIn("onclick", cleaned)
         self.assertNotIn("style=", cleaned)

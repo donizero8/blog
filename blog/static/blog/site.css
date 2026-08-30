@@ -83,6 +83,10 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .article-body h2 { margin: 1.7em 0 .4em; font-size: 32px; line-height: 1.2; }
 .article-body h3 { margin-top: 1.6em; font-size: 25px; }
 .article-body a { color: var(--green); }
+.article-body strong, .article-body b, .journal-copy strong, .journal-copy b { font-weight: 700; }
+.article-body em, .article-body i, .journal-copy em, .journal-copy i { font-style: italic; }
+.article-body u, .journal-copy u { text-decoration: underline; }
+.article-body s, .journal-copy s { text-decoration: line-through; }
 .article-body blockquote { margin: 1.5em 0; padding-left: 22px; border-left: 3px solid var(--ink); font-style: italic; }
 .article-body code { padding: 2px 5px; border-radius: 4px; background: var(--code-inline); font: .84em ui-monospace, monospace; }
 .article-body pre { overflow-x: auto; margin: 1.7em 0; padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--code-block); color: var(--code-text); font: 14px/1.65 ui-monospace, monospace; }

@@ -1,6 +1,8 @@
 .medium-editor { max-width: 860px; }
 .medium-editor textarea { display: none; }
-.medium-toolbar { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 4px; padding: 9px; background: #fff; border: 1px solid #ddd; border-radius: 10px 10px 0 0; box-shadow: 0 3px 14px rgb(0 0 0 / 6%); }
+.form-row.has-medium-editor { overflow: visible; }
+.form-row.has-medium-editor > div, .form-row.has-medium-editor .flex-container { overflow: visible; }
+.medium-toolbar { position: sticky; top: 8px; z-index: 20; display: flex; align-items: center; gap: 4px; padding: 9px; background: #fff; border: 1px solid #ddd; border-radius: 10px 10px 0 0; box-shadow: 0 3px 14px rgb(0 0 0 / 6%); }
 .medium-toolbar span { width: 1px; height: 24px; margin: 0 5px; background: #ddd; }
 .medium-toolbar button { min-width: 34px; height: 34px; border: 0; border-radius: 7px; background: transparent; color: #343434; cursor: pointer; font: 15px Georgia, serif; }
 .medium-toolbar .medium-image-button { display: inline-grid; place-items: center; }

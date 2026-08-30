@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-medium-editor]").forEach((wrapper) => {
+    wrapper.closest(".form-row")?.classList.add("has-medium-editor");
     const canvas = wrapper.querySelector(".medium-canvas");
     const textarea = wrapper.querySelector("textarea");
     const imageDialog = wrapper.querySelector("[data-image-dialog]");
@@ -7,9 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let savedRange = null;
     let selectedImage = null;
     document.execCommand("defaultParagraphSeparator", false, "p");
+    document.execCommand("styleWithCSS", false, false);
 
     function normalizedHtml() {
       const clone = canvas.cloneNode(true);
+      clone.querySelectorAll("b, i").forEach((element) => {
+        const semantic = document.createElement(element.tagName === "B" ? "strong" : "em");
+        semantic.innerHTML = element.innerHTML;
+        element.replaceWith(semantic);
+      });
       Array.from(clone.childNodes).forEach((child) => {
         if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
           const paragraph = document.createElement("p");

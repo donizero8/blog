@@ -9,7 +9,7 @@ from PIL import Image, ImageOps
 from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget, TagInputWidget
 
-ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "u", "s", "a", "blockquote", "ul", "ol", "li", "pre", "code", "img"]
+ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "b", "i", "u", "s", "a", "blockquote", "ul", "ol", "li", "pre", "code", "img"]
 
 
 def sanitize_editor_html(value):
