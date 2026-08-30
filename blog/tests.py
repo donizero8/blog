@@ -106,6 +106,17 @@ class PublicCommentCopyTests(TestCase):
         self.assertContains(response, 'placeholder="Your name"')
         self.assertContains(response, 'placeholder="Write a comment…"')
 
+    def test_post_date_uses_english_month_name(self):
+        self.post.published_at = datetime.datetime(
+            2026, 8, 21, 10, 0, tzinfo=datetime.timezone.utc
+        )
+        self.post.save(update_fields=["published_at"])
+
+        response = self.client.get(self.post.get_absolute_url())
+
+        self.assertContains(response, "August 21, 2026")
+        self.assertNotContains(response, "Agustus")
+
     def test_comment_submission_uses_english_moderation_notice(self):
         response = self.client.post(
             self.post.get_absolute_url(),
