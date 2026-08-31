@@ -88,6 +88,10 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .article-body u, .journal-copy u { text-decoration: underline; }
 .article-body s, .journal-copy s { text-decoration: line-through; }
 .article-body blockquote { margin: 1.5em 0; padding-left: 22px; border-left: 3px solid var(--ink); font-style: italic; }
+.article-body ul { margin: 1em 0; padding-left: 1.6em; list-style: disc outside; }
+.article-body ol { margin: 1em 0; padding-left: 1.6em; list-style: decimal outside; }
+.article-body li { display: list-item; margin: .3em 0; }
+.article-body ul ul { list-style-type: circle; }
 .article-body code { padding: 2px 5px; border-radius: 4px; background: var(--code-inline); font: .84em ui-monospace, monospace; }
 .article-body pre { overflow-x: auto; margin: 1.7em 0; padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--code-block); color: var(--code-text); font: 14px/1.65 ui-monospace, monospace; }
 .article-body pre code { padding: 0; background: none; color: inherit; }
@@ -202,6 +206,9 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .journal-copy a { color: var(--green); }
 .journal-copy blockquote { margin: 1.5em 0; padding-left: 22px; border-left: 3px solid var(--ink); font-style: italic; }
 .journal-copy ul, .journal-copy ol { margin: 1em 0; padding-left: 1.5em; }
+.journal-copy ul { list-style: disc outside; }
+.journal-copy ol { list-style: decimal outside; }
+.journal-copy li { display: list-item; margin: .3em 0; }
 .journal-copy code { padding: 2px 5px; border-radius: 4px; background: var(--code-inline); font: .84em ui-monospace, monospace; }
 .journal-copy pre { overflow-x: auto; margin: 1.7em 0; padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--code-block); color: var(--code-text); font: 14px/1.65 ui-monospace, monospace; }
 .journal-copy pre code { padding: 0; background: none; color: inherit; }

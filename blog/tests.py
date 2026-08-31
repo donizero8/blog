@@ -9,7 +9,13 @@ from django.test import TestCase
 from django.urls import reverse
 from PIL import Image
 
-from .forms import BookAdminForm, BookNoteAdminForm, PostAdminForm, optimize_uploaded_image
+from .forms import (
+    BookAdminForm,
+    BookNoteAdminForm,
+    PostAdminForm,
+    optimize_uploaded_image,
+    sanitize_editor_html,
+)
 from .models import Book, BookNote, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget
 
@@ -142,6 +148,17 @@ class PublicCommentCopyTests(TestCase):
 
 
 class ImageOptimizationTests(TestCase):
+    def test_external_image_url_is_allowed_but_unsafe_protocol_is_removed(self):
+        safe = sanitize_editor_html(
+            '<img src="https://images.example.com/cover.jpg" alt="Cover" '
+            'class="article-image image-medium" loading="lazy" referrerpolicy="no-referrer">'
+        )
+        unsafe = sanitize_editor_html('<img src="javascript:alert(1)" alt="Unsafe">')
+
+        self.assertIn('src="https://images.example.com/cover.jpg"', safe)
+        self.assertIn('referrerpolicy="no-referrer"', safe)
+        self.assertNotIn("javascript:", unsafe)
+
     def test_uploaded_image_is_cropped_and_converted_to_webp(self):
         source = BytesIO()
         Image.new("RGB", (1200, 1200), "red").save(source, format="PNG")

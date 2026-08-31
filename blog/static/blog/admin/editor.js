@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
         semantic.innerHTML = element.innerHTML;
         element.replaceWith(semantic);
       });
+      clone.querySelectorAll("p > ul, p > ol").forEach((list) => {
+        const paragraph = list.parentElement;
+        paragraph.replaceWith(...paragraph.childNodes);
+      });
       Array.from(clone.childNodes).forEach((child) => {
         if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
           const paragraph = document.createElement("p");
@@ -209,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
       rememberSelection();
       imageDialog.querySelector("[data-image-file]").value = "";
+      imageDialog.querySelector("[data-image-url]").value = "";
       imageDialog.querySelector("[data-image-alt]").value = "";
       imageDialog.querySelector("[data-image-initial-size]").value = "medium";
       imageDialog.querySelector("[data-image-status]").textContent = "";
@@ -217,19 +222,66 @@ document.addEventListener("DOMContentLoaded", () => {
     imageDialog.querySelectorAll("[data-image-cancel]").forEach((button) => {
       button.addEventListener("click", () => imageDialog.close());
     });
+    imageDialog.querySelector("[data-image-file]").addEventListener("change", (event) => {
+      if (event.target.files.length) imageDialog.querySelector("[data-image-url]").value = "";
+    });
+    imageDialog.querySelector("[data-image-url]").addEventListener("input", (event) => {
+      if (event.target.value.trim()) imageDialog.querySelector("[data-image-file]").value = "";
+    });
+
+    function insertImage({src, width, height, external = false}) {
+      const image = document.createElement("img");
+      const size = imageDialog.querySelector("[data-image-initial-size]").value;
+      image.src = src;
+      image.alt = imageDialog.querySelector("[data-image-alt]").value.trim();
+      image.className = `article-image image-${size}`;
+      image.loading = "lazy";
+      if (width) image.width = width;
+      if (height) image.height = height;
+      if (external) image.referrerPolicy = "no-referrer";
+
+      const range = savedRange && canvas.contains(savedRange.commonAncestorContainer)
+        ? savedRange
+        : document.createRange();
+      if (!savedRange || !canvas.contains(range.commonAncestorContainer)) {
+        range.selectNodeContents(canvas);
+        range.collapse(false);
+      }
+      range.deleteContents();
+      range.insertNode(image);
+      const paragraph = document.createElement("p");
+      paragraph.appendChild(document.createElement("br"));
+      image.after(paragraph);
+      imageDialog.close();
+      canvas.focus();
+      selectImage(image);
+      sync();
+    }
+
     imageDialog.querySelector("[data-image-upload]").addEventListener("click", async () => {
       const fileInput = imageDialog.querySelector("[data-image-file]");
+      const urlInput = imageDialog.querySelector("[data-image-url]");
       const status = imageDialog.querySelector("[data-image-status]");
       const uploadButton = imageDialog.querySelector("[data-image-upload]");
-      if (!fileInput.files.length) {
-        status.textContent = "Pilih gambar terlebih dahulu.";
+      const rawUrl = urlInput.value.trim();
+      if (!fileInput.files.length && !rawUrl) {
+        status.textContent = "Pilih file atau masukkan URL gambar.";
         return;
       }
-      const data = new FormData();
-      data.append("image", fileInput.files[0]);
-      status.textContent = "Mengompresi dan mengunggah…";
       uploadButton.disabled = true;
       try {
+        if (rawUrl) {
+          const url = new URL(rawUrl);
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            throw new Error("URL gambar harus menggunakan http:// atau https://.");
+          }
+          insertImage({src: url.href, external: true});
+          return;
+        }
+
+        const data = new FormData();
+        data.append("image", fileInput.files[0]);
+        status.textContent = "Mengompresi dan mengunggah…";
         const csrfToken = wrapper.closest("form")?.querySelector("[name=csrfmiddlewaretoken]")?.value;
         const response = await fetch(wrapper.querySelector("[data-image-upload-url]").dataset.imageUploadUrl, {
           method: "POST",
@@ -238,34 +290,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "Gambar gagal diunggah.");
-
-        const image = document.createElement("img");
-        const size = imageDialog.querySelector("[data-image-initial-size]").value;
-        image.src = result.url;
-        image.alt = imageDialog.querySelector("[data-image-alt]").value.trim();
-        image.className = `article-image image-${size}`;
-        image.loading = "lazy";
-        image.width = result.width;
-        image.height = result.height;
-
-        const range = savedRange && canvas.contains(savedRange.commonAncestorContainer)
-          ? savedRange
-          : document.createRange();
-        if (!savedRange || !canvas.contains(range.commonAncestorContainer)) {
-          range.selectNodeContents(canvas);
-          range.collapse(false);
-        }
-        range.deleteContents();
-        range.insertNode(image);
-        const paragraph = document.createElement("p");
-        paragraph.appendChild(document.createElement("br"));
-        image.after(paragraph);
-        imageDialog.close();
-        canvas.focus();
-        selectImage(image);
-        sync();
+        insertImage({src: result.url, width: result.width, height: result.height});
       } catch (error) {
-        status.textContent = error.message;
+        status.textContent = error instanceof TypeError
+          ? "URL gambar tidak valid."
+          : error.message;
       } finally {
         uploadButton.disabled = false;
       }

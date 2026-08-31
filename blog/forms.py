@@ -18,7 +18,7 @@ def sanitize_editor_html(value):
         tags=ALLOWED_TAGS,
         attributes={
             "a": ["href", "title", "target", "rel"],
-            "img": ["src", "alt", "class", "loading", "width", "height"],
+            "img": ["src", "alt", "class", "loading", "width", "height", "referrerpolicy"],
         },
         protocols=["http", "https", "mailto"],
         strip=True,

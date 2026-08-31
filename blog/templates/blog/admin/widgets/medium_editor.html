@@ -31,7 +31,9 @@
   <dialog class="medium-image-dialog" data-image-dialog>
     <div class="medium-dialog-body">
       <div class="medium-dialog-header"><h3>Sisipkan gambar</h3><button type="button" data-image-cancel aria-label="Tutup">×</button></div>
-      <label>File gambar<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-image-file required></label>
+      <label>File gambar<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-image-file></label>
+      <div class="medium-image-source-divider"><span>atau</span></div>
+      <label>URL gambar<input type="url" inputmode="url" data-image-url placeholder="https://example.com/image.jpg"></label>
       <label>Teks alternatif<input type="text" maxlength="180" data-image-alt placeholder="Jelaskan isi gambar"></label>
       <label>Ukuran tampilan
         <select data-image-initial-size>
@@ -41,7 +43,7 @@
         </select>
       </label>
       <p class="medium-upload-status" data-image-status role="status" aria-live="polite"></p>
-      <div class="medium-dialog-actions"><button type="button" data-image-cancel>Batal</button><button type="button" data-image-upload>Unggah dan sisipkan</button></div>
+      <div class="medium-dialog-actions"><button type="button" data-image-cancel>Batal</button><button type="button" data-image-upload>Sisipkan gambar</button></div>
     </div>
   </dialog>
   <span data-image-upload-url="{% url 'admin:blog_post_upload_image' %}" hidden></span>
