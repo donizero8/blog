@@ -17,7 +17,28 @@
 
   {% if book.thoughts %}<section class="journal-section"><h2>My Thoughts</h2><div class="journal-copy">{{ book.thoughts|safe }}</div></section>{% endif %}
   {% if book.lessons_list %}<section class="journal-section"><h2>Things I Learned</h2><ul class="lesson-list">{% for lesson in book.lessons_list %}<li>{{ lesson }}</li>{% endfor %}</ul></section>{% endif %}
-  {% if book.notes.all %}<section class="journal-section"><h2>My Notes</h2><div class="journal-notes">{% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy">{{ note.body|safe }}</div></article>{% endfor %}</div></section>{% endif %}
+  {% if book.notes.all %}
+    <section class="journal-section">
+      <h2>My Notes</h2>
+      {% if request.user.is_staff %}
+        <div class="journal-notes">
+          {% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy">{{ note.body|safe }}</div></article>{% endfor %}
+        </div>
+      {% else %}
+        <div class="private-notes-preview">
+          <div class="private-notes-blur" aria-hidden="true">
+            {% for note in book.notes.all %}
+              <article><span class="private-note-heading"></span><span class="private-note-line"></span><span class="private-note-line private-note-line-short"></span></article>
+            {% endfor %}
+          </div>
+          <div class="private-notes-notice" role="note">
+            <strong>Private notes</strong>
+            <p>Only the admin can view the full notes.</p>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
   <a class="back-library" href="{% url 'blog:library' %}">← Back to My Library</a>
 </article>
 {% endblock %}

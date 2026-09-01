@@ -212,6 +212,7 @@ class BookJournalEditorTests(TestCase):
         self.assertNotIn("onerror", cleaned)
 
     def test_book_detail_renders_saved_rich_text_formatting(self):
+        staff = get_user_model().objects.create_user(username="book-editor", is_staff=True)
         book = Book.objects.create(
             title="Formatted Journal",
             slug="formatted-journal",
@@ -227,12 +228,39 @@ class BookJournalEditorTests(TestCase):
             heading="Chapter 2",
             body="<blockquote>A useful note</blockquote>",
         )
+        self.client.force_login(staff)
 
         response = self.client.get(book.get_absolute_url())
 
         self.assertContains(response, "<em>A highlighted thought</em>", html=True)
         self.assertContains(response, 'class="article-image image-small"')
         self.assertContains(response, "<blockquote>A useful note</blockquote>", html=True)
+
+    def test_public_book_detail_hides_complete_notes(self):
+        book = Book.objects.create(title="Private Journal", slug="private-journal", author="Writer")
+        BookNote.objects.create(
+            book=book,
+            heading="A private chapter",
+            body="<p>This complete note must not be sent to public visitors.</p>",
+        )
+
+        response = self.client.get(book.get_absolute_url())
+
+        self.assertContains(response, "Only the admin can view the full notes.")
+        self.assertNotContains(response, "A private chapter")
+        self.assertNotContains(response, "This complete note must not be sent")
+
+    def test_staff_can_view_complete_book_notes(self):
+        staff = get_user_model().objects.create_user(username="staff-reader", is_staff=True)
+        book = Book.objects.create(title="Staff Journal", slug="staff-journal", author="Writer")
+        BookNote.objects.create(book=book, heading="Visible to staff", body="<p>Complete staff note.</p>")
+        self.client.force_login(staff)
+
+        response = self.client.get(book.get_absolute_url())
+
+        self.assertContains(response, "Visible to staff")
+        self.assertContains(response, "Complete staff note.")
+        self.assertNotContains(response, "Only the admin can view the full notes.")
 
 
 class ArticleImageUploadTests(TestCase):
