@@ -10,6 +10,10 @@
 .medium-toolbar button:hover { background: #f1f1ef; color: #137c55; }
 .medium-toolbar button.is-active { background: #137c55; color: #fff; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 8%); }
 .medium-toolbar button.is-active:hover { background: #0f6847; color: #fff; }
+.medium-emoji-menu { position: relative; }
+.medium-emoji-picker { position: absolute; top: calc(100% + 10px); right: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 38px); gap: 5px; width: max-content; padding: 9px; border: 1px solid #ddd; border-radius: 9px; background: #fff; box-shadow: 0 10px 30px rgb(0 0 0 / 18%); }
+.medium-emoji-picker[hidden] { display: none; }
+.medium-emoji-picker button { min-width: 38px; width: 38px; height: 38px; padding: 0; font: 20px/1 system-ui, sans-serif; }
 .medium-image-controls { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-inline: 1px solid #ddd; background: #f8f8f6; color: #666; font-size: 12px; }
 .medium-image-controls[hidden] { display: none; }
 .medium-image-controls button { padding: 5px 9px; border: 1px solid #d7d7d2; border-radius: 999px; background: #fff; color: #343434; cursor: pointer; font-size: 11px; }
@@ -56,6 +60,7 @@ html[data-theme="dark"] .medium-toolbar span { background: var(--border-color, #
 html[data-theme="dark"] .medium-toolbar button { color: var(--body-fg, #f1f1f1); }
 html[data-theme="dark"] .medium-toolbar button:hover { background: #343936; color: #79d279; }
 html[data-theme="dark"] .medium-toolbar button.is-active { background: #3aa35f; color: #fff; }
+html[data-theme="dark"] .medium-emoji-picker { border-color: #555c57; background: #202421; }
 html[data-theme="dark"] .medium-canvas { border-color: var(--border-color, #4b5055); background: #1d201e; color: #f0f2f0; }
 html[data-theme="dark"] .medium-canvas blockquote { border-left-color: #f0f2f0; }
 html[data-theme="dark"] .medium-image-controls { border-color: var(--border-color, #4b5055); background: #272b28; color: #b7b9bc; }
@@ -73,6 +78,7 @@ html[data-theme="dark"] .medium-hint kbd { border-color: #606660; background: #2
   html[data-theme="auto"] .medium-toolbar button { color: var(--body-fg, #f1f1f1); }
   html[data-theme="auto"] .medium-toolbar button:hover { background: #343936; color: #79d279; }
   html[data-theme="auto"] .medium-toolbar button.is-active { background: #3aa35f; color: #fff; }
+  html[data-theme="auto"] .medium-emoji-picker { border-color: #555c57; background: #202421; }
   html[data-theme="auto"] .medium-canvas { border-color: var(--border-color, #4b5055); background: #1d201e; color: #f0f2f0; }
   html[data-theme="auto"] .medium-canvas blockquote { border-left-color: #f0f2f0; }
   html[data-theme="auto"] .medium-image-controls { border-color: var(--border-color, #4b5055); background: #272b28; color: #b7b9bc; }

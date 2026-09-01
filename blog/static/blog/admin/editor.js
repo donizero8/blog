@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const textarea = wrapper.querySelector("textarea");
     const imageDialog = wrapper.querySelector("[data-image-dialog]");
     const imageControls = wrapper.querySelector("[data-image-controls]");
+    const emojiToggle = wrapper.querySelector("[data-emoji-toggle]");
+    const emojiPicker = wrapper.querySelector("[data-emoji-picker]");
     let savedRange = null;
     let selectedImage = null;
     document.execCommand("defaultParagraphSeparator", false, "p");
@@ -47,6 +49,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    function restoreSelection() {
+      if (!savedRange || !canvas.contains(savedRange.commonAncestorContainer)) return false;
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(savedRange);
+      return true;
+    }
+
     function selectionElement() {
       const selection = window.getSelection();
       if (!selection?.rangeCount || !canvas.contains(selection.anchorNode)) return null;
@@ -63,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateToolbar() {
       const node = selectionElement();
       if (!node) return;
-      wrapper.querySelectorAll(".medium-toolbar button").forEach((button) => {
+      wrapper.querySelectorAll(".medium-toolbar > button, [data-emoji-toggle]").forEach((button) => {
         let active = false;
         if (button.dataset.block) {
           const block = node.closest("p, h2, h3, blockquote, pre, li, div");
@@ -88,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    wrapper.querySelectorAll(".medium-toolbar button").forEach((button) => {
+    wrapper.querySelectorAll(".medium-toolbar > button, [data-emoji-toggle]").forEach((button) => {
       button.setAttribute("aria-pressed", "false");
     });
     document.addEventListener("selectionchange", () => {
@@ -123,6 +133,33 @@ document.addEventListener("DOMContentLoaded", () => {
         sync();
         updateToolbar();
       });
+    });
+
+    function closeEmojiPicker() {
+      emojiPicker.hidden = true;
+      emojiToggle.setAttribute("aria-expanded", "false");
+    }
+
+    emojiToggle.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      rememberSelection();
+      emojiPicker.hidden = !emojiPicker.hidden;
+      emojiToggle.setAttribute("aria-expanded", String(!emojiPicker.hidden));
+    });
+    emojiPicker.querySelectorAll("[data-emoji]").forEach((button) => {
+      button.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        restoreSelection();
+        canvas.focus();
+        document.execCommand("insertText", false, button.dataset.emoji);
+        rememberSelection();
+        closeEmojiPicker();
+        sync();
+        updateToolbar();
+      });
+    });
+    document.addEventListener("mousedown", (event) => {
+      if (!event.target.closest(".medium-emoji-menu")) closeEmojiPicker();
     });
 
     function currentCodeBlock() {
@@ -162,6 +199,11 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleCode();
     });
     canvas.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !emojiPicker.hidden) {
+        event.preventDefault();
+        closeEmojiPicker();
+        return;
+      }
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
         event.preventDefault();
         toggleCode();
