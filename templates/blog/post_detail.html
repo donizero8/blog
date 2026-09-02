@@ -3,6 +3,7 @@
 {% block title %}{{ post.title }} — Dony’s Notebook{% endblock %}
 {% block content %}
 <article>
+  {% if perms.blog.change_post %}<div class="admin-shortcut-row"><a class="admin-edit-shortcut" href="{% url 'admin:blog_post_change' post.pk %}"><span aria-hidden="true">✎</span> Edit post</a></div>{% endif %}
   <header class="article-header">
     <h1>{{ post.title }}</h1>
     {% if post.excerpt %}<p class="meta">{{ post.excerpt }}</p>{% endif %}

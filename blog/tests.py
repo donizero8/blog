@@ -135,6 +135,19 @@ class PublicCommentCopyTests(TestCase):
             fetch_redirect_response=False,
         )
 
+    def test_post_edit_shortcut_is_visible_only_with_change_permission(self):
+        public_response = self.client.get(self.post.get_absolute_url())
+        self.assertNotContains(public_response, "Edit post")
+
+        admin = get_user_model().objects.create_superuser(
+            username="post-admin", email="post-admin@example.com", password="strong-password"
+        )
+        self.client.force_login(admin)
+        admin_response = self.client.get(self.post.get_absolute_url())
+
+        self.assertContains(admin_response, "Edit post")
+        self.assertContains(admin_response, reverse("admin:blog_post_change", args=[self.post.pk]))
+
     def test_comment_submission_uses_english_moderation_notice(self):
         response = self.client.post(
             self.post.get_absolute_url(),
@@ -261,6 +274,20 @@ class BookJournalEditorTests(TestCase):
         self.assertContains(response, "Visible to staff")
         self.assertContains(response, "Complete staff note.")
         self.assertNotContains(response, "Only the admin can view the full notes.")
+
+    def test_book_edit_shortcut_is_visible_only_with_change_permission(self):
+        book = Book.objects.create(title="Editable Book", slug="editable-book", author="Writer")
+        public_response = self.client.get(book.get_absolute_url())
+        self.assertNotContains(public_response, "Edit book")
+
+        admin = get_user_model().objects.create_superuser(
+            username="book-admin", email="book-admin@example.com", password="strong-password"
+        )
+        self.client.force_login(admin)
+        admin_response = self.client.get(book.get_absolute_url())
+
+        self.assertContains(admin_response, "Edit book")
+        self.assertContains(admin_response, reverse("admin:blog_book_change", args=[book.pk]))
 
 
 class ArticleImageUploadTests(TestCase):

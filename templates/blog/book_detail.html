@@ -3,6 +3,7 @@
 {% block title %}{{ book.title }} — My Library{% endblock %}
 {% block content %}
 <article class="book-journal">
+  {% if perms.blog.change_book %}<div class="admin-shortcut-row"><a class="admin-edit-shortcut" href="{% url 'admin:blog_book_change' book.pk %}"><span aria-hidden="true">✎</span> Edit book</a></div>{% endif %}
   <header class="book-journal-header">
     {% include "blog/_book_cover.html" %}
     <div>

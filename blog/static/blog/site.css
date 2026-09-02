@@ -78,6 +78,9 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .tag-list { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 0; }
 .tag-list span { padding: 5px 10px; border-radius: 999px; background: var(--chip); color: var(--muted); font-size: 12px; }
 .article-header { margin-bottom: 42px; }
+.admin-shortcut-row { display: flex; justify-content: flex-end; margin: 0 0 18px; }
+.admin-edit-shortcut { display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px; border: 1px solid var(--green); border-radius: 999px; color: var(--green); background: var(--page); font: 700 13px/1 system-ui, sans-serif; text-decoration: none; }
+.admin-edit-shortcut:hover { color: #fff; background: var(--green); }
 .article-header h1 { margin: 0 0 18px; font: 700 48px/1.08 Georgia, serif; letter-spacing: -1.5px; }
 .article-body { font: 20px/1.65 Georgia, Cambria, serif; }
 .article-body h2 { margin: 1.7em 0 .4em; font-size: 32px; line-height: 1.2; }
