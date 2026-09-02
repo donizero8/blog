@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("[data-medium-editor]").forEach((wrapper) => {
+  function initializeEditor(wrapper) {
+    if (wrapper.dataset.editorInitialized === "true") return;
+    wrapper.dataset.editorInitialized = "true";
     wrapper.closest(".form-row")?.classList.add("has-medium-editor");
     const canvas = wrapper.querySelector(".medium-canvas");
     const textarea = wrapper.querySelector("textarea");
@@ -7,8 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const imageControls = wrapper.querySelector("[data-image-controls]");
     const emojiToggle = wrapper.querySelector("[data-emoji-toggle]");
     const emojiPicker = wrapper.querySelector("[data-emoji-picker]");
+    const draftStatus = wrapper.querySelector("[data-draft-status]");
+    const baselineHtml = textarea.value;
+    const draftKey = `dony-notebook:editor-draft:${window.location.pathname}:${textarea.name}`;
     let savedRange = null;
     let selectedImage = null;
+    let draftTimer = null;
+    let draftReady = false;
     document.execCommand("defaultParagraphSeparator", false, "p");
     document.execCommand("styleWithCSS", false, false);
 
@@ -37,10 +44,57 @@ document.addEventListener("DOMContentLoaded", () => {
       return clone.innerHTML;
     }
 
-    const sync = () => { textarea.value = normalizedHtml(); };
+    function setDraftStatus(message, warning = false) {
+      draftStatus.textContent = message;
+      draftStatus.classList.toggle("is-warning", warning);
+    }
+
+    function persistLocalDraft() {
+      if (!draftReady) return;
+      window.clearTimeout(draftTimer);
+      const html = normalizedHtml();
+      textarea.value = html;
+      try {
+        if (html === baselineHtml) {
+          window.localStorage.removeItem(draftKey);
+          setDraftStatus("Tidak ada perubahan lokal yang belum disimpan.");
+          return;
+        }
+        window.localStorage.setItem(draftKey, JSON.stringify({html, updatedAt: Date.now()}));
+        const time = new Intl.DateTimeFormat("id-ID", {hour: "2-digit", minute: "2-digit"}).format(new Date());
+        setDraftStatus(`Draft lokal tersimpan pada ${time}.`);
+      } catch (error) {
+        setDraftStatus("Draft tidak dapat disimpan di browser ini.", true);
+      }
+    }
+
+    function scheduleLocalDraft() {
+      window.clearTimeout(draftTimer);
+      draftTimer = window.setTimeout(persistLocalDraft, 500);
+    }
+
+    const sync = () => {
+      textarea.value = normalizedHtml();
+      if (draftReady) scheduleLocalDraft();
+    };
     if (!canvas.innerHTML.trim()) canvas.innerHTML = "<p><br></p>";
+    try {
+      const savedDraft = JSON.parse(window.localStorage.getItem(draftKey) || "null");
+      if (savedDraft?.html && savedDraft.html !== baselineHtml) {
+        canvas.innerHTML = savedDraft.html;
+        textarea.value = savedDraft.html;
+        setDraftStatus("Draft lokal dipulihkan. Perubahan Anda belum disimpan ke server.");
+      } else if (savedDraft) {
+        window.localStorage.removeItem(draftKey);
+      }
+    } catch (error) {
+      try { window.localStorage.removeItem(draftKey); } catch (storageError) { /* unavailable */ }
+      setDraftStatus("Draft lokal yang rusak telah diabaikan.", true);
+    }
+    draftReady = true;
     canvas.addEventListener("input", sync);
     canvas.addEventListener("blur", sync);
+    window.addEventListener("pagehide", persistLocalDraft);
 
     function rememberSelection() {
       const selection = window.getSelection();
@@ -341,6 +395,15 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadButton.disabled = false;
       }
     });
-    wrapper.closest("form")?.addEventListener("submit", sync);
+    wrapper.closest("form")?.addEventListener("submit", () => {
+      sync();
+      persistLocalDraft();
+    });
+  }
+
+  document.querySelectorAll("[data-medium-editor]").forEach(initializeEditor);
+  document.addEventListener("formset:added", (event) => {
+    if (event.target.matches?.("[data-medium-editor]")) initializeEditor(event.target);
+    event.target.querySelectorAll?.("[data-medium-editor]").forEach(initializeEditor);
   });
 });

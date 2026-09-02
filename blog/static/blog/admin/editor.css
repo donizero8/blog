@@ -55,6 +55,8 @@
 .medium-dialog-actions [data-image-upload]:disabled { cursor: wait; opacity: .6; }
 .medium-hint { color: #777; font-size: 12px; }
 .medium-hint kbd { padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; background: #f7f7f7; }
+.medium-draft-status { min-height: 18px; margin: 4px 0 0; color: #137c55; font-size: 12px; }
+.medium-draft-status.is-warning { color: #b42318; }
 html[data-theme="dark"] .medium-toolbar { border-color: var(--border-color, #4b5055); background: var(--body-bg, #202124); box-shadow: 0 3px 14px rgb(0 0 0 / 30%); }
 html[data-theme="dark"] .medium-toolbar span { background: var(--border-color, #4b5055); }
 html[data-theme="dark"] .medium-toolbar button { color: var(--body-fg, #f1f1f1); }
@@ -72,6 +74,8 @@ html[data-theme="dark"] .medium-dialog-actions button { border-color: #606660; b
 html[data-theme="dark"] .medium-dialog-actions [data-image-upload] { border-color: #3aa35f; background: #3aa35f; color: #fff; }
 html[data-theme="dark"] .medium-hint { color: var(--body-quiet-color, #b7b9bc); }
 html[data-theme="dark"] .medium-hint kbd { border-color: #606660; background: #292d2a; color: #f0f2f0; }
+html[data-theme="dark"] .medium-draft-status { color: #79d279; }
+html[data-theme="dark"] .medium-draft-status.is-warning { color: #ff8a80; }
 @media (prefers-color-scheme: dark) {
   html[data-theme="auto"] .medium-toolbar { border-color: var(--border-color, #4b5055); background: var(--body-bg, #202124); box-shadow: 0 3px 14px rgb(0 0 0 / 30%); }
   html[data-theme="auto"] .medium-toolbar span { background: var(--border-color, #4b5055); }
@@ -90,5 +94,7 @@ html[data-theme="dark"] .medium-hint kbd { border-color: #606660; background: #2
   html[data-theme="auto"] .medium-dialog-actions [data-image-upload] { border-color: #3aa35f; background: #3aa35f; color: #fff; }
   html[data-theme="auto"] .medium-hint { color: var(--body-quiet-color, #b7b9bc); }
   html[data-theme="auto"] .medium-hint kbd { border-color: #606660; background: #292d2a; color: #f0f2f0; }
+  html[data-theme="auto"] .medium-draft-status { color: #79d279; }
+  html[data-theme="auto"] .medium-draft-status.is-warning { color: #ff8a80; }
 }
 @media (max-width: 700px) { .medium-canvas { padding: 25px 20px; } .medium-toolbar { flex-wrap: wrap; } }

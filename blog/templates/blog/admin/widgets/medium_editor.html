@@ -46,6 +46,7 @@
   <div class="medium-canvas" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Ceritakan sesuatu…">{{ widget.value|default_if_none:""|safe }}</div>
   <textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{{ widget.value|default_if_none:"" }}</textarea>
   <p class="medium-hint"><kbd>⌘/Ctrl + Enter</kbd> untuk masuk/keluar blok kode. Tekan <kbd>Esc</kbd> atau Enter dua kali untuk kembali ke paragraf.</p>
+  <p class="medium-draft-status" data-draft-status role="status" aria-live="polite">Perubahan editor disimpan otomatis di browser.</p>
   <dialog class="medium-image-dialog" data-image-dialog>
     <div class="medium-dialog-body">
       <div class="medium-dialog-header"><h3>Sisipkan gambar</h3><button type="button" data-image-cancel aria-label="Tutup">×</button></div>
