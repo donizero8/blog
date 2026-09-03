@@ -67,6 +67,51 @@ class ReadingTimelineTests(TestCase):
         self.assertNotContains(response, "Daftar Nanti")
 
 
+class LibraryDisplayLimitTests(TestCase):
+    def test_library_renders_all_books_with_initial_section_limits(self):
+        initial_reading = Book.objects.filter(status=Book.Status.READING).count()
+        initial_finished = Book.objects.filter(status=Book.Status.FINISHED).count()
+        initial_want = Book.objects.filter(status=Book.Status.WANT).count()
+
+        for number in range(6):
+            Book.objects.create(
+                title=f"Reading Book {number}",
+                author="Reader",
+                status=Book.Status.READING,
+                started_at=datetime.date(2026, 8, number + 1),
+            )
+        for number in range(5):
+            Book.objects.create(
+                title=f"Finished Book {number}",
+                author="Reader",
+                status=Book.Status.FINISHED,
+                started_at=datetime.date(2026, 7, number + 1),
+                finished_at=datetime.date(2026, 7, number + 10),
+            )
+            Book.objects.create(
+                title=f"Wanted Book {number}",
+                author="Reader",
+                status=Book.Status.WANT,
+            )
+
+        response = self.client.get(reverse("blog:library"))
+
+        self.assertEqual(len(response.context["reading_books"]), initial_reading + 6)
+        self.assertEqual(len(response.context["finished_books"]), initial_finished + 5)
+        self.assertEqual(len(response.context["want_books"]), initial_want + 5)
+        self.assertEqual(
+            response.context["stats"],
+            {
+                "read": initial_finished + 5,
+                "reading": initial_reading + 6,
+                "want": initial_want + 5,
+            },
+        )
+        self.assertContains(response, 'data-page-size="2"')
+        self.assertContains(response, 'data-page-size="4"', count=2)
+        self.assertContains(response, "Show more", count=3)
+
+
 class SearchTests(TestCase):
     @classmethod
     def setUpTestData(cls):

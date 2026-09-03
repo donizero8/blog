@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}My Library — Dony’s Notebook{% endblock %}
 {% block content %}
 <header class="library-hero">
@@ -17,9 +17,9 @@
 {% if reading_books %}
 <section class="library-section">
   <h2>Currently Reading</h2>
-  <div class="book-list">
+  <div class="book-list" id="currently-reading-list" data-library-list data-page-size="2">
     {% for book in reading_books %}
-      <article class="book-row">
+      <article class="book-row"{% if forloop.counter > 2 %} hidden{% endif %}>
         <a href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}</a>
         <div class="book-row-content">
           <span class="book-status status-reading">Reading</span>
@@ -33,11 +33,13 @@
       </article>
     {% endfor %}
   </div>
+  {% if reading_books|length > 2 %}<button class="library-show-more" type="button" data-show-more aria-controls="currently-reading-list">Show more</button>{% endif %}
 </section>
 {% endif %}
 
-{% if favorite_books %}<section class="library-section"><h2>Favorites</h2><div class="book-grid">{% for book in favorite_books %}<a class="book-tile" href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div></section>{% endif %}
-{% if finished_books %}<section class="library-section"><h2>Finished</h2><div class="book-grid">{% for book in finished_books %}<a class="book-tile" href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div></section>{% endif %}
-{% if want_books %}<section class="library-section"><h2>Want to Read</h2><div class="book-grid">{% for book in want_books %}<a class="book-tile" href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div></section>{% endif %}
+{% if favorite_books %}<section class="library-section"><h2>Favorites</h2><div class="book-grid" id="favorite-books-list" data-library-list data-page-size="4">{% for book in favorite_books %}<a class="book-tile" href="{{ book.get_absolute_url }}"{% if forloop.counter > 4 %} hidden{% endif %}>{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div>{% if favorite_books|length > 4 %}<button class="library-show-more" type="button" data-show-more aria-controls="favorite-books-list">Show more</button>{% endif %}</section>{% endif %}
+{% if finished_books %}<section class="library-section"><h2>Finished</h2><div class="book-grid" id="finished-books-list" data-library-list data-page-size="4">{% for book in finished_books %}<a class="book-tile" href="{{ book.get_absolute_url }}"{% if forloop.counter > 4 %} hidden{% endif %}>{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div>{% if finished_books|length > 4 %}<button class="library-show-more" type="button" data-show-more aria-controls="finished-books-list">Show more</button>{% endif %}</section>{% endif %}
+{% if want_books %}<section class="library-section"><h2>Want to Read</h2><div class="book-grid" id="want-books-list" data-library-list data-page-size="4">{% for book in want_books %}<a class="book-tile" href="{{ book.get_absolute_url }}"{% if forloop.counter > 4 %} hidden{% endif %}>{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div>{% if want_books|length > 4 %}<button class="library-show-more" type="button" data-show-more aria-controls="want-books-list">Show more</button>{% endif %}</section>{% endif %}
 {% if not reading_books and not favorite_books and not finished_books and not want_books %}<p class="empty">No books in the library yet.</p>{% endif %}
 {% endblock %}
+{% block extra_js %}<script src="{% static 'blog/library.js' %}" defer></script>{% endblock %}

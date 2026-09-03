@@ -190,6 +190,9 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .book-row .progress-row { max-width: 360px; margin: 8px 0; }
 .notes-link { color: var(--green); font-size: 13px; font-weight: 700; text-decoration: none; }
 .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 24px; }
+[data-library-list] > [hidden] { display: none !important; }
+.library-show-more { display: block; margin: 28px auto 0; padding: 10px 18px; border: 1px solid var(--ink); border-radius: 999px; background: var(--ink); color: var(--page); cursor: pointer; font-weight: 700; }
+.library-show-more:hover { border-color: var(--green); background: var(--green); color: #fff; }
 .book-tile { color: var(--ink); text-decoration: none; }
 .book-tile .library-cover { width: 100%; height: auto; aspect-ratio: 112 / 158; margin-bottom: 12px; }
 .book-tile strong, .book-tile span { display: block; }
