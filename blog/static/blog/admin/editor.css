@@ -1,4 +1,9 @@
 .medium-editor { max-width: 860px; }
+.medium-video-block { margin: 24px 0; padding: 10px; border: 1px solid #aaa; border-radius: 12px; }
+.medium-video-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-bottom: 10px; }
+.medium-video-actions button { padding: 7px 12px; border: 1px solid #aaa; border-radius: 6px; background: var(--body-bg, #fff); color: var(--body-fg, #242424); cursor: pointer; font: 13px system-ui, sans-serif; }
+.medium-video-actions button:focus-visible { outline: 2px solid #137c55; outline-offset: 2px; }
+.medium-canvas .medium-video-block iframe.youtube-embed { margin: 0; }
 .medium-editor textarea { display: none; }
 .medium-editor textarea[data-youtube-html] { display: block; box-sizing: border-box; width: 100%; resize: vertical; padding: 10px; border: 1px solid #aaa; border-radius: 6px; background: inherit; color: inherit; font: 13px/1.5 monospace; }
 .form-row.has-medium-editor { overflow: visible; }

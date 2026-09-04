@@ -21,6 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function normalizedHtml() {
       const clone = canvas.cloneNode(true);
+      clone.querySelectorAll("[data-video-block]").forEach((block) => {
+        const frame = block.querySelector("iframe.youtube-embed");
+        if (frame) block.replaceWith(frame);
+        else block.remove();
+      });
       clone.querySelectorAll("b, i").forEach((element) => {
         const semantic = document.createElement(element.tagName === "B" ? "strong" : "em");
         semantic.innerHTML = element.innerHTML;
@@ -96,6 +101,51 @@ document.addEventListener("DOMContentLoaded", () => {
       try { window.localStorage.removeItem(draftKey); } catch (storageError) { /* unavailable */ }
       setDraftStatus("Draft lokal yang rusak telah diabaikan.", true);
     }
+    function enhanceVideos() {
+      canvas.querySelectorAll("iframe.youtube-embed").forEach((frame) => {
+        if (frame.closest("[data-video-block]")) return;
+        const block = document.createElement("div");
+        block.dataset.videoBlock = "";
+        block.className = "medium-video-block";
+        block.contentEditable = "false";
+        const controls = document.createElement("div");
+        controls.className = "medium-video-actions";
+        for (const [action, label] of [["after", "Tulis setelah video"], ["remove", "Hapus video"]]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.videoAction = action;
+          button.textContent = label;
+          controls.appendChild(button);
+        }
+        frame.before(block);
+        block.append(controls, frame);
+      });
+    }
+    canvas.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-video-action]");
+      if (!button) return;
+      event.preventDefault();
+      const block = button.closest("[data-video-block]");
+      let paragraph = block.nextElementSibling;
+      if (!paragraph || paragraph.tagName !== "P") {
+        paragraph = document.createElement("p");
+        paragraph.appendChild(document.createElement("br"));
+        block.after(paragraph);
+      }
+      if (button.dataset.videoAction === "remove") block.remove();
+      canvas.focus();
+      const range = document.createRange();
+      range.selectNodeContents(paragraph);
+      range.collapse(true);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      rememberSelection();
+      sync();
+      updateToolbar();
+    });
+    enhanceVideos();
+    new MutationObserver(enhanceVideos).observe(canvas, {childList: true, subtree: true});
     draftReady = true;
     canvas.addEventListener("input", sync);
     canvas.addEventListener("blur", sync);
