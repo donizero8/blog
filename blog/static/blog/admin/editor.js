@@ -81,7 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const savedDraft = JSON.parse(window.localStorage.getItem(draftKey) || "null");
       if (savedDraft?.html && savedDraft.html !== baselineHtml) {
-        canvas.innerHTML = savedDraft.html;
+        const draftTemplate = document.createElement("template");
+        draftTemplate.innerHTML = savedDraft.html;
+        draftTemplate.content.querySelectorAll("iframe.youtube-embed").forEach((frame) => {
+          frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+        });
+        canvas.innerHTML = draftTemplate.innerHTML;
         textarea.value = savedDraft.html;
         setDraftStatus("Draft lokal dipulihkan. Perubahan Anda belum disimpan ke server.");
       } else if (savedDraft) {
@@ -241,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.getSelection().removeAllRanges();
         window.getSelection().addRange(range);
       }
-      document.execCommand("insertHTML", false, `<iframe class="youtube-embed" src="https://www.youtube-nocookie.com/embed/${id}" title="Video YouTube" loading="lazy" allowfullscreen></iframe><p><br></p>`);
+      document.execCommand("insertHTML", false, `<iframe class="youtube-embed" src="https://www.youtube-nocookie.com/embed/${id}" title="Video YouTube" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><p><br></p>`);
       rememberSelection();
       sync();
       updateToolbar();

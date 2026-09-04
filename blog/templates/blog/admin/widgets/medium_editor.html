@@ -1,3 +1,4 @@
+{% load editor_content %}
 <div class="medium-editor medium-editor-{{ widget.variant }}" data-medium-editor>
   <div class="medium-toolbar" role="toolbar" aria-label="Format tulisan">
     <button type="button" data-block="p" title="Paragraf">P</button>
@@ -44,7 +45,7 @@
     <button type="button" data-image-size="large">Besar</button>
     <button type="button" data-image-remove>Hapus</button>
   </div>
-  <div class="medium-canvas" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Ceritakan sesuatu…">{{ widget.value|default_if_none:""|safe }}</div>
+  <div class="medium-canvas" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Ceritakan sesuatu…">{{ widget.value|editor_content }}</div>
   <textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{{ widget.value|default_if_none:"" }}</textarea>
   <p class="medium-hint"><kbd>⌘/Ctrl + Enter</kbd> untuk masuk/keluar blok kode. Tekan <kbd>Esc</kbd> atau Enter dua kali untuk kembali ke paragraf.</p>
   <p class="medium-draft-status" data-draft-status role="status" aria-live="polite">Perubahan editor disimpan otomatis di browser.</p>

@@ -19,12 +19,13 @@ def youtube_attributes(tag, name, value):
     return (
         (name == "class" and value == "youtube-embed")
         or (name == "loading" and value == "lazy")
+        or (name == "referrerpolicy" and value == "strict-origin-when-cross-origin")
         or name in ("title", "allowfullscreen")
     )
 
 
 def sanitize_editor_html(value):
-    return bleach.clean(
+    cleaned = bleach.clean(
         value,
         tags=ALLOWED_TAGS,
         attributes={
@@ -34,6 +35,13 @@ def sanitize_editor_html(value):
         },
         protocols=["http", "https", "mailto"],
         strip=True,
+    )
+    # Apply before the browser requests the player, including older saved embeds.
+    return re.sub(
+        r'<iframe\b[^>]*>',
+        lambda match: match.group(0) if 'referrerpolicy=' in match.group(0)
+        else match.group(0)[:-1] + ' referrerpolicy="strict-origin-when-cross-origin">',
+        cleaned,
     )
 
 

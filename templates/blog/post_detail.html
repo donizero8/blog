@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n editor_content %}
 {% block title %}{{ post.title }} — Dony’s Notebook{% endblock %}
 {% block content %}
 <article>
@@ -10,7 +10,7 @@
     <div class="meta">{{ post.author.get_full_name|default:post.author.username }} · {% language "en" %}{{ post.published_at|date:"F j, Y" }}{% endlanguage %}</div>
     {% if post.tags.all %}<div class="tag-list">{% for tag in post.tags.all %}<span>{{ tag.name }}</span>{% endfor %}</div>{% endif %}
   </header>
-  <div class="article-body">{{ post.body|safe }}</div>
+  <div class="article-body">{{ post.body|editor_content }}</div>
 </article>
 
 <section class="comments" id="comments">

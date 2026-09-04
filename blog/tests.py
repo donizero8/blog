@@ -68,6 +68,16 @@ class ReadingTimelineTests(TestCase):
 
 
 class YouTubeSanitizationTests(TestCase):
+    def test_referrer_policy_added_to_old_embeds_and_preserved(self):
+        from django.template import Context, Template
+
+        old = '<iframe class="youtube-embed" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"></iframe>'
+        updated = sanitize_editor_html(old)
+        self.assertIn('referrerpolicy="strict-origin-when-cross-origin"', updated)
+        self.assertEqual(sanitize_editor_html(updated), updated)
+        self.assertEqual(Template('{% load editor_content %}{{ body|editor_content }}').render(Context({'body': old})), updated)
+        self.assertNotIn('referrerpolicy="no-referrer"', sanitize_editor_html(old.replace('<iframe ', '<iframe referrerpolicy="no-referrer" ')))
+
     def test_only_canonical_youtube_embed_is_allowed(self):
         src = "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"
         html = sanitize_editor_html(f'<iframe src="{src}" class="youtube-embed" allowfullscreen></iframe>')
