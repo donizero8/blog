@@ -51,7 +51,8 @@
   <dialog class="medium-image-dialog" data-youtube-dialog aria-label="Sematkan video YouTube">
     <div class="medium-dialog-body">
       <div class="medium-dialog-header"><h3>Sematkan video YouTube</h3><button type="button" data-youtube-cancel aria-label="Tutup">×</button></div>
-      <label>URL video YouTube<input type="url" data-youtube-url placeholder="https://www.youtube.com/watch?v=…"></label>
+      <label>Kode HTML embed YouTube<textarea data-youtube-html rows="6" placeholder="&lt;iframe src=&quot;https://www.youtube.com/embed/…&quot; ...&gt;&lt;/iframe&gt;"></textarea></label>
+      <p>Tempel kode HTML embed dari YouTube. Hanya sumber video yang digunakan; atribut tambahan tidak disalin.</p>
       <p data-youtube-status role="status" aria-live="polite"></p>
       <div class="medium-dialog-actions"><button type="button" data-youtube-cancel>Batal</button><button type="button" data-youtube-insert>Sematkan video</button></div>
     </div>

@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const youtubeButton = wrapper.querySelector("[data-youtube]");
     const youtubeDialog = wrapper.querySelector("[data-youtube-dialog]");
-    const youtubeInput = youtubeDialog.querySelector("[data-youtube-url]");
+    const youtubeInput = youtubeDialog.querySelector("[data-youtube-html]");
     const youtubeStatus = youtubeDialog.querySelector("[data-youtube-status]");
     youtubeButton.addEventListener("mousedown", (event) => {
       event.preventDefault();
@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("click", () => youtubeDialog.close());
     });
     youtubeInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         youtubeDialog.querySelector("[data-youtube-insert]").click();
       }
@@ -217,15 +217,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const value = youtubeInput.value;
       let id;
       try {
-        const url = new URL(value.trim());
-        if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.port) throw new Error();
-        if (url.hostname === "youtu.be") id = url.pathname.slice(1);
-        else if (["youtube.com", "www.youtube.com", "m.youtube.com", "www.youtube-nocookie.com"].includes(url.hostname)) {
-          id = url.pathname === "/watch" ? url.searchParams.get("v") : url.pathname.match(/^\/(?:embed|shorts|live)\/([^/]+)\/?$/)?.[1];
-        }
+        // Parse in an inert template; never insert the supplied HTML into the page.
+        const template = document.createElement("template");
+        template.innerHTML = value.trim();
+        const frames = template.content.querySelectorAll("iframe");
+        if (frames.length !== 1) throw new Error();
+        const url = new URL(frames[0].getAttribute("src"));
+        if (url.protocol !== "https:" || url.username || url.password || url.port) throw new Error();
+        if (!["youtube.com", "www.youtube.com", "youtube-nocookie.com", "www.youtube-nocookie.com"].includes(url.hostname)) throw new Error();
+        id = url.pathname.match(/^\/embed\/([A-Za-z0-9_-]{11})\/?$/)?.[1];
         if (!/^[A-Za-z0-9_-]{11}$/.test(id || "")) throw new Error();
       } catch {
-        youtubeStatus.textContent = "URL YouTube tidak valid. Masukkan tautan ke satu video.";
+        youtubeStatus.textContent = "Kode embed tidak valid. Tempel HTML iframe untuk satu video YouTube, bukan URL.";
         youtubeInput.focus();
         return;
       }
