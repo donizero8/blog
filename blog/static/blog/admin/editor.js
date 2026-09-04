@@ -138,9 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (button.hasAttribute("data-code")) {
           active = Boolean(node.closest("pre"));
         } else if (button.dataset.command === "bold") {
-          active = document.queryCommandState("bold") || Boolean(node.closest("strong, b"));
+          active = document.queryCommandState("bold");
         } else if (button.dataset.command === "italic") {
-          active = document.queryCommandState("italic") || Boolean(node.closest("em, i"));
+          active = document.queryCommandState("italic");
         } else if (button.dataset.command === "createLink") {
           active = Boolean(node.closest("a"));
         } else if (button.dataset.value === "blockquote") {
@@ -187,6 +187,61 @@ document.addEventListener("DOMContentLoaded", () => {
         sync();
         updateToolbar();
       });
+    });
+
+    const youtubeButton = wrapper.querySelector("[data-youtube]");
+    const youtubeDialog = wrapper.querySelector("[data-youtube-dialog]");
+    const youtubeInput = youtubeDialog.querySelector("[data-youtube-url]");
+    const youtubeStatus = youtubeDialog.querySelector("[data-youtube-status]");
+    youtubeButton.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      rememberSelection();
+    });
+    youtubeButton.addEventListener("click", () => {
+      rememberSelection();
+      youtubeInput.value = "";
+      youtubeStatus.textContent = "";
+      youtubeDialog.showModal();
+      youtubeInput.focus();
+    });
+    youtubeDialog.querySelectorAll("[data-youtube-cancel]").forEach((button) => {
+      button.addEventListener("click", () => youtubeDialog.close());
+    });
+    youtubeInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        youtubeDialog.querySelector("[data-youtube-insert]").click();
+      }
+    });
+    youtubeDialog.querySelector("[data-youtube-insert]").addEventListener("click", () => {
+      const value = youtubeInput.value;
+      let id;
+      try {
+        const url = new URL(value.trim());
+        if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.port) throw new Error();
+        if (url.hostname === "youtu.be") id = url.pathname.slice(1);
+        else if (["youtube.com", "www.youtube.com", "m.youtube.com", "www.youtube-nocookie.com"].includes(url.hostname)) {
+          id = url.pathname === "/watch" ? url.searchParams.get("v") : url.pathname.match(/^\/(?:embed|shorts|live)\/([^/]+)\/?$/)?.[1];
+        }
+        if (!/^[A-Za-z0-9_-]{11}$/.test(id || "")) throw new Error();
+      } catch {
+        youtubeStatus.textContent = "URL YouTube tidak valid. Masukkan tautan ke satu video.";
+        youtubeInput.focus();
+        return;
+      }
+      youtubeDialog.close();
+      canvas.focus();
+      if (!restoreSelection()) {
+        const range = document.createRange();
+        range.selectNodeContents(canvas);
+        range.collapse(false);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+      }
+      document.execCommand("insertHTML", false, `<iframe class="youtube-embed" src="https://www.youtube-nocookie.com/embed/${id}" title="Video YouTube" loading="lazy" allowfullscreen></iframe><p><br></p>`);
+      rememberSelection();
+      sync();
+      updateToolbar();
     });
 
     function closeEmojiPicker() {

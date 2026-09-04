@@ -67,6 +67,20 @@ class ReadingTimelineTests(TestCase):
         self.assertNotContains(response, "Daftar Nanti")
 
 
+class YouTubeSanitizationTests(TestCase):
+    def test_only_canonical_youtube_embed_is_allowed(self):
+        src = "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"
+        html = sanitize_editor_html(f'<iframe src="{src}" class="youtube-embed" allowfullscreen></iframe>')
+        self.assertIn(src, html)
+        self.assertIn('class="youtube-embed"', html)
+        for unsafe in ["https://evil.example/embed/dQw4w9WgXcQ", src + "?autoplay=1", "javascript:alert(1)", "https://www.youtube-nocookie.com.evil.test/embed/dQw4w9WgXcQ"]:
+            cleaned = sanitize_editor_html(f'<iframe src="{unsafe}" srcdoc="bad" onload="bad" style="position:fixed"></iframe>')
+            self.assertNotIn("src=", cleaned)
+            self.assertNotIn("srcdoc", cleaned)
+            self.assertNotIn("onload", cleaned)
+            self.assertNotIn("style=", cleaned)
+
+
 class LibraryDisplayLimitTests(TestCase):
     def test_library_renders_all_books_with_initial_section_limits(self):
         initial_reading = Book.objects.filter(status=Book.Status.READING).count()

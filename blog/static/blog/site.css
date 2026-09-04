@@ -1,3 +1,4 @@
+.article-body iframe.youtube-embed, .journal-copy iframe.youtube-embed { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 0; border-radius: 12px; margin: 24px 0; }
 :root {
   color-scheme: light;
   --page: #fff;

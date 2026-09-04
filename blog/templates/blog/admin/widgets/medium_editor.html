@@ -10,6 +10,7 @@
     <button type="button" data-command="formatBlock" data-value="blockquote" title="Kutipan">“</button>
     <button type="button" data-command="insertUnorderedList" title="Daftar">•</button>
     <button type="button" data-code title="Blok kode">&lt;/&gt;</button>
+    <button type="button" data-youtube title="Sematkan video YouTube" aria-label="Sematkan video YouTube">▶</button>
     <div class="medium-emoji-menu">
       <button type="button" data-emoji-toggle title="Sisipkan emoji" aria-label="Sisipkan emoji" aria-expanded="false">😊</button>
       <div class="medium-emoji-picker" data-emoji-picker hidden role="menu" aria-label="Pilih emoji">
@@ -47,6 +48,14 @@
   <textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{{ widget.value|default_if_none:"" }}</textarea>
   <p class="medium-hint"><kbd>⌘/Ctrl + Enter</kbd> untuk masuk/keluar blok kode. Tekan <kbd>Esc</kbd> atau Enter dua kali untuk kembali ke paragraf.</p>
   <p class="medium-draft-status" data-draft-status role="status" aria-live="polite">Perubahan editor disimpan otomatis di browser.</p>
+  <dialog class="medium-image-dialog" data-youtube-dialog aria-label="Sematkan video YouTube">
+    <div class="medium-dialog-body">
+      <div class="medium-dialog-header"><h3>Sematkan video YouTube</h3><button type="button" data-youtube-cancel aria-label="Tutup">×</button></div>
+      <label>URL video YouTube<input type="url" data-youtube-url placeholder="https://www.youtube.com/watch?v=…"></label>
+      <p data-youtube-status role="status" aria-live="polite"></p>
+      <div class="medium-dialog-actions"><button type="button" data-youtube-cancel>Batal</button><button type="button" data-youtube-insert>Sematkan video</button></div>
+    </div>
+  </dialog>
   <dialog class="medium-image-dialog" data-image-dialog>
     <div class="medium-dialog-body">
       <div class="medium-dialog-header"><h3>Sisipkan gambar</h3><button type="button" data-image-cancel aria-label="Tutup">×</button></div>

@@ -1,4 +1,5 @@
 import bleach
+import re
 from io import BytesIO
 from pathlib import Path
 
@@ -9,7 +10,17 @@ from PIL import Image, ImageOps
 from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget, TagInputWidget
 
-ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "b", "i", "u", "s", "a", "blockquote", "ul", "ol", "li", "pre", "code", "img"]
+ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "b", "i", "u", "s", "a", "blockquote", "ul", "ol", "li", "pre", "code", "img", "iframe"]
+
+
+def youtube_attributes(tag, name, value):
+    if name == "src":
+        return bool(re.fullmatch(r"https://www\.youtube-nocookie\.com/embed/[A-Za-z0-9_-]{11}", value))
+    return (
+        (name == "class" and value == "youtube-embed")
+        or (name == "loading" and value == "lazy")
+        or name in ("title", "allowfullscreen")
+    )
 
 
 def sanitize_editor_html(value):
@@ -19,6 +30,7 @@ def sanitize_editor_html(value):
         attributes={
             "a": ["href", "title", "target", "rel"],
             "img": ["src", "alt", "class", "loading", "width", "height", "referrerpolicy"],
+            "iframe": youtube_attributes,
         },
         protocols=["http", "https", "mailto"],
         strip=True,

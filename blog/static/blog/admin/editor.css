@@ -98,3 +98,4 @@ html[data-theme="dark"] .medium-draft-status.is-warning { color: #ff8a80; }
   html[data-theme="auto"] .medium-draft-status.is-warning { color: #ff8a80; }
 }
 @media (max-width: 700px) { .medium-canvas { padding: 25px 20px; } .medium-toolbar { flex-wrap: wrap; } }
+.medium-canvas iframe.youtube-embed { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 0; border-radius: 12px; margin: 24px 0; }
