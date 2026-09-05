@@ -38,10 +38,16 @@ class BookAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
         ("Buku", {"fields": ("cover", "title", "slug", "author", "status")}),
-        ("Progres", {"fields": ("progress", ("current_chapter", "total_chapters"), ("started_at", "finished_at"), "rating")}),
+        ("Progres", {
+            "fields": ("progress", ("current_chapter", "total_chapters"), ("started_at", "finished_at"), "rating"),
+            "classes": ("book-progress-section",),
+        }),
         ("Jurnal", {"fields": ("thoughts", "lessons")}),
         ("Informasi", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
     )
+
+    class Media:
+        js = ("blog/admin/book.js",)
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
