@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const draftStatus = wrapper.querySelector("[data-draft-status]");
     const baselineHtml = textarea.value;
     const draftKey = `dony-notebook:editor-draft:${window.location.pathname}:${textarea.name}`;
+    const localDraftEnabled = !/^\/admin\/blog\/post\/add\/?$/.test(window.location.pathname);
     let savedRange = null;
     let selectedImage = null;
     let draftTimer = null;
@@ -55,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function persistLocalDraft() {
-      if (!draftReady) return;
+      if (!draftReady || !localDraftEnabled) return;
       window.clearTimeout(draftTimer);
       const html = normalizedHtml();
       textarea.value = html;
@@ -84,8 +85,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     if (!canvas.innerHTML.trim()) canvas.innerHTML = "<p><br></p>";
     try {
+      if (!localDraftEnabled) {
+        window.localStorage.removeItem(draftKey);
+        setDraftStatus("Artikel baru selalu dimulai kosong; draft lokal tidak digunakan.");
+      }
       const savedDraft = JSON.parse(window.localStorage.getItem(draftKey) || "null");
-      if (savedDraft?.html && savedDraft.html !== baselineHtml) {
+      if (localDraftEnabled && savedDraft?.html && savedDraft.html !== baselineHtml) {
         const draftTemplate = document.createElement("template");
         draftTemplate.innerHTML = savedDraft.html;
         draftTemplate.content.querySelectorAll("iframe.youtube-embed").forEach((frame) => {
@@ -94,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.innerHTML = draftTemplate.innerHTML;
         textarea.value = savedDraft.html;
         setDraftStatus("Draft lokal dipulihkan. Perubahan Anda belum disimpan ke server.");
-      } else if (savedDraft) {
+      } else if (localDraftEnabled && savedDraft) {
         window.localStorage.removeItem(draftKey);
       }
     } catch (error) {
