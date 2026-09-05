@@ -91,9 +91,10 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .article-body em, .article-body i, .journal-copy em, .journal-copy i { font-style: italic; }
 .article-body u, .journal-copy u { text-decoration: underline; }
 .article-body s, .journal-copy s { text-decoration: line-through; }
-.article-body blockquote { margin: 1.5em 0; padding-left: 22px; border-left: 3px solid var(--ink); font-style: italic; }
+.article-body blockquote { margin: 1.5em 0; padding-left: 22px; border-left: 3px solid var(--ink); font-size: 19px; font-style: italic; }
 .article-body ul { margin: 1em 0; padding-left: 1.6em; list-style: disc outside; }
 .article-body ol { margin: 1em 0; padding-left: 1.6em; list-style: decimal outside; }
+.article-body ul, .article-body ol { font-size: 19px; }
 .article-body li { display: list-item; margin: .3em 0; }
 .article-body ul ul { list-style-type: circle; }
 .article-body code { padding: 2px 5px; border-radius: 4px; background: var(--code-inline); font: .84em ui-monospace, monospace; }
@@ -211,8 +212,9 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .journal-copy h2 { margin: 1.5em 0 .4em; font: 700 30px/1.2 Georgia, serif; }
 .journal-copy h3 { margin: 1.4em 0 .35em; font: 700 23px/1.3 Georgia, serif; }
 .journal-copy a { color: var(--green); }
-.journal-copy blockquote { margin: 1.5em 0; padding-left: 22px; border-left: 3px solid var(--ink); font-style: italic; }
+.journal-copy blockquote { margin: 1.5em 0; padding-left: 22px; border-left: 3px solid var(--ink); font-size: 17px; font-style: italic; }
 .journal-copy ul, .journal-copy ol { margin: 1em 0; padding-left: 1.5em; }
+.journal-copy ul, .journal-copy ol { font-size: 17px; }
 .journal-copy ul { list-style: disc outside; }
 .journal-copy ol { list-style: decimal outside; }
 .journal-copy li { display: list-item; margin: .3em 0; }

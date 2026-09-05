@@ -32,11 +32,13 @@
 .medium-canvas > p:last-child, .medium-canvas > div:last-child { margin-bottom: 0; }
 .medium-canvas h2 { margin: 1.5em 0 .4em; font-size: 34px; line-height: 1.2; }
 .medium-canvas h3 { margin: 1.4em 0 .3em; font-size: 25px; line-height: 1.3; }
-.medium-canvas blockquote { margin: 1.4em 0; padding-left: 22px; border-left: 3px solid #242424; font-style: italic; }
+.medium-canvas blockquote { margin: 1.4em 0; padding-left: 22px; border-left: 3px solid #242424; font-size: inherit; font-style: italic; }
 .form-row .medium-canvas ul { width: auto; margin: 1em 0; padding-left: 1.5em; list-style: disc outside; }
 .form-row .medium-canvas ol { width: auto; margin: 1em 0; padding-left: 1.5em; list-style: decimal outside; }
-.form-row .medium-canvas ul > li { display: list-item; margin: .3em 0; list-style-type: disc; }
-.form-row .medium-canvas ol > li { display: list-item; margin: .3em 0; list-style-type: decimal; }
+.form-row .medium-canvas ul, .form-row .medium-canvas ol { font-size: inherit; }
+.form-row .medium-canvas ul > li { display: list-item; margin: .3em 0; font: inherit; list-style-type: disc; }
+.form-row .medium-canvas ol > li { display: list-item; margin: .3em 0; font: inherit; list-style-type: decimal; }
+.form-row .medium-canvas li > p, .form-row .medium-canvas li > div, .form-row .medium-canvas li > span { font: inherit; }
 .form-row .medium-canvas ul ul > li { list-style-type: circle; }
 .medium-canvas pre { overflow-x: auto; padding: 20px; border-radius: 8px; background: #1f2328; color: #e6edf3; font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }
 .medium-canvas .article-image { display: block; max-width: 100%; height: auto; margin: 1.5em auto; border-radius: 7px; cursor: pointer; }

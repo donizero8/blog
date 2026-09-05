@@ -231,6 +231,13 @@ document.addEventListener("DOMContentLoaded", () => {
           value = window.prompt("Alamat tautan (https://…)");
           if (!value) return;
         }
+        if (
+          button.dataset.command === "formatBlock"
+          && button.dataset.value === "blockquote"
+          && selectionElement()?.closest("blockquote")
+        ) {
+          value = "p";
+        }
         document.execCommand(button.dataset.command, false, value);
         sync();
         updateToolbar();
