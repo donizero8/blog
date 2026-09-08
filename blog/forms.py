@@ -48,11 +48,16 @@ def sanitize_editor_html(value):
         strip=True,
     )
     # Apply before the browser requests the player, including older saved embeds.
-    return re.sub(
+    cleaned = re.sub(
         r'<iframe\b[^>]*>',
         lambda match: match.group(0) if 'referrerpolicy=' in match.group(0)
         else match.group(0)[:-1] + ' referrerpolicy="strict-origin-when-cross-origin">',
         cleaned,
+    )
+    # Keep legacy location cards consistent with the English public interface.
+    return cleaned.replace(
+        ">Buka lokasi di Google Maps ↗</small>",
+        ">Open location in Google Maps ↗</small>",
     )
 
 

@@ -379,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const heading = document.createElement("strong");
         heading.textContent = name;
         const detail = document.createElement("small");
-        detail.textContent = note || "Buka lokasi di Google Maps ↗";
+        detail.textContent = note || "Open location in Google Maps ↗";
         copy.append(heading, detail);
         card.append(icon, copy);
 

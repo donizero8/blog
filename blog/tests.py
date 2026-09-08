@@ -111,7 +111,8 @@ class LocationCardTests(TestCase):
         self.assertNotIn("onclick", cleaned)
         self.assertNotIn('class="place-card extra"', cleaned)
         self.assertIn('class="place-card-icon"', cleaned)
-        self.assertIn("Buka lokasi di Google Maps", cleaned)
+        self.assertNotIn("Buka lokasi di Google Maps", cleaned)
+        self.assertIn("Open location in Google Maps", cleaned)
 
     @patch("blog.admin.clean_google_maps_url", return_value="https://www.google.com/maps/place/Monas")
     def test_admin_resolver_returns_cleaned_url(self, resolver):
