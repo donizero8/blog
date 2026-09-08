@@ -14,12 +14,13 @@ from .forms import (
     BookAdminForm,
     BookNoteAdminForm,
     PostAdminForm,
+    SiteProfileAdminForm,
     optimize_uploaded_image,
     sanitize_editor_html,
 )
 from .admin import clean_google_maps_url
 from .models import Book, BookNote, Post, SiteProfile, Tag
-from .widgets import MediumEditorWidget
+from .widgets import MediumEditorWidget, ProfileImageWidget
 
 
 class HomepageCopyTests(TestCase):
@@ -33,6 +34,9 @@ class HomepageCopyTests(TestCase):
 
         self.assertContains(response, "Judul beranda pilihan saya")
         self.assertContains(response, "Deskripsi yang dapat diedit melalui CMS.")
+
+    def test_site_profile_uses_adjustable_image_widget(self):
+        self.assertIsInstance(SiteProfileAdminForm().fields["photo"].widget, ProfileImageWidget)
 
 
 class ReadingTimelineTests(TestCase):

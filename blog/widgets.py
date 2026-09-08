@@ -32,3 +32,11 @@ class TagInputWidget(forms.TextInput):
     class Media:
         css = {"all": ("blog/admin/tags.css",)}
         js = ("blog/admin/tags.js",)
+
+
+class ProfileImageWidget(forms.ClearableFileInput):
+    template_name = "blog/admin/widgets/profile_image.html"
+
+    class Media:
+        css = {"all": ("blog/admin/profile-image.css",)}
+        js = ("blog/admin/profile-image.js",)

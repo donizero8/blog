@@ -1,0 +1,32 @@
+<div class="profile-image-widget" data-profile-image-widget>
+  {% if widget.is_initial %}
+    <div class="profile-image-current">
+      <img src="{{ widget.value.url }}" alt="Foto profil saat ini">
+      <span>Saat ini: <a href="{{ widget.value.url }}">{{ widget.value }}</a></span>
+      {% if not widget.required %}
+        <label><input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"> {{ widget.clear_checkbox_label }}</label>
+      {% endif %}
+    </div>
+    <span>{{ widget.input_text }}:</span>
+  {% endif %}
+  <input type="{{ widget.type }}" name="{{ widget.name }}" accept="image/jpeg,image/png,image/webp"{% include "django/forms/widgets/attrs.html" %} data-profile-image-input>
+  <p class="profile-image-help">Pilih gambar, lalu atur posisi dan ukurannya sebelum disimpan.</p>
+  <dialog class="profile-crop-dialog" data-profile-crop-dialog aria-label="Atur foto profil">
+    <div class="profile-crop-body">
+      <header><h3>Atur foto profil</h3><button type="button" data-profile-crop-cancel aria-label="Tutup">×</button></header>
+      <p>Geser gambar di dalam bingkai dan gunakan pengatur ukuran.</p>
+      <div class="profile-crop-stage" data-profile-crop-stage>
+        <canvas width="416" height="416" data-profile-crop-canvas></canvas>
+        <span class="profile-crop-ring" aria-hidden="true"></span>
+      </div>
+      <label class="profile-zoom-label">Ukuran gambar
+        <input type="range" min="100" max="300" value="100" step="1" data-profile-crop-zoom>
+      </label>
+      <p class="profile-crop-status" data-profile-crop-status role="status" aria-live="polite"></p>
+      <div class="profile-crop-actions">
+        <button type="button" data-profile-crop-cancel>Batal</button>
+        <button type="button" data-profile-crop-apply>Gunakan foto</button>
+      </div>
+    </div>
+  </dialog>
+</div>

@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from PIL import Image, ImageOps
 
 from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
-from .widgets import MediumEditorWidget, TagInputWidget
+from .widgets import MediumEditorWidget, ProfileImageWidget, TagInputWidget
 
 ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "b", "i", "u", "s", "a", "span", "small", "blockquote", "ul", "ol", "li", "pre", "code", "img", "iframe"]
 
@@ -176,6 +176,7 @@ class SiteProfileAdminForm(forms.ModelForm):
     class Meta:
         model = SiteProfile
         fields = "__all__"
+        widgets = {"photo": ProfileImageWidget()}
 
     def clean_photo(self):
         photo = self.cleaned_data.get("photo")
