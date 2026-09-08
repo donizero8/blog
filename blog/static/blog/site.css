@@ -104,6 +104,12 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .article-body .article-image.image-small { width: 40%; }
 .article-body .article-image.image-medium { width: 68%; }
 .article-body .article-image.image-large { width: 100%; }
+.article-body .place-card, .journal-copy .place-card { display: flex; align-items: center; gap: 15px; margin: 1.5em 0; padding: 17px 19px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: 16px/1.4 system-ui, sans-serif; text-decoration: none; box-shadow: 0 5px 18px var(--shadow); transition: border-color .15s, transform .15s; }
+.article-body .place-card:hover, .journal-copy .place-card:hover { border-color: var(--green); transform: translateY(-1px); }
+.place-card-icon { font-size: 26px; line-height: 1; }
+.place-card-copy { display: grid; gap: 3px; }
+.place-card-copy strong { color: var(--ink); font-size: 16px; }
+.place-card-copy small { color: var(--muted); font-size: 13px; }
 @media (max-width: 600px) { .container { padding-top: 40px; } .hero h1 { font-size: 32px; } .article-header h1 { font-size: 38px; } .article-body .article-image.image-small { width: 62%; } .article-body .article-image.image-medium { width: 86%; } }
 .comments { margin-top: 72px; padding-top: 38px; border-top: 1px solid var(--line); }
 .comments > h2 { margin: 0 0 30px; font: 700 28px/1.2 Georgia, serif; }

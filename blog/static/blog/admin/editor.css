@@ -46,6 +46,11 @@
 .medium-canvas .article-image.image-medium { width: 68%; }
 .medium-canvas .article-image.image-large { width: 100%; }
 .medium-canvas .article-image:focus, .medium-canvas .article-image:hover { outline: 2px solid #137c55; outline-offset: 3px; }
+.medium-canvas .place-card { display: flex; align-items: center; gap: 14px; margin: 1.4em 0; padding: 16px 18px; border: 1px solid #d6ddd8; border-radius: 10px; background: #f5faf7; color: #183c2d; font: 16px/1.4 system-ui, sans-serif; text-decoration: none; }
+.medium-canvas .place-card-icon { font-size: 25px; line-height: 1; }
+.medium-canvas .place-card-copy { display: grid; gap: 3px; }
+.medium-canvas .place-card-copy strong { font-size: 16px; }
+.medium-canvas .place-card-copy small { color: #587064; font-size: 13px; }
 .medium-image-dialog { width: min(92vw, 460px); padding: 0; border: 1px solid #ddd; border-radius: 12px; background: #fff; color: #242424; box-shadow: 0 18px 60px rgb(0 0 0 / 25%); }
 .medium-image-dialog::backdrop { background: rgb(0 0 0 / 48%); }
 .medium-dialog-body { display: grid; gap: 16px; padding: 22px; }
@@ -59,8 +64,8 @@
 .medium-upload-status { min-height: 18px; margin: 0; color: #777; font-size: 12px; }
 .medium-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; }
 .medium-dialog-actions button { padding: 8px 13px; border: 1px solid #ccc; border-radius: 999px; background: #fff; color: #333; cursor: pointer; font-weight: 700; }
-.medium-dialog-actions [data-image-upload] { border-color: #137c55; background: #137c55; color: #fff; }
-.medium-dialog-actions [data-image-upload]:disabled { cursor: wait; opacity: .6; }
+.medium-dialog-actions [data-image-upload], .medium-dialog-actions [data-location-insert] { border-color: #137c55; background: #137c55; color: #fff; }
+.medium-dialog-actions [data-image-upload]:disabled, .medium-dialog-actions [data-location-insert]:disabled { cursor: wait; opacity: .6; }
 .medium-hint { color: #777; font-size: 12px; }
 .medium-hint kbd { padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; background: #f7f7f7; }
 .medium-draft-status { min-height: 18px; margin: 4px 0 0; color: #137c55; font-size: 12px; }

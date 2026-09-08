@@ -1,5 +1,8 @@
 import uuid
 from datetime import date
+from urllib.error import HTTPError, URLError
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from django.contrib import admin
 from django.core.files.storage import default_storage
@@ -19,6 +22,51 @@ from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 admin.site.site_header = "Dony’s Notebook"
 admin.site.site_title = "Admin Dony’s Notebook"
 admin.site.index_title = "Kelola tulisan"
+
+GOOGLE_MAPS_SHORT_HOSTS = {"maps.app.goo.gl"}
+GOOGLE_MAPS_HOSTS = {"google.com", "www.google.com", "maps.google.com"}
+GOOGLE_MAPS_ALLOWED_QUERY = {
+    "api", "q", "query", "query_place_id", "origin", "destination", "travelmode", "waypoints",
+}
+
+
+def _valid_maps_url(value, allowed_hosts):
+    try:
+        parsed = urlsplit(value)
+        return (
+            parsed.scheme == "https"
+            and parsed.hostname in allowed_hosts
+            and not parsed.username
+            and not parsed.password
+            and parsed.port is None
+        )
+    except ValueError:
+        return False
+
+
+class GoogleMapsRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not _valid_maps_url(newurl, GOOGLE_MAPS_SHORT_HOSTS | GOOGLE_MAPS_HOSTS):
+            raise HTTPError(newurl, code, "Tujuan redirect bukan Google Maps.", headers, fp)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def clean_google_maps_url(value):
+    value = value.strip()
+    if _valid_maps_url(value, GOOGLE_MAPS_SHORT_HOSTS):
+        request = Request(value, headers={"User-Agent": "DonyNotebook/1.0"})
+        with build_opener(GoogleMapsRedirectHandler()).open(request, timeout=5) as response:
+            value = response.geturl()
+    if not _valid_maps_url(value, GOOGLE_MAPS_HOSTS):
+        raise ValueError("URL harus berasal dari Google Maps.")
+    parsed = urlsplit(value)
+    if not (parsed.path == "/maps" or parsed.path.startswith("/maps/")):
+        raise ValueError("URL Google tidak mengarah ke Maps.")
+    clean_query = urlencode(
+        [(key, item) for key, item in parse_qsl(parsed.query, keep_blank_values=False) if key in GOOGLE_MAPS_ALLOWED_QUERY],
+        doseq=True,
+    )
+    return urlunsplit(("https", "www.google.com", parsed.path, clean_query, ""))
 
 
 class BookNoteInline(admin.StackedInline):
@@ -73,8 +121,22 @@ class PostAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.upload_image),
                 name="blog_post_upload_image",
             ),
+            path(
+                "resolve-maps-url/",
+                self.admin_site.admin_view(self.resolve_maps_url),
+                name="blog_post_resolve_maps_url",
+            ),
         ]
         return custom_urls + super().get_urls()
+
+    def resolve_maps_url(self, request):
+        if request.method != "POST":
+            return HttpResponseNotAllowed(["POST"])
+        try:
+            url = clean_google_maps_url(request.POST.get("url", ""))
+        except (ValueError, HTTPError, URLError, TimeoutError):
+            return JsonResponse({"error": "URL Google Maps tidak valid atau tidak dapat dibuka."}, status=400)
+        return JsonResponse({"url": url})
 
     def upload_image(self, request):
         if request.method != "POST":

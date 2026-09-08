@@ -10,7 +10,7 @@ from PIL import Image, ImageOps
 from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget, TagInputWidget
 
-ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "b", "i", "u", "s", "a", "blockquote", "ul", "ol", "li", "pre", "code", "img", "iframe"]
+ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "b", "i", "u", "s", "a", "span", "small", "blockquote", "ul", "ol", "li", "pre", "code", "img", "iframe"]
 
 
 def youtube_attributes(tag, name, value):
@@ -24,12 +24,23 @@ def youtube_attributes(tag, name, value):
     )
 
 
+def anchor_attributes(tag, name, value):
+    if name == "class":
+        return value == "place-card"
+    return name in ("href", "title", "target", "rel")
+
+
+def span_attributes(tag, name, value):
+    return name == "class" and value in ("place-card-icon", "place-card-copy")
+
+
 def sanitize_editor_html(value):
     cleaned = bleach.clean(
         value,
         tags=ALLOWED_TAGS,
         attributes={
-            "a": ["href", "title", "target", "rel"],
+            "a": anchor_attributes,
+            "span": span_attributes,
             "img": ["src", "alt", "class", "loading", "width", "height", "referrerpolicy"],
             "iframe": youtube_attributes,
         },

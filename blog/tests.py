@@ -2,6 +2,7 @@ import datetime
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -16,6 +17,7 @@ from .forms import (
     optimize_uploaded_image,
     sanitize_editor_html,
 )
+from .admin import clean_google_maps_url
 from .models import Book, BookNote, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget
 
@@ -77,6 +79,55 @@ class YouTubeSanitizationTests(TestCase):
         self.assertEqual(sanitize_editor_html(updated), updated)
         self.assertEqual(Template('{% load editor_content %}{{ body|editor_content }}').render(Context({'body': old})), updated)
         self.assertNotIn('referrerpolicy="no-referrer"', sanitize_editor_html(old.replace('<iframe ', '<iframe referrerpolicy="no-referrer" ')))
+
+
+class LocationCardTests(TestCase):
+    def test_long_google_maps_url_is_cleaned(self):
+        cleaned = clean_google_maps_url(
+            "https://www.google.com/maps/place/Monas/@-6.1754,106.8272,17z"
+            "?api=1&query=Monas&utm_source=share#details"
+        )
+
+        self.assertEqual(
+            cleaned,
+            "https://www.google.com/maps/place/Monas/@-6.1754,106.8272,17z?api=1&query=Monas",
+        )
+
+    def test_non_maps_and_non_google_urls_are_rejected(self):
+        with self.assertRaises(ValueError):
+            clean_google_maps_url("https://example.com/maps/place/Monas")
+        with self.assertRaises(ValueError):
+            clean_google_maps_url("https://www.google.com/search?q=Monas")
+
+    def test_location_card_markup_is_sanitized_and_preserved(self):
+        html = (
+            '<a class="place-card extra" href="https://www.google.com/maps/place/Monas" '
+            'target="_blank" rel="noopener noreferrer" onclick="bad()">'
+            '<span class="place-card-icon">📍</span><span class="place-card-copy">'
+            '<strong>Monas</strong><small>Buka lokasi di Google Maps ↗</small></span></a>'
+        )
+        cleaned = sanitize_editor_html(html)
+
+        self.assertNotIn("onclick", cleaned)
+        self.assertNotIn('class="place-card extra"', cleaned)
+        self.assertIn('class="place-card-icon"', cleaned)
+        self.assertIn("Buka lokasi di Google Maps", cleaned)
+
+    @patch("blog.admin.clean_google_maps_url", return_value="https://www.google.com/maps/place/Monas")
+    def test_admin_resolver_returns_cleaned_url(self, resolver):
+        admin = get_user_model().objects.create_superuser(
+            username="maps-admin", email="maps@example.com", password="strong-password"
+        )
+        self.client.force_login(admin)
+
+        response = self.client.post(
+            reverse("admin:blog_post_resolve_maps_url"),
+            {"url": "https://maps.app.goo.gl/example"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["url"], "https://www.google.com/maps/place/Monas")
+        resolver.assert_called_once_with("https://maps.app.goo.gl/example")
 
     def test_only_canonical_youtube_embed_is_allowed(self):
         src = "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"

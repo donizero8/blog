@@ -12,6 +12,7 @@
     <button type="button" data-command="insertUnorderedList" title="Daftar">•</button>
     <button type="button" data-code title="Blok kode">&lt;/&gt;</button>
     <button type="button" data-youtube title="Sematkan video YouTube" aria-label="Sematkan video YouTube">▶</button>
+    <button type="button" data-location title="Sisipkan kartu lokasi" aria-label="Sisipkan kartu lokasi">📍</button>
     <div class="medium-emoji-menu">
       <button type="button" data-emoji-toggle title="Sisipkan emoji" aria-label="Sisipkan emoji" aria-expanded="false">😊</button>
       <div class="medium-emoji-picker" data-emoji-picker hidden role="menu" aria-label="Pilih emoji">
@@ -58,6 +59,17 @@
       <div class="medium-dialog-actions"><button type="button" data-youtube-cancel>Batal</button><button type="button" data-youtube-insert>Sematkan video</button></div>
     </div>
   </dialog>
+  <dialog class="medium-image-dialog" data-location-dialog aria-label="Sisipkan kartu lokasi">
+    <div class="medium-dialog-body">
+      <div class="medium-dialog-header"><h3>Sisipkan kartu lokasi</h3><button type="button" data-location-cancel aria-label="Tutup">×</button></div>
+      <label>Nama tempat<input type="text" maxlength="120" data-location-name placeholder="Contoh: Monumen Nasional"></label>
+      <label>URL Google Maps<input type="url" inputmode="url" data-location-url placeholder="https://maps.app.goo.gl/…"></label>
+      <label>Catatan singkat (opsional)<input type="text" maxlength="160" data-location-note placeholder="Contoh: Tempat yang ingin dikunjungi"></label>
+      <p>URL pendek Google Maps akan diubah menjadi URL panjang dan parameter pelacakan akan dibuang.</p>
+      <p class="medium-upload-status" data-location-status role="status" aria-live="polite"></p>
+      <div class="medium-dialog-actions"><button type="button" data-location-cancel>Batal</button><button type="button" data-location-insert>Sisipkan lokasi</button></div>
+    </div>
+  </dialog>
   <dialog class="medium-image-dialog" data-image-dialog>
     <div class="medium-dialog-body">
       <div class="medium-dialog-header"><h3>Sisipkan gambar</h3><button type="button" data-image-cancel aria-label="Tutup">×</button></div>
@@ -77,4 +89,5 @@
     </div>
   </dialog>
   <span data-image-upload-url="{% url 'admin:blog_post_upload_image' %}" hidden></span>
+  <span data-maps-resolve-url="{% url 'admin:blog_post_resolve_maps_url' %}" hidden></span>
 </div>

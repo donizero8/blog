@@ -314,6 +314,104 @@ document.addEventListener("DOMContentLoaded", () => {
       updateToolbar();
     });
 
+    const locationButton = wrapper.querySelector("[data-location]");
+    const locationDialog = wrapper.querySelector("[data-location-dialog]");
+    const locationName = locationDialog.querySelector("[data-location-name]");
+    const locationUrl = locationDialog.querySelector("[data-location-url]");
+    const locationNote = locationDialog.querySelector("[data-location-note]");
+    const locationStatus = locationDialog.querySelector("[data-location-status]");
+    const locationInsert = locationDialog.querySelector("[data-location-insert]");
+
+    locationButton.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      rememberSelection();
+    });
+    locationButton.addEventListener("click", () => {
+      locationName.value = "";
+      locationUrl.value = "";
+      locationNote.value = "";
+      locationStatus.textContent = "";
+      locationDialog.showModal();
+      locationName.focus();
+    });
+    locationDialog.querySelectorAll("[data-location-cancel]").forEach((button) => {
+      button.addEventListener("click", () => locationDialog.close());
+    });
+    locationDialog.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        locationInsert.click();
+      }
+    });
+    locationInsert.addEventListener("click", async () => {
+      const name = locationName.value.trim();
+      const rawUrl = locationUrl.value.trim();
+      const note = locationNote.value.trim();
+      if (!name || !rawUrl) {
+        locationStatus.textContent = "Isi nama tempat dan URL Google Maps.";
+        return;
+      }
+      locationInsert.disabled = true;
+      locationStatus.textContent = "Memeriksa dan membersihkan URL…";
+      try {
+        const data = new FormData();
+        data.append("url", rawUrl);
+        const csrfToken = wrapper.closest("form")?.querySelector("[name=csrfmiddlewaretoken]")?.value;
+        const response = await fetch(wrapper.querySelector("[data-maps-resolve-url]").dataset.mapsResolveUrl, {
+          method: "POST",
+          headers: {"X-CSRFToken": csrfToken},
+          body: data,
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "URL Google Maps tidak dapat diproses.");
+
+        const card = document.createElement("a");
+        card.className = "place-card";
+        card.href = result.url;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+        card.title = `Buka ${name} di Google Maps`;
+        const icon = document.createElement("span");
+        icon.className = "place-card-icon";
+        icon.textContent = "📍";
+        const copy = document.createElement("span");
+        copy.className = "place-card-copy";
+        const heading = document.createElement("strong");
+        heading.textContent = name;
+        const detail = document.createElement("small");
+        detail.textContent = note || "Buka lokasi di Google Maps ↗";
+        copy.append(heading, detail);
+        card.append(icon, copy);
+
+        const range = savedRange && canvas.contains(savedRange.commonAncestorContainer)
+          ? savedRange
+          : document.createRange();
+        if (!savedRange || !canvas.contains(range.commonAncestorContainer)) {
+          range.selectNodeContents(canvas);
+          range.collapse(false);
+        }
+        range.deleteContents();
+        range.insertNode(card);
+        const paragraph = document.createElement("p");
+        paragraph.appendChild(document.createElement("br"));
+        card.after(paragraph);
+        locationDialog.close();
+        canvas.focus();
+        const cursor = document.createRange();
+        cursor.selectNodeContents(paragraph);
+        cursor.collapse(true);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(cursor);
+        rememberSelection();
+        sync();
+        updateToolbar();
+      } catch (error) {
+        locationStatus.textContent = error.message || "URL Google Maps tidak dapat diproses.";
+      } finally {
+        locationInsert.disabled = false;
+      }
+    });
+
     function closeEmojiPicker() {
       emojiPicker.hidden = true;
       emojiToggle.setAttribute("aria-expanded", "false");
