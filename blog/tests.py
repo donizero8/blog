@@ -19,7 +19,7 @@ from .forms import (
     sanitize_editor_html,
 )
 from .admin import clean_google_maps_url
-from .models import Book, BookNote, Post, SiteProfile, Tag
+from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget, ProfileImageWidget
 
 
@@ -37,6 +37,43 @@ class HomepageCopyTests(TestCase):
 
     def test_site_profile_uses_adjustable_image_widget(self):
         self.assertIsInstance(SiteProfileAdminForm().fields["photo"].widget, ProfileImageWidget)
+
+
+class AdminDashboardStatsTests(TestCase):
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser(
+            username="dashboard-admin", email="dashboard@example.com", password="strong-password"
+        )
+        self.post = Post.objects.create(
+            title="Draft post", slug="draft-post", author=self.admin, status=Post.Status.DRAFT
+        )
+        Post.objects.create(
+            title="Published post", slug="published-post", author=self.admin, status=Post.Status.PUBLISHED
+        )
+        Book.objects.create(title="Reading book", slug="reading-book", author="Writer", status=Book.Status.READING)
+        self.comment = Comment.objects.create(
+            post=self.post, name="Reader", email="reader@example.com", body="Needs attention"
+        )
+        self.client.force_login(self.admin)
+
+    def test_admin_index_shows_content_statistics(self):
+        response = self.client.get(reverse("admin:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Statistik konten")
+        self.assertContains(response, "Masih draft")
+        self.assertContains(response, "Belum dibaca")
+        self.assertContains(response, "Menunggu moderasi")
+        self.assertEqual(response.context["post_stats"]["drafts"], Post.objects.filter(status=Post.Status.DRAFT).count())
+        self.assertEqual(response.context["book_stats"]["reading"], Book.objects.filter(status=Book.Status.READING).count())
+        self.assertEqual(response.context["comment_stats"]["unread"], Comment.objects.filter(is_read=False).count())
+
+    def test_opening_comment_marks_it_as_read(self):
+        response = self.client.get(reverse("admin:blog_comment_change", args=[self.comment.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.comment.refresh_from_db()
+        self.assertTrue(self.comment.is_read)
 
 
 class ReadingTimelineTests(TestCase):

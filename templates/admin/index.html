@@ -1,0 +1,74 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}"><link rel="stylesheet" href="{% static 'blog/admin/dashboard-stats.css' %}">{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% if post_stats or book_stats or comment_stats %}
+    <section class="dashboard-stats" aria-labelledby="dashboard-stats-title">
+      <div class="dashboard-stats-heading">
+        <div><p class="dashboard-eyebrow">Ringkasan</p><h2 id="dashboard-stats-title">Statistik konten</h2></div>
+        <span>Diperbarui saat halaman dibuka</span>
+      </div>
+      <div class="dashboard-stat-groups">
+        {% if post_stats %}
+          <article class="dashboard-stat-group">
+            <header><span class="dashboard-stat-icon">✎</span><h3>Post</h3><strong>{{ post_stats.total }}</strong></header>
+            <div class="dashboard-stat-links">
+              <a href="{% url 'admin:blog_post_changelist' %}?status__exact=draft"><span>Masih draft</span><strong>{{ post_stats.drafts }}</strong></a>
+              <a href="{% url 'admin:blog_post_changelist' %}?status__exact=published"><span>Sudah terbit</span><strong>{{ post_stats.published }}</strong></a>
+            </div>
+          </article>
+        {% endif %}
+        {% if book_stats %}
+          <article class="dashboard-stat-group">
+            <header><span class="dashboard-stat-icon">▤</span><h3>Buku</h3><strong>{{ book_stats.total }}</strong></header>
+            <div class="dashboard-stat-links">
+              <a href="{% url 'admin:blog_book_changelist' %}?status__exact=reading"><span>Sedang dibaca</span><strong>{{ book_stats.reading }}</strong></a>
+              <a href="{% url 'admin:blog_book_changelist' %}?status__exact=want"><span>Ingin dibaca</span><strong>{{ book_stats.want }}</strong></a>
+              <a href="{% url 'admin:blog_book_changelist' %}?status__exact=finished"><span>Selesai</span><strong>{{ book_stats.finished }}</strong></a>
+              <a href="{% url 'admin:blog_book_changelist' %}?status__exact=favorite"><span>Favorit</span><strong>{{ book_stats.favorite }}</strong></a>
+            </div>
+          </article>
+        {% endif %}
+        {% if comment_stats %}
+          <article class="dashboard-stat-group {% if comment_stats.unread %}has-attention{% endif %}">
+            <header><span class="dashboard-stat-icon">◌</span><h3>Komentar</h3><strong>{{ comment_stats.total }}</strong></header>
+            <div class="dashboard-stat-links">
+              <a href="{% url 'admin:blog_comment_changelist' %}?is_read__exact=0"><span>Belum dibaca</span><strong>{{ comment_stats.unread }}</strong></a>
+              <a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=0"><span>Menunggu moderasi</span><strong>{{ comment_stats.pending }}</strong></a>
+              <a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=1"><span>Disetujui</span><strong>{{ comment_stats.approved }}</strong></a>
+            </div>
+          </article>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+  {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+  <div class="module" id="recent-actions-module">
+    <h2>{% translate 'Recent actions' %}</h2>
+    <h3>{% translate 'My actions' %}</h3>
+    {% load log %}{% get_admin_log 10 as admin_log for_user user %}
+    {% if not admin_log %}<p>{% translate 'None available' %}</p>{% else %}
+      <ul class="actionlist">
+      {% for entry in admin_log %}
+        <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+          {% if entry.is_deletion or not entry.get_admin_url %}{{ entry.object_repr }}{% else %}<a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>{% endif %}<br>
+          {% if entry.content_type %}<span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>{% else %}<span class="mini quiet">{% translate 'Unknown content' %}</span>{% endif %}
+        </li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

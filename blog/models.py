@@ -173,6 +173,7 @@ class Comment(models.Model):
     name = models.CharField("nama", max_length=80)
     email = models.EmailField("email")
     body = models.TextField("komentar", max_length=2000)
+    is_read = models.BooleanField("sudah dibaca", default=False)
     is_approved = models.BooleanField("disetujui", default=False)
     created_at = models.DateTimeField("dikirim pada", auto_now_add=True)
 

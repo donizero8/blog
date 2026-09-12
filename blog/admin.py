@@ -6,6 +6,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from django.contrib import admin
 from django.core.files.storage import default_storage
+from django.db.models import Count, Q
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.urls import path
 from PIL import Image, UnidentifiedImageError
@@ -169,16 +170,31 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("name", "post", "short_body", "is_approved", "created_at")
-    list_filter = ("is_approved", "created_at")
+    list_display = ("name", "post", "short_body", "is_read", "is_approved", "created_at")
+    list_filter = ("is_read", "is_approved", "created_at")
     search_fields = ("name", "email", "body", "post__title")
     list_editable = ("is_approved",)
-    actions = ("approve_comments", "unapprove_comments")
+    actions = ("mark_as_read", "mark_as_unread", "approve_comments", "unapprove_comments")
     readonly_fields = ("created_at",)
 
     @admin.display(description="Isi")
     def short_body(self, obj):
         return obj.body[:70]
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj and self.has_view_or_change_permission(request, obj):
+            Comment.objects.filter(pk=obj.pk, is_read=False).update(is_read=True)
+            obj.is_read = True
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    @admin.action(description="Tandai komentar terpilih sudah dibaca")
+    def mark_as_read(self, request, queryset):
+        queryset.update(is_read=True)
+
+    @admin.action(description="Tandai komentar terpilih belum dibaca")
+    def mark_as_unread(self, request, queryset):
+        queryset.update(is_read=False)
 
     @admin.action(description="Setujui komentar terpilih")
     def approve_comments(self, request, queryset):
@@ -205,3 +221,36 @@ class SiteProfileAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+admin.site.index_template = "admin/index.html"
+_default_admin_index = admin.site.index
+
+
+def dashboard_index(request, extra_context=None):
+    context = dict(extra_context or {})
+    if request.user.has_perm("blog.view_post"):
+        context["post_stats"] = Post.objects.aggregate(
+            total=Count("id"),
+            drafts=Count("id", filter=Q(status=Post.Status.DRAFT)),
+            published=Count("id", filter=Q(status=Post.Status.PUBLISHED)),
+        )
+    if request.user.has_perm("blog.view_book"):
+        context["book_stats"] = Book.objects.aggregate(
+            total=Count("id"),
+            want=Count("id", filter=Q(status=Book.Status.WANT)),
+            reading=Count("id", filter=Q(status=Book.Status.READING)),
+            finished=Count("id", filter=Q(status=Book.Status.FINISHED)),
+            favorite=Count("id", filter=Q(status=Book.Status.FAVORITE)),
+        )
+    if request.user.has_perm("blog.view_comment"):
+        context["comment_stats"] = Comment.objects.aggregate(
+            total=Count("id"),
+            unread=Count("id", filter=Q(is_read=False)),
+            pending=Count("id", filter=Q(is_approved=False)),
+            approved=Count("id", filter=Q(is_approved=True)),
+        )
+    return _default_admin_index(request, extra_context=context)
+
+
+admin.site.index = dashboard_index
