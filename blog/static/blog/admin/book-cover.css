@@ -1,0 +1,8 @@
+.book-cover-picker { max-width: 680px; }
+.book-cover-current { margin: 0 0 8px; }
+.book-cover-methods { display: flex; gap: 4px; margin-bottom: 10px; }
+.book-cover-methods button { padding: 7px 12px; border: 1px solid var(--border-color, #ccc); border-radius: 5px; background: var(--body-bg, #fff); color: var(--body-fg, #333); cursor: pointer; }
+.book-cover-methods button[aria-pressed="true"] { border-color: #116149; background: #116149; color: #fff; }
+.book-cover-picker [data-cover-panel="url"] label { display: block; float: none; width: auto; padding: 0; margin: 0 0 5px; }
+.book-cover-picker [data-cover-panel="url"] input { max-width: 100%; width: min(100%, 590px); box-sizing: border-box; }
+.book-cover-picker .help { margin: 6px 0 0 !important; text-align: left; }

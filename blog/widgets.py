@@ -1,5 +1,13 @@
 from django import forms
 
+
+class BookCoverWidget(forms.ClearableFileInput):
+    template_name = "blog/admin/widgets/book_cover.html"
+
+    class Media:
+        css = {"all": ("blog/admin/book-cover.css",)}
+        js = ("blog/admin/book-cover.js",)
+
 class MediumEditorWidget(forms.Textarea):
     template_name = "blog/admin/widgets/medium_editor.html"
 

@@ -19,6 +19,7 @@ from .forms import (
     sanitize_editor_html,
 )
 from .admin import clean_google_maps_url
+from .cover_url import download_cover_url, validate_cover_url
 from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
 from .widgets import MediumEditorWidget, ProfileImageWidget
 
@@ -37,6 +38,73 @@ class HomepageCopyTests(TestCase):
 
     def test_site_profile_uses_adjustable_image_widget(self):
         self.assertIsInstance(SiteProfileAdminForm().fields["photo"].widget, ProfileImageWidget)
+
+
+class BookCoverUrlTests(TestCase):
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser(
+            username="cover-admin", email="cover@example.com", password="strong-password"
+        )
+
+    @patch("blog.cover_url.socket.getaddrinfo", return_value=[(None, None, None, None, ("93.184.215.14", 443))])
+    def test_validates_public_https_only(self, _resolve):
+        parsed, address = validate_cover_url("https://example.com/cover.jpg")
+        self.assertEqual(parsed.hostname, "example.com")
+        self.assertEqual(address, "93.184.215.14")
+        with self.assertRaises(ValueError):
+            validate_cover_url("http://example.com/cover.jpg")
+        with self.assertRaises(ValueError):
+            validate_cover_url("https://user:pass@example.com/cover.jpg")
+
+    @patch("blog.cover_url.socket.getaddrinfo", return_value=[(None, None, None, None, ("127.0.0.1", 443))])
+    def test_rejects_private_addresses(self, _resolve):
+        with self.assertRaises(ValueError):
+            validate_cover_url("https://localhost/cover.jpg")
+
+    def test_book_form_contains_url_field(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("admin:blog_book_add"))
+        self.assertContains(response, "URL gambar sampul")
+        self.assertContains(response, "id_cover_url")
+        self.assertNotContains(response, "Cari sampul di Google Books")
+
+    @patch("blog.cover_url.download_cover_url")
+    def test_cover_url_is_saved(self, download):
+        source = BytesIO()
+        Image.new("RGB", (100, 140), "red").save(source, format="PNG")
+        download.return_value = SimpleUploadedFile("url-cover.webp", source.getvalue(), content_type="image/png")
+        form = BookAdminForm(data={"title": "A book", "slug": "a-book", "author": "Author", "status": "want", "progress": 0, "cover_url": "https://example.com/cover.jpg"})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["cover"].name, "url-cover.webp")
+        download.assert_called_once_with("https://example.com/cover.jpg")
+
+    @patch("blog.cover_url.PinnedHTTPSConnection")
+    @patch("blog.cover_url.validate_cover_url")
+    def test_download_rejects_redirects(self, validate, connection):
+        from urllib.parse import urlsplit
+        validate.return_value = (urlsplit("https://example.com/cover.jpg"), "93.184.215.14")
+        connection.return_value.getresponse.return_value.status = 302
+        with self.assertRaises(ValueError):
+            download_cover_url("https://example.com/cover.jpg")
+        connection.return_value.close.assert_called_once()
+
+    @patch("blog.cover_url.PinnedHTTPSConnection")
+    @patch("blog.cover_url.validate_cover_url")
+    def test_download_converts_image_to_local_webp(self, validate, connection):
+        from urllib.parse import urlsplit
+        validate.return_value = (urlsplit("https://example.com/cover.jpg"), "93.184.215.14")
+        source = BytesIO()
+        Image.new("RGB", (100, 140), "red").save(source, format="PNG")
+        response = connection.return_value.getresponse.return_value
+        response.status = 200
+        response.getheader.side_effect = lambda name, default=None: {
+            "Content-Type": "image/png", "Content-Length": str(len(source.getvalue()))
+        }.get(name, default)
+        response.read.return_value = source.getvalue()
+        cover = download_cover_url("https://example.com/cover.jpg")
+        with Image.open(cover) as image:
+            self.assertEqual(image.format, "WEBP")
+            self.assertEqual(image.size, (300, 424))
 
 
 class AdminDashboardStatsTests(TestCase):

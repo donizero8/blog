@@ -6,6 +6,8 @@ Profil penulis di sidebar dapat diubah melalui menu **Profil situs** di admin, t
 
 Reading journal tersedia di `/library/`. Buku, status baca, progres, rating, sampul, pelajaran, dan catatan per bab dikelola melalui menu **Buku** di admin.
 
+Di form Buku, sampul dapat diunggah manual atau diambil dari URL HTTPS gambar. Gambar dari URL divalidasi, diperkecil, lalu disimpan ke media lokal saat buku disimpan. Tidak diperlukan Google Books API key.
+
 ## Menjalankan
 
 ```bash

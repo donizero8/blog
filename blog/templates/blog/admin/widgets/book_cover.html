@@ -1,0 +1,18 @@
+<div class="book-cover-picker" data-book-cover-picker>
+  {% if widget.is_initial %}
+    <p class="book-cover-current">Saat ini: <a href="{{ widget.value.url }}">{{ widget.value }}</a></p>
+    {% if not widget.required %}<label><input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"> {{ widget.clear_checkbox_label }}</label>{% endif %}
+  {% endif %}
+  <div class="book-cover-methods" role="group" aria-label="Cara memilih sampul buku">
+    <button type="button" data-cover-method="upload" aria-pressed="true">Upload file</button>
+    <button type="button" data-cover-method="url" aria-pressed="false">Dari URL</button>
+  </div>
+  <div data-cover-panel="upload">
+    <input type="{{ widget.type }}" name="{{ widget.name }}" accept="image/jpeg,image/png,image/webp"{% include "django/forms/widgets/attrs.html" %} data-cover-upload>
+  </div>
+  <div data-cover-panel="url" hidden>
+    <label for="{{ widget.attrs.id }}_remote_url">URL langsung ke gambar HTTPS</label>
+    <input type="url" id="{{ widget.attrs.id }}_remote_url" name="cover_url" placeholder="https://example.com/cover.jpg" size="65" data-cover-url>
+    <p class="help">Gambar diunduh dan disimpan secara lokal saat buku disimpan.</p>
+  </div>
+</div>

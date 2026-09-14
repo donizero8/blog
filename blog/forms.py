@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from PIL import Image, ImageOps
 
 from .models import Book, BookNote, Comment, Post, SiteProfile, Tag
-from .widgets import MediumEditorWidget, ProfileImageWidget, TagInputWidget
+from .widgets import BookCoverWidget, MediumEditorWidget, ProfileImageWidget, TagInputWidget
 
 ALLOWED_TAGS = ["p", "br", "h2", "h3", "strong", "em", "b", "i", "u", "s", "a", "span", "small", "blockquote", "ul", "ol", "li", "pre", "code", "img", "iframe"]
 
@@ -186,10 +186,17 @@ class SiteProfileAdminForm(forms.ModelForm):
 
 
 class BookAdminForm(forms.ModelForm):
+    cover_url = forms.URLField(
+        label="URL gambar sampul",
+        required=False,
+        help_text="Tempel URL langsung ke gambar HTTPS. Gambar diunduh saat buku disimpan.",
+        widget=forms.HiddenInput,
+    )
+
     class Meta:
         model = Book
         fields = "__all__"
-        widgets = {"thoughts": MediumEditorWidget()}
+        widgets = {"thoughts": MediumEditorWidget(), "cover": BookCoverWidget()}
 
     def clean_thoughts(self):
         return sanitize_editor_html(self.cleaned_data["thoughts"])
@@ -199,6 +206,21 @@ class BookAdminForm(forms.ModelForm):
         if cover and getattr(cover, "size", 0) > 5 * 1024 * 1024:
             raise forms.ValidationError("Ukuran sampul maksimal 5 MB.")
         return optimize_uploaded_image(cover, (300, 424), "cover")
+
+    def clean(self):
+        cleaned = super().clean()
+        cover_url = cleaned.get("cover_url", "").strip()
+        if cover_url:
+            if cleaned.get("cover") and not getattr(cleaned["cover"], "_committed", False):
+                self.add_error("cover", "Pilih upload manual atau URL gambar, bukan keduanya.")
+            else:
+                from .cover_url import download_cover_url
+
+                try:
+                    cleaned["cover"] = download_cover_url(cover_url)
+                except ValueError as exc:
+                    self.add_error("cover", str(exc))
+        return cleaned
 
 
 class BookNoteAdminForm(forms.ModelForm):

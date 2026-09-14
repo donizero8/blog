@@ -86,7 +86,7 @@ class BookAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
-        ("Buku", {"fields": ("cover", "title", "slug", "author", "status")}),
+        ("Buku", {"fields": ("cover_url", "cover", "title", "slug", "author", "status")}),
         ("Progres", {
             "fields": ("progress", ("current_chapter", "total_chapters"), ("started_at", "finished_at"), "rating"),
             "classes": ("book-progress-section",),
