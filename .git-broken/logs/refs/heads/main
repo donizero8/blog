@@ -1,0 +1,30 @@
+0000000000000000000000000000000000000000 74c07cad48bd429c42e7bbc0344690f6583dec78 dony wijaya <donywijaya@detik.com> 1787796383 +0700	commit (initial): Initial commit: Dony's Notebook Django blog
+74c07cad48bd429c42e7bbc0344690f6583dec78 d4105637f2e4be97e02f3b9036cbcde3f9b0c7ab dony wijaya <donywijaya@detik.com> 1787930173 +0700	commit: Prepare latest Dony's Notebook features
+d4105637f2e4be97e02f3b9036cbcde3f9b0c7ab 136b35327e449798e4e30c177990e5f19e6526bd dony wijaya <donywijaya@detik.com> 1787931377 +0700	commit: Add production deployment with persistent local media
+136b35327e449798e4e30c177990e5f19e6526bd b681db0cbc303659b9740b5c9afde3b1c7e7b465 dony wijaya <donywijaya@detik.com> 1787932590 +0700	commit: Configure HTTPS redirect and staged HSTS
+b681db0cbc303659b9740b5c9afde3b1c7e7b465 12a09f97e3a19b578623f2e0c19518608c91c8fb dony wijaya <donywijaya@detik.com> 1788017973 +0700	commit: Add GitHub Actions CI/CD
+12a09f97e3a19b578623f2e0c19518608c91c8fb 61f02012555e01e288b0c81ce5a16feed7efb845 dony wijaya <donywijaya@detik.com> 1788018350 +0700	commit: Translate footer tagline to English
+61f02012555e01e288b0c81ce5a16feed7efb845 2ff3cdb38059b191c3ae90b70cd1e4eceef6326d dony wijaya <donywijaya@detik.com> 1788018754 +0700	commit: Translate public interface copy from Indonesian to English
+2ff3cdb38059b191c3ae90b70cd1e4eceef6326d 9de1946efd8b400631d4a29696c2d976172b8f26 dony wijaya <donywijaya@detik.com> 1788020437 +0700	commit: Add rich text editing for book journals
+9de1946efd8b400631d4a29696c2d976172b8f26 222ea59d42bb1945c842109704e72f4cf37be37c dony wijaya <donywijaya@detik.com> 1788020681 +0700	commit: Remove outdated production deployment instructions
+222ea59d42bb1945c842109704e72f4cf37be37c 511df9b81cdc60dd18067762ecc6566527179b2e dony wijaya <donywijaya@detik.com> 1788093520 +0700	commit: Translate public comment interface to English
+511df9b81cdc60dd18067762ecc6566527179b2e a9df839c7189ccb31d8190b0f50c65180d0af3bd dony wijaya <donywijaya@detik.com> 1788093642 +0700	commit: Format public dates with English month names
+a9df839c7189ccb31d8190b0f50c65180d0af3bd c8f2cc4df9419f2c9eb60ebd78e16374153fb8df dony wijaya <donywijaya@detik.com> 1788094081 +0700	commit: Use English post URLs and redirect legacy links
+c8f2cc4df9419f2c9eb60ebd78e16374153fb8df 69802b316ca41115925c84de0feb576b05d4e35d dony wijaya <donywijaya@detik.com> 1788099311 +0700	commit: Support semantic inline formatting in editor content
+69802b316ca41115925c84de0feb576b05d4e35d 9a73b18e95417a13f9ef4c66c6336506e3048929 dony wijaya <donywijaya@detik.com> 1788193456 +0700	commit: Add external image URLs and restore list styling
+9a73b18e95417a13f9ef4c66c6336506e3048929 2393bbd54cc5eb192e26d194292750f873fc4af1 dony wijaya <donywijaya@detik.com> 1788271566 +0700	commit: Add emoji picker to Medium-style editor
+2393bbd54cc5eb192e26d194292750f873fc4af1 111d65c1ac24c9d091ec45815ff1a6c700fcd50a dony wijaya <donywijaya@detik.com> 1788274725 +0700	commit: Restrict book notes to staff users
+111d65c1ac24c9d091ec45815ff1a6c700fcd50a 842c875ddd08443eba6b701e2f8e06be912262b1 dony wijaya <donywijaya@detik.com> 1788361773 +0700	commit: Add local draft autosave and formset editor initialization
+842c875ddd08443eba6b701e2f8e06be912262b1 479c389d928d33e4804501f62f7fe7b1753979ff dony wijaya <donywijaya@detik.com> 1788362452 +0700	commit: Add permission-gated admin edit shortcuts
+479c389d928d33e4804501f62f7fe7b1753979ff b9bb56a9c52a35c0041ccbd7fb74aec9e1dfc406 dony wijaya <donywijaya@detik.com> 1788415631 +0700	commit: Add pagination controls to library book sections
+b9bb56a9c52a35c0041ccbd7fb74aec9e1dfc406 187a37737057b8caa9a2efb29fae7346e3af76d1 dony wijaya <donywijaya@detik.com> 1788427522 +0700	commit: Refine timeline connector styling
+187a37737057b8caa9a2efb29fae7346e3af76d1 339d39f74cf472cb521535d1c0d5b188939ad3e1 dony wijaya <donywijaya@detik.com> 1788526965 +0700	commit: Add secure YouTube video embedding to the editor
+339d39f74cf472cb521535d1c0d5b188939ad3e1 ef28b7ad3da250d826ee6e0811e47493e61dd0f7 dony wijaya <donywijaya@detik.com> 1788527599 +0700	commit: Validate YouTube embed HTML in editor
+ef28b7ad3da250d826ee6e0811e47493e61dd0f7 ab70d092166a2c66b1045edfe145032fec8c2b46 dony wijaya <donywijaya@detik.com> 1788528198 +0700	commit: Harden editor content rendering and YouTube embed referrer policies
+ab70d092166a2c66b1045edfe145032fec8c2b46 1fbb6560e74be48128ff244f138cbe0a5025df0d dony wijaya <donywijaya@detik.com> 1788528728 +0700	commit: Add video block controls to the editor
+1fbb6560e74be48128ff244f138cbe0a5025df0d d3c619062559b1487afa0fa9fc366dea494a23d5 dony wijaya <donywijaya@detik.com> 1788615641 +0700	commit: Disable local draft persistence for new post creation
+d3c619062559b1487afa0fa9fc366dea494a23d5 570c4c20e7a3d99eec6de354e29d9fbf82e87ae3 dony wijaya <donywijaya@detik.com> 1788623558 +0700	commit: Preserve editor font sizes for lists and blockquotes
+570c4c20e7a3d99eec6de354e29d9fbf82e87ae3 184a2d397f99061902e68a1b4c6673a9ff4f189a dony wijaya <donywijaya@detik.com> 1788624639 +0700	commit: Enhance book admin progress section styling
+184a2d397f99061902e68a1b4c6673a9ff4f189a 24056d2de844cf27b75fe6b3a91f2d0f632b8180 dony wijaya <donywijaya@detik.com> 1788848564 +0700	commit: Add Google Maps location cards to the editor
+24056d2de844cf27b75fe6b3a91f2d0f632b8180 0bf3d1f3a7bed98f41cc9f8c80fb608e547f027c dony wijaya <donywijaya@detik.com> 1788849445 +0700	commit: Translate location card fallback text to English
+0bf3d1f3a7bed98f41cc9f8c80fb608e547f027c ae69315751a5f3970407e929995bfa05c221306c dony wijaya <donywijaya@detik.com> 1788877990 +0700	commit: Add adjustable profile image widget

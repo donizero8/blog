@@ -416,11 +416,53 @@ class ImageOptimizationTests(TestCase):
 
 
 class BookJournalEditorTests(TestCase):
+    def test_empty_book_note_inline_starts_collapsed_until_added(self):
+        admin = get_user_model().objects.create_superuser(
+            username="note-admin", email="note-admin@example.com", password="strong-password"
+        )
+        book = Book.objects.create(title="Empty Notes", slug="empty-notes", author="Writer")
+        self.client.force_login(admin)
+
+        response = self.client.get(reverse("admin:blog_book_change", args=[book.pk]))
+
+        self.assertNotContains(response, "Catatan buku: #1")
+        self.assertContains(response, "Tambahkan Catatan buku lagi")
+        self.assertNotContains(response, 'name="rating"')
+
+    def test_existing_book_note_is_still_shown_in_admin(self):
+        admin = get_user_model().objects.create_superuser(
+            username="existing-note-admin",
+            email="existing-note-admin@example.com",
+            password="strong-password",
+        )
+        book = Book.objects.create(title="Saved Notes", slug="saved-notes", author="Writer")
+        BookNote.objects.create(book=book, heading="Already saved", body="<p>Keep showing this.</p>")
+        self.client.force_login(admin)
+
+        response = self.client.get(reverse("admin:blog_book_change", args=[book.pk]))
+
+        self.assertContains(response, "Already saved")
+
     def test_book_and_note_forms_use_medium_editor(self):
         self.assertIsInstance(BookAdminForm().fields["thoughts"].widget, MediumEditorWidget)
         note_widget = BookNoteAdminForm().fields["body"].widget
         self.assertIsInstance(note_widget, MediumEditorWidget)
         self.assertEqual(note_widget.variant, "compact")
+
+    def test_book_dates_use_native_date_inputs(self):
+        form = BookAdminForm()
+        self.assertEqual(form.fields["started_at"].widget.input_type, "date")
+        self.assertEqual(form.fields["finished_at"].widget.input_type, "date")
+        self.assertEqual(form.fields["started_at"].widget.format, "%Y-%m-%d")
+
+    def test_finished_date_cannot_precede_started_date(self):
+        form = BookAdminForm(data={
+            "title": "Invalid dates", "slug": "invalid-dates", "author": "Writer",
+            "status": "finished", "progress": 100, "started_at": "2026-09-17",
+            "finished_at": "2026-09-16", "thoughts": "", "lessons": "",
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn("Tanggal selesai tidak boleh sebelum tanggal mulai.", form.errors["finished_at"])
 
     def test_book_and_note_html_is_sanitized(self):
         book_form = BookAdminForm(data={

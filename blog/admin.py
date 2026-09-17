@@ -73,7 +73,9 @@ def clean_google_maps_url(value):
 class BookNoteInline(admin.StackedInline):
     model = BookNote
     form = BookNoteAdminForm
-    extra = 1
+    # Keep the journal area empty until the editor explicitly adds a note.
+    # Existing notes are still rendered normally on the change page.
+    extra = 0
 
 
 @admin.register(Book)
@@ -88,7 +90,7 @@ class BookAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Buku", {"fields": ("cover_url", "cover", "title", "slug", "author", "status")}),
         ("Progres", {
-            "fields": ("progress", ("current_chapter", "total_chapters"), ("started_at", "finished_at"), "rating"),
+            "fields": ("progress", ("current_chapter", "total_chapters"), ("started_at", "finished_at")),
             "classes": ("book-progress-section",),
         }),
         ("Jurnal", {"fields": ("thoughts", "lessons")}),
@@ -96,6 +98,7 @@ class BookAdmin(admin.ModelAdmin):
     )
 
     class Media:
+        css = {"all": ("blog/admin/book.css",)}
         js = ("blog/admin/book.js",)
 
 @admin.register(Post)

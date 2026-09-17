@@ -196,7 +196,12 @@ class BookAdminForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = "__all__"
-        widgets = {"thoughts": MediumEditorWidget(), "cover": BookCoverWidget()}
+        widgets = {
+            "thoughts": MediumEditorWidget(),
+            "cover": BookCoverWidget(),
+            "started_at": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "finished_at": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+        }
 
     def clean_thoughts(self):
         return sanitize_editor_html(self.cleaned_data["thoughts"])
@@ -209,6 +214,10 @@ class BookAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        started_at = cleaned.get("started_at")
+        finished_at = cleaned.get("finished_at")
+        if started_at and finished_at and finished_at < started_at:
+            self.add_error("finished_at", "Tanggal selesai tidak boleh sebelum tanggal mulai.")
         cover_url = cleaned.get("cover_url", "").strip()
         if cover_url:
             if cleaned.get("cover") and not getattr(cleaned["cover"], "_committed", False):
