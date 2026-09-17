@@ -1,45 +1,27 @@
-{% extends "base.html" %}
-{% load i18n %}
-{% block title %}Reading Timeline — Dony’s Notebook{% endblock %}
-{% block content %}
-<header class="library-hero timeline-hero">
-  <p class="eyebrow">Reading history</p>
-  <h1>Reading Timeline</h1>
-  <p>Books accompanying me now and throughout my reading journey.</p>
-</header>
-
-{% for year_group in timeline_years %}
-  <section class="timeline-year" aria-labelledby="year-{{ year_group.year }}">
-    <h2 id="year-{{ year_group.year }}">{{ year_group.year }}</h2>
-    {% for month in year_group.months %}
-      <div class="timeline-month">
-        <h3>{% language "en" %}{{ month.date|date:"F" }}{% endlanguage %}</h3>
-        <ol class="timeline-list">
-          {% for entry in month.entries %}
-            <li>
-              <a href="{{ entry.book.get_absolute_url }}">
-                <span class="timeline-icon" aria-hidden="true">📖</span>
-                <span class="timeline-book">
-                  <strong>{{ entry.book.title }}</strong>
-                  <span>{{ entry.book.author }}</span>
-                  {% if entry.book.rating %}
-                    <span class="timeline-rating" aria-label="Rating {{ entry.book.rating }} dari 5">{{ entry.stars }} <small>{{ entry.book.rating }}</small></span>
-                  {% elif entry.book.status == "reading" %}
-                    <span class="timeline-status">Currently reading · {{ entry.book.progress }}%</span>
-                  {% endif %}
-                </span>
-              </a>
-            </li>
+{% load i18n static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reading Timeline — Dony’s Notebook</title><link rel="stylesheet" href="{% static 'blog/notebook-prototypes.css' %}"></head>
+<body class="notebook-field-notes field-notes-home field-notes-subpage">
+  <nav class="field-home-nav" aria-label="Main navigation">
+    <a class="field-home-brand" href="{% url 'blog:list' %}">DN / Field Notes</a>
+    <form class="field-home-search" action="{% url 'blog:search' %}" method="get" role="search"><label class="visually-hidden" for="timeline-search">Search articles and books</label><input id="timeline-search" name="q" type="search" placeholder="Search the notebook" maxlength="100"><button type="submit">Search</button></form>
+    <div class="field-home-links"><a aria-current="page" href="{% url 'blog:reading_timeline' %}">Reading</a><a href="{% url 'blog:library' %}">Library</a></div>
+  </nav>
+  <main class="field-book field-subpage-book">
+    <header class="field-subpage-header"><div><p class="kicker">Reading history · chronological log</p><h1>Reading Timeline</h1><p>Books accompanying me now and throughout my reading journey.</p></div><span class="field-stamp">TRAIL<br>LOG</span></header>
+    {% for year_group in timeline_years %}
+      <section class="field-timeline-year" aria-labelledby="year-{{ year_group.year }}">
+        <h2 id="year-{{ year_group.year }}">{{ year_group.year }}</h2>
+        <div class="field-timeline-sheet">
+          {% for month in year_group.months %}
+            <div class="field-timeline-month"><h3>{% language "en" %}{{ month.date|date:"F" }}{% endlanguage %}</h3><ol>
+              {% for entry in month.entries %}<li><span class="field-timeline-dot" aria-hidden="true"></span><a href="{{ entry.book.get_absolute_url }}"><span class="field-timeline-date">{% language "en" %}{{ entry.date|date:"M d" }}{% endlanguage %}</span><span><strong>{{ entry.book.title }}</strong><small>{{ entry.book.author }}</small>{% if entry.book.rating %}<b class="field-rating" aria-label="Rating {{ entry.book.rating }} of 5">{{ entry.stars }} · {{ entry.book.rating }}/5</b>{% elif entry.book.status == "reading" %}<b>{{ entry.book.progress }}% · Currently reading</b>{% endif %}</span></a></li>{% endfor %}
+            </ol></div>
           {% endfor %}
-        </ol>
-      </div>
-    {% endfor %}
-  </section>
-{% empty %}
-  <div class="timeline-empty">
-    <span aria-hidden="true">📚</span>
-    <h2>Timeline masih kosong</h2>
-    <p>Tambahkan tanggal mulai atau selesai pada buku di CMS untuk menampilkannya di sini.</p>
-  </div>
-{% endfor %}
-{% endblock %}
+        </div>
+      </section>
+    {% empty %}<div class="field-empty"><strong>No reading trail yet.</strong><p>Add a start or finish date to a book in the CMS.</p></div>{% endfor %}
+  </main>
+  <footer class="field-home-footer">Dony’s Notebook · Collected with curiosity.</footer>
+</body></html>

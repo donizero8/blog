@@ -192,6 +192,8 @@ class ReadingTimelineTests(TestCase):
         self.assertContains(response, "Sedang Dibaca")
         self.assertContains(response, "Sudah Selesai")
         self.assertNotContains(response, "Daftar Nanti")
+        self.assertContains(response, "field-notes-subpage")
+        self.assertContains(response, "field-timeline-sheet")
 
 
 class YouTubeSanitizationTests(TestCase):
@@ -311,6 +313,8 @@ class LibraryDisplayLimitTests(TestCase):
         self.assertContains(response, 'data-page-size="2"')
         self.assertContains(response, 'data-page-size="4"', count=2)
         self.assertContains(response, "Show more", count=3)
+        self.assertContains(response, "field-notes-subpage")
+        self.assertContains(response, "field-book-shelf")
 
 
 class SearchTests(TestCase):

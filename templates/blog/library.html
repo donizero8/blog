@@ -1,45 +1,34 @@
-{% extends "base.html" %}
 {% load i18n static %}
-{% block title %}My Library — Dony’s Notebook{% endblock %}
-{% block content %}
-<header class="library-hero">
-  <p class="eyebrow">Reading journal</p>
-  <h1>📚 My Library</h1>
-  <p>Books, ideas, and notes collected along the way.</p>
-</header>
-
-<dl class="library-stats">
-  <div><dt>Books I've Read</dt><dd>{{ stats.read }}</dd></div>
-  <div><dt>Currently Reading</dt><dd>{{ stats.reading }}</dd></div>
-  <div><dt>Want to Read</dt><dd>{{ stats.want }}</dd></div>
-</dl>
-
-{% if reading_books %}
-<section class="library-section">
-  <h2>Currently Reading</h2>
-  <div class="book-list" id="currently-reading-list" data-library-list data-page-size="2">
-    {% for book in reading_books %}
-      <article class="book-row"{% if forloop.counter > 2 %} hidden{% endif %}>
-        <a href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}</a>
-        <div class="book-row-content">
-          <span class="book-status status-reading">Reading</span>
-          <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
-          <p class="book-author">{{ book.author }}</p>
-          {% if book.current_chapter and book.total_chapters %}<p class="book-chapter">Chapter {{ book.current_chapter }} of {{ book.total_chapters }}</p>{% endif %}
-          <div class="progress-row"><progress value="{{ book.progress }}" max="100">{{ book.progress }}%</progress><span>{{ book.progress }}%</span></div>
-          {% if book.started_at %}<p class="book-date">Started: {% language "en" %}{{ book.started_at|date:"F j, Y" }}{% endlanguage %}</p>{% endif %}
-          <a class="notes-link" href="{{ book.get_absolute_url }}">My notes →</a>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Library — Dony’s Notebook</title><link rel="stylesheet" href="{% static 'blog/notebook-prototypes.css' %}"></head>
+<body class="notebook-field-notes field-notes-home field-notes-subpage">
+  <nav class="field-home-nav" aria-label="Main navigation">
+    <a class="field-home-brand" href="{% url 'blog:list' %}">DN / Field Notes</a>
+    <form class="field-home-search" action="{% url 'blog:search' %}" method="get" role="search"><label class="visually-hidden" for="library-search">Search articles and books</label><input id="library-search" name="q" type="search" placeholder="Search the notebook" maxlength="100"><button type="submit">Search</button></form>
+    <div class="field-home-links"><a href="{% url 'blog:reading_timeline' %}">Reading</a><a aria-current="page" href="{% url 'blog:library' %}">Library</a></div>
+  </nav>
+  <main class="field-book field-subpage-book">
+    <header class="field-subpage-header"><div><p class="kicker">Reading journal · collection index</p><h1>My Library</h1><p>Books, ideas, and notes collected along the way.</p></div><span class="field-stamp">BOOK<br>LOG</span></header>
+    <dl class="field-library-stats"><div><dt>Books I've Read</dt><dd>{{ stats.read }}</dd></div><div><dt>Currently Reading</dt><dd>{{ stats.reading }}</dd></div><div><dt>Want to Read</dt><dd>{{ stats.want }}</dd></div></dl>
+    {% if reading_books %}
+      <section class="field-library-section">
+        <div class="field-section-label"><span>CURRENTLY READING</span><small>Active fieldwork</small></div>
+        <div class="field-reading-list" id="currently-reading-list" data-library-list data-page-size="2">
+          {% for book in reading_books %}
+            <article class="field-book-entry"{% if forloop.counter > 2 %} hidden{% endif %}>
+              <a href="{{ book.get_absolute_url }}">{% include "blog/_book_cover.html" %}</a>
+              <div><p class="entry-meta">LOG {{ forloop.counter|stringformat:"02d" }} · IN PROGRESS</p><h2><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h2><p class="field-book-author">{{ book.author }}</p>{% if book.current_chapter and book.total_chapters %}<p class="field-book-detail">Chapter {{ book.current_chapter }} of {{ book.total_chapters }}</p>{% endif %}<div class="field-progress"><span style="width:{{ book.progress }}%"></span></div><b>{{ book.progress }}% complete</b>{% if book.started_at %}<small>Started {% language "en" %}{{ book.started_at|date:"M j, Y" }}{% endlanguage %}</small>{% endif %}</div>
+            </article>
+          {% endfor %}
         </div>
-      </article>
-    {% endfor %}
-  </div>
-  {% if reading_books|length > 2 %}<button class="library-show-more" type="button" data-show-more aria-controls="currently-reading-list">Show more</button>{% endif %}
-</section>
-{% endif %}
-
-{% if favorite_books %}<section class="library-section"><h2>Favorites</h2><div class="book-grid" id="favorite-books-list" data-library-list data-page-size="4">{% for book in favorite_books %}<a class="book-tile" href="{{ book.get_absolute_url }}"{% if forloop.counter > 4 %} hidden{% endif %}>{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div>{% if favorite_books|length > 4 %}<button class="library-show-more" type="button" data-show-more aria-controls="favorite-books-list">Show more</button>{% endif %}</section>{% endif %}
-{% if finished_books %}<section class="library-section"><h2>Finished</h2><div class="book-grid" id="finished-books-list" data-library-list data-page-size="4">{% for book in finished_books %}<a class="book-tile" href="{{ book.get_absolute_url }}"{% if forloop.counter > 4 %} hidden{% endif %}>{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div>{% if finished_books|length > 4 %}<button class="library-show-more" type="button" data-show-more aria-controls="finished-books-list">Show more</button>{% endif %}</section>{% endif %}
-{% if want_books %}<section class="library-section"><h2>Want to Read</h2><div class="book-grid" id="want-books-list" data-library-list data-page-size="4">{% for book in want_books %}<a class="book-tile" href="{{ book.get_absolute_url }}"{% if forloop.counter > 4 %} hidden{% endif %}>{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><span>{{ book.author }}</span></a>{% endfor %}</div>{% if want_books|length > 4 %}<button class="library-show-more" type="button" data-show-more aria-controls="want-books-list">Show more</button>{% endif %}</section>{% endif %}
-{% if not reading_books and not favorite_books and not finished_books and not want_books %}<p class="empty">No books in the library yet.</p>{% endif %}
-{% endblock %}
-{% block extra_js %}<script src="{% static 'blog/library.js' %}" defer></script>{% endblock %}
+        {% if reading_books|length > 2 %}<button class="field-show-more" type="button" data-show-more aria-controls="currently-reading-list">Show more</button>{% endif %}
+      </section>
+    {% endif %}
+    {% if favorite_books %}{% include "blog/_field_book_shelf.html" with heading="Favorites" note="Marked for keeps" books=favorite_books list_id="favorite-books-list" %}{% endif %}
+    {% if finished_books %}{% include "blog/_field_book_shelf.html" with heading="Finished" note="Completed logs" books=finished_books list_id="finished-books-list" %}{% endif %}
+    {% if want_books %}{% include "blog/_field_book_shelf.html" with heading="Want to Read" note="Future expeditions" books=want_books list_id="want-books-list" %}{% endif %}
+    {% if not reading_books and not favorite_books and not finished_books and not want_books %}<div class="field-empty"><strong>No books logged yet.</strong><p>Add your first book from the CMS.</p></div>{% endif %}
+  </main>
+  <footer class="field-home-footer">Dony’s Notebook · Collected with curiosity.</footer><script src="{% static 'blog/library.js' %}" defer></script>
+</body></html>

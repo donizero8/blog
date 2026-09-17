@@ -1,0 +1,7 @@
+<section class="field-library-section">
+  <div class="field-section-label"><span>{{ heading|upper }}</span><small>{{ note }}</small></div>
+  <div class="field-book-shelf" id="{{ list_id }}" data-library-list data-page-size="4">
+    {% for book in books %}<a class="field-book-tile" href="{{ book.get_absolute_url }}"{% if forloop.counter > 4 %} hidden{% endif %}><span class="tape" aria-hidden="true"></span>{% include "blog/_book_cover.html" %}<strong>{{ book.title }}</strong><small>{{ book.author }}</small></a>{% endfor %}
+  </div>
+  {% if books|length > 4 %}<button class="field-show-more" type="button" data-show-more aria-controls="{{ list_id }}">Show more</button>{% endif %}
+</section>
