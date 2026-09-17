@@ -1,6 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const initializedEditors = new WeakSet();
   function initializeEditor(wrapper) {
-    if (wrapper.dataset.editorInitialized === "true") return;
+    // Django clones the empty inline's markup, but not its event listeners.
+    // Never initialize that template or trust a cloned data attribute.
+    if (wrapper.closest(".empty-form") || wrapper.querySelector("textarea")?.name.includes("__prefix__")) return;
+    if (initializedEditors.has(wrapper)) return;
+    initializedEditors.add(wrapper);
     wrapper.dataset.editorInitialized = "true";
     wrapper.closest(".form-row")?.classList.add("has-medium-editor");
     const canvas = wrapper.querySelector(".medium-canvas");
