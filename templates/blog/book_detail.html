@@ -1,44 +1,17 @@
-{% extends "base.html" %}
-{% load i18n editor_content %}
-{% block title %}{{ book.title }} — My Library{% endblock %}
-{% block content %}
-<article class="book-journal">
-  {% if perms.blog.change_book %}<div class="admin-shortcut-row"><a class="admin-edit-shortcut" href="{% url 'admin:blog_book_change' book.pk %}"><span aria-hidden="true">✎</span> Edit book</a></div>{% endif %}
-  <header class="book-journal-header">
-    {% include "blog/_book_cover.html" %}
-    <div>
-      <span class="book-status status-{{ book.status }}">{{ book.get_status_display }}</span>
-      <h1>{{ book.title }}</h1>
-      <p class="book-author">{{ book.author }}</p>
-      {% if book.finished_at %}<p class="book-date">Finished: {% language "en" %}{{ book.finished_at|date:"F Y" }}{% endlanguage %}</p>{% elif book.started_at %}<p class="book-date">Started: {% language "en" %}{{ book.started_at|date:"F j, Y" }}{% endlanguage %}</p>{% endif %}
-      {% if book.status == "reading" %}<div class="progress-row journal-progress"><progress value="{{ book.progress }}" max="100">{{ book.progress }}%</progress><span>{{ book.progress }}%</span></div>{% endif %}
-    </div>
-  </header>
-
-  {% if book.thoughts %}<section class="journal-section"><h2>My Thoughts</h2><div class="journal-copy">{{ book.thoughts|editor_content }}</div></section>{% endif %}
-  {% if book.lessons_list %}<section class="journal-section"><h2>Things I Learned</h2><ul class="lesson-list">{% for lesson in book.lessons_list %}<li>{{ lesson }}</li>{% endfor %}</ul></section>{% endif %}
-  {% if book.notes.all %}
-    <section class="journal-section">
-      <h2>My Notes</h2>
-      {% if request.user.is_staff %}
-        <div class="journal-notes">
-          {% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy">{{ note.body|editor_content }}</div></article>{% endfor %}
-        </div>
-      {% else %}
-        <div class="private-notes-preview">
-          <div class="private-notes-blur" aria-hidden="true">
-            {% for note in book.notes.all %}
-              <article><span class="private-note-heading"></span><span class="private-note-line"></span><span class="private-note-line private-note-line-short"></span></article>
-            {% endfor %}
-          </div>
-          <div class="private-notes-notice" role="note">
-            <strong>Private notes</strong>
-            <p>Only the admin can view the full notes.</p>
-          </div>
-        </div>
-      {% endif %}
-    </section>
-  {% endif %}
-  <a class="back-library" href="{% url 'blog:library' %}">← Back to My Library</a>
-</article>
-{% endblock %}
+{% load static i18n editor_content %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ book.title }} — My Library</title><link rel="stylesheet" href="{% static 'blog/site.css' %}"><link rel="stylesheet" href="{% static 'blog/notebook-prototypes.css' %}"></head>
+<body class="notebook-field-notes field-notes-home field-notes-detail">
+  <nav class="field-home-nav" aria-label="Main navigation"><a class="field-home-brand" href="{% url 'blog:list' %}">DN / Field Notes</a><form class="field-home-search" action="{% url 'blog:search' %}" method="get" role="search"><label class="visually-hidden" for="book-search">Search articles and books</label><input id="book-search" name="q" type="search" placeholder="Search the notebook" maxlength="100"><button type="submit">Search</button></form><div class="field-home-links"><a href="{% url 'blog:reading_timeline' %}">Reading</a><a aria-current="page" href="{% url 'blog:library' %}">Library</a></div></nav>
+  <main class="field-book field-detail-book">
+    <div class="field-subpage-layout"><div class="field-subpage-content">
+      <article class="field-book-detail">
+        {% if perms.blog.change_book %}<div class="admin-shortcut-row"><a class="admin-edit-shortcut" href="{% url 'admin:blog_book_change' book.pk %}"><span aria-hidden="true">✎</span> Edit book</a></div>{% endif %}
+        <header class="field-book-detail-header">{% include "blog/_book_cover.html" %}<div><p class="kicker">Book log · {{ book.get_status_display }}</p><h1>{{ book.title }}</h1><p class="field-detail-deck">{{ book.author }}</p>{% if book.finished_at %}<p class="field-book-date">Finished {% language "en" %}{{ book.finished_at|date:"F Y" }}{% endlanguage %}</p>{% elif book.started_at %}<p class="field-book-date">Started {% language "en" %}{{ book.started_at|date:"F j, Y" }}{% endlanguage %}</p>{% endif %}{% if book.status == "reading" %}<div class="field-progress"><span style="width:{{ book.progress }}%"></span></div><b class="field-book-progress">{{ book.progress }}% complete</b>{% endif %}</div></header>
+        {% if book.thoughts %}<section class="field-journal-section"><div class="field-section-label"><span>MY THOUGHTS</span><small>Reading notes</small></div><div class="journal-copy field-prose">{{ book.thoughts|editor_content }}</div></section>{% endif %}
+        {% if book.lessons_list %}<section class="field-journal-section"><div class="field-section-label"><span>THINGS I LEARNED</span><small>Key findings</small></div><ul class="lesson-list">{% for lesson in book.lessons_list %}<li>{{ lesson }}</li>{% endfor %}</ul></section>{% endif %}
+        {% if book.notes.all %}<section class="field-journal-section"><div class="field-section-label"><span>MY NOTES</span><small>Notebook entries</small></div>{% if request.user.is_staff %}<div class="journal-notes">{% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy field-prose">{{ note.body|editor_content }}</div></article>{% endfor %}</div>{% else %}<div class="private-notes-preview"><div class="private-notes-blur" aria-hidden="true">{% for note in book.notes.all %}<article><span class="private-note-heading"></span><span class="private-note-line"></span><span class="private-note-line private-note-line-short"></span></article>{% endfor %}</div><div class="private-notes-notice" role="note"><strong>Private notes</strong><p>Only the admin can view the full notes.</p></div></div>{% endif %}</section>{% endif %}
+        <a class="field-back-link" href="{% url 'blog:library' %}">← Back to My Library</a>
+      </article>
+    </div>{% include "blog/_field_subpage_sidebar.html" %}</div>
+  </main><footer class="field-home-footer">Dony’s Notebook · Collected with curiosity.</footer>
+</body></html>

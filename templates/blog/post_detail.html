@@ -1,50 +1,20 @@
-{% extends "base.html" %}
-{% load i18n editor_content %}
-{% block title %}{{ post.title }} — Dony’s Notebook{% endblock %}
-{% block content %}
-<article>
-  {% if perms.blog.change_post %}<div class="admin-shortcut-row"><a class="admin-edit-shortcut" href="{% url 'admin:blog_post_change' post.pk %}"><span aria-hidden="true">✎</span> Edit post</a></div>{% endif %}
-  <header class="article-header">
-    <h1>{{ post.title }}</h1>
-    {% if post.excerpt %}<p class="meta">{{ post.excerpt }}</p>{% endif %}
-    <div class="meta">{{ post.author.get_full_name|default:post.author.username }} · {% language "en" %}{{ post.published_at|date:"F j, Y" }}{% endlanguage %}</div>
-    {% if post.tags.all %}<div class="tag-list">{% for tag in post.tags.all %}<span>{{ tag.name }}</span>{% endfor %}</div>{% endif %}
-  </header>
-  <div class="article-body">{{ post.body|editor_content }}</div>
-</article>
-
-<section class="comments" id="comments">
-  <h2>Comments <span>{{ post.approved_comments|length }}</span></h2>
-  {% if messages %}
-    {% for message in messages %}<div class="comment-notice">{{ message }}</div>{% endfor %}
-  {% endif %}
-
-  <div class="comment-list">
-    {% for comment in post.approved_comments %}
-      <article class="comment">
-        <div class="comment-avatar" aria-hidden="true">{{ comment.name|first|upper }}</div>
-        <div>
-          <header><strong>{{ comment.name }}</strong><time datetime="{{ comment.created_at|date:'c' }}">{% language "en" %}{{ comment.created_at|date:"F j, Y, H:i" }}{% endlanguage %}</time></header>
-          <div class="comment-body">{{ comment.body|linebreaksbr }}</div>
-        </div>
+{% load static i18n editor_content %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ post.title }} — Dony’s Notebook</title><link rel="stylesheet" href="{% static 'blog/site.css' %}"><link rel="stylesheet" href="{% static 'blog/notebook-prototypes.css' %}"></head>
+<body class="notebook-field-notes field-notes-home field-notes-detail">
+  <nav class="field-home-nav" aria-label="Main navigation"><a class="field-home-brand" href="{% url 'blog:list' %}">DN / Field Notes</a><form class="field-home-search" action="{% url 'blog:search' %}" method="get" role="search"><label class="visually-hidden" for="post-search">Search articles and books</label><input id="post-search" name="q" type="search" placeholder="Search the notebook" maxlength="100"><button type="submit">Search</button></form><div class="field-home-links"><a href="{% url 'blog:reading_timeline' %}">Reading</a><a href="{% url 'blog:library' %}">Library</a></div></nav>
+  <main class="field-book field-detail-book">
+    <div class="field-subpage-layout"><div class="field-subpage-content">
+      <article class="field-article">
+        {% if perms.blog.change_post %}<div class="admin-shortcut-row"><a class="admin-edit-shortcut" href="{% url 'admin:blog_post_change' post.pk %}"><span aria-hidden="true">✎</span> Edit post</a></div>{% endif %}
+        <header class="field-detail-header"><p class="kicker">Field log · {% language "en" %}{{ post.published_at|date:"F j, Y" }}{% endlanguage %}</p><h1>{{ post.title }}</h1>{% if post.excerpt %}<p class="field-detail-deck">{{ post.excerpt }}</p>{% endif %}<div class="field-detail-meta">{{ post.author.get_full_name|default:post.author.username }}{% if post.tags.all %}<span>{% for tag in post.tags.all %}#{{ tag.name }}{% if not forloop.last %} · {% endif %}{% endfor %}</span>{% endif %}</div></header>
+        <div class="article-body field-prose">{{ post.body|editor_content }}</div>
       </article>
-    {% empty %}
-      <p class="no-comments">No comments yet. Be the first to join the conversation.</p>
-    {% endfor %}
-  </div>
-
-  <form class="comment-form" method="post" action="#comments">
-    {% csrf_token %}
-    {{ comment_form.website }}
-    <h3>Leave a comment</h3>
-    <p class="form-note">Your email address will not be published. All fields are required.</p>
-    {% if comment_form.non_field_errors %}<div class="form-errors">{{ comment_form.non_field_errors }}</div>{% endif %}
-    <div class="comment-fields">
-      <div><label for="{{ comment_form.name.id_for_label }}">Name</label>{{ comment_form.name }}{{ comment_form.name.errors }}</div>
-      <div><label for="{{ comment_form.email.id_for_label }}">Email</label>{{ comment_form.email }}{{ comment_form.email.errors }}</div>
-    </div>
-    <div><label for="{{ comment_form.body.id_for_label }}">Comment</label>{{ comment_form.body }}{{ comment_form.body.errors }}</div>
-    <button type="submit">Post comment</button>
-  </form>
-</section>
-{% endblock %}
+      <section class="comments field-comments" id="comments">
+        <div class="field-section-label"><span>Comments · {{ post.approved_comments|length }}</span><small>Reader notes</small></div>
+        {% if messages %}{% for message in messages %}<div class="comment-notice">{{ message }}</div>{% endfor %}{% endif %}
+        <div class="comment-list">{% for comment in post.approved_comments %}<article class="comment"><div class="comment-avatar" aria-hidden="true">{{ comment.name|first|upper }}</div><div><header><strong>{{ comment.name }}</strong><time datetime="{{ comment.created_at|date:'c' }}">{% language "en" %}{{ comment.created_at|date:"F j, Y, H:i" }}{% endlanguage %}</time></header><div class="comment-body">{{ comment.body|linebreaksbr }}</div></div></article>{% empty %}<p class="no-comments">No comments yet. Be the first to join the conversation.</p>{% endfor %}</div>
+        <form class="comment-form field-comment-form" method="post" action="#comments">{% csrf_token %}{{ comment_form.website }}<h3>Leave a comment</h3><p class="form-note">Your email address will not be published. All fields are required.</p>{% if comment_form.non_field_errors %}<div class="form-errors">{{ comment_form.non_field_errors }}</div>{% endif %}<div class="comment-fields"><div><label for="{{ comment_form.name.id_for_label }}">Name</label>{{ comment_form.name }}{{ comment_form.name.errors }}</div><div><label for="{{ comment_form.email.id_for_label }}">Email</label>{{ comment_form.email }}{{ comment_form.email.errors }}</div></div><div><label for="{{ comment_form.body.id_for_label }}">Comment</label>{{ comment_form.body }}{{ comment_form.body.errors }}</div><button type="submit">Post comment</button></form>
+      </section>
+    </div>{% include "blog/_field_subpage_sidebar.html" %}</div>
+  </main><footer class="field-home-footer">Dony’s Notebook · Collected with curiosity.</footer>
+</body></html>

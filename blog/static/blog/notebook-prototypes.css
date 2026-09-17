@@ -176,6 +176,41 @@ a { color:inherit; }
 .field-timeline-month small { margin-top:4px; color:#626254; font:12px system-ui,sans-serif; }
 .field-timeline-month b { margin-top:8px; color:#365b46; font:800 10px system-ui,sans-serif; }
 
+/* Field Notes — article and book details */
+.field-detail-book { width:min(1060px,100%); min-height:720px; box-shadow:0 30px 90px rgb(0 0 0 / 32%); }
+.field-detail-book .field-subpage-layout { padding-top:0; }
+.field-detail-header { margin-bottom:42px; padding-bottom:28px; border-bottom:1px solid rgb(78 80 62 / 38%); }
+.field-detail-header h1,.field-book-detail-header h1 { margin:8px 0 14px; font:700 clamp(42px,6vw,68px)/.98 Georgia,serif; letter-spacing:-2px; }
+.field-detail-header h1,.field-book-detail-header h1 { color:#24251f; }
+.field-detail-deck { margin:0 0 17px; color:#555646; font:17px/1.5 Georgia,serif; }
+.field-detail-meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; color:#5e5e50; font:700 10px system-ui,sans-serif; letter-spacing:.5px; text-transform:uppercase; }
+.field-detail-meta span { color:#315f75; }
+.field-prose { color:#292a24; font:18px/1.72 Georgia,serif; }
+.field-prose h2 { font-size:30px; }
+.field-prose h3 { font-size:23px; }
+.field-prose blockquote { border-left-color:#bd5547; }
+.field-prose pre { border:0; border-radius:0; background:#303b34; color:#f4efdf; }
+.field-prose .place-card { border:0; border-left:3px solid #bd5547; border-radius:0; background:rgb(244 239 223 / 65%); box-shadow:none; }
+.field-prose .article-image { border-radius:0; box-shadow:4px 6px 0 rgb(74 70 50 / 16%); }
+.field-prose iframe.youtube-embed { border-radius:0; box-shadow:4px 6px 0 rgb(74 70 50 / 16%); }
+.field-comments { margin-top:60px; padding-top:0; border-top:0; }
+.field-comments .comment { border-color:rgb(78 80 62 / 24%); }
+.field-comment-form { border:0; border-radius:0; background:rgb(244 239 223 / 62%); box-shadow:none; }
+.field-comment-form input,.field-comment-form textarea { border-color:rgb(78 80 62 / 38%); border-radius:0; background:#f4efdf; }
+.field-comment-form button { border-radius:0; background:#303b34; }
+.field-book-detail-header { display:grid; grid-template-columns:150px minmax(0,1fr); gap:30px; align-items:start; margin-bottom:54px; }
+.field-book-detail-header .library-cover { display:grid; width:150px; height:212px; place-items:center; object-fit:cover; box-shadow:4px 6px 0 rgb(74 70 50 / 18%); }
+.field-book-detail-header .book-cover-placeholder { border:1px solid #4e503e; background:#303b34; color:#f4efdf; text-align:center; font:800 9px/1.35 system-ui,sans-serif; letter-spacing:1px; }
+.field-book-date,.field-book-progress { display:block; margin:12px 0 0; color:#5d5d50; font:700 10px system-ui,sans-serif; text-transform:uppercase; }
+.field-book-detail-header .field-progress { max-width:330px; margin-top:18px; }
+.field-journal-section { margin:0 0 48px; }
+.field-journal-section .field-section-label { margin-bottom:24px; }
+.field-journal-section .lesson-list { font-size:17px; }
+.field-journal-section .journal-notes article { border-left-color:#bd5547; }
+.field-journal-section .private-notes-preview { border-radius:0; }
+.field-back-link { display:inline-block; padding-bottom:4px; border-bottom:1px solid #4e503e; font:800 11px system-ui,sans-serif; text-decoration:none; text-transform:uppercase; }
+.field-detail-book .admin-edit-shortcut { border-color:#303b34; border-radius:0; background:#303b34; color:#f4efdf; }
+
 @media (max-width:760px) {
   .prototype-back { position:absolute; }
   .classic-sheet { padding:80px 28px 70px 62px; background:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,#c7d3d5 32px),linear-gradient(90deg,transparent 0,transparent 42px,#df8b83 43px,#df8b83 45px,transparent 46px),#fbf8ed; }
@@ -214,4 +249,7 @@ a { color:inherit; }
   .field-book-entry .library-cover { width:82px; height:116px; }
   .field-book-shelf { grid-template-columns:1fr; }
   .field-timeline-sheet { padding:24px 20px; }
+  .field-book-detail-header { grid-template-columns:90px minmax(0,1fr); gap:18px; }
+  .field-book-detail-header .library-cover { width:90px; height:127px; }
+  .field-detail-header h1,.field-book-detail-header h1 { font-size:36px; letter-spacing:-1px; }
 }

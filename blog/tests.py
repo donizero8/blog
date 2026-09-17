@@ -56,6 +56,19 @@ class HomepageCopyTests(TestCase):
     def test_site_profile_uses_adjustable_image_widget(self):
         self.assertIsInstance(SiteProfileAdminForm().fields["photo"].widget, ProfileImageWidget)
 
+    def test_post_and_book_details_use_field_notes_design(self):
+        author = get_user_model().objects.create_user(username="field-author")
+        post = Post.objects.create(title="Field article", slug="field-article", author=author, status=Post.Status.PUBLISHED)
+        book = Book.objects.create(title="Field book", slug="field-book", author="Field writer")
+
+        post_response = self.client.get(post.get_absolute_url())
+        book_response = self.client.get(book.get_absolute_url())
+
+        self.assertContains(post_response, "field-notes-detail")
+        self.assertContains(post_response, "field-subpage-aside")
+        self.assertContains(book_response, "field-notes-detail")
+        self.assertContains(book_response, "field-book-detail-header")
+
 
 class BookCoverUrlTests(TestCase):
     def setUp(self):
