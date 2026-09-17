@@ -16,7 +16,7 @@
         <div class="field-timeline-sheet">
           {% for month in year_group.months %}
             <div class="field-timeline-month"><h3>{% language "en" %}{{ month.date|date:"F" }}{% endlanguage %}</h3><ol>
-              {% for entry in month.entries %}<li><span class="field-timeline-dot" aria-hidden="true"></span><a href="{{ entry.book.get_absolute_url }}"><span class="field-timeline-date">{% language "en" %}{{ entry.date|date:"M d" }}{% endlanguage %}</span><span><strong>{{ entry.book.title }}</strong><small>{{ entry.book.author }}</small>{% if entry.book.rating %}<b class="field-rating" aria-label="Rating {{ entry.book.rating }} of 5">{{ entry.stars }} · {{ entry.book.rating }}/5</b>{% elif entry.book.status == "reading" %}<b>{{ entry.book.progress }}% · Currently reading</b>{% endif %}</span></a></li>{% endfor %}
+              {% for entry in month.entries %}<li><span class="field-timeline-dot" aria-hidden="true"></span><a href="{{ entry.book.get_absolute_url }}"><span class="field-timeline-date">{% language "en" %}{{ entry.date|date:"M d" }}{% endlanguage %}</span><span><strong>{{ entry.book.title }}</strong><small>{{ entry.book.author }}</small>{% if entry.book.status == "reading" %}<b>{{ entry.book.progress }}% · Currently reading</b>{% endif %}</span></a></li>{% endfor %}
             </ol></div>
           {% endfor %}
         </div>

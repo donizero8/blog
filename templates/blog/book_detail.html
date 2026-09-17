@@ -10,7 +10,6 @@
       <span class="book-status status-{{ book.status }}">{{ book.get_status_display }}</span>
       <h1>{{ book.title }}</h1>
       <p class="book-author">{{ book.author }}</p>
-      {% if book.rating %}<p class="book-rating"><span aria-label="Rating {{ book.rating }} dari 5">★★★★★</span> <strong>{{ book.rating }}</strong></p>{% endif %}
       {% if book.finished_at %}<p class="book-date">Finished: {% language "en" %}{{ book.finished_at|date:"F Y" }}{% endlanguage %}</p>{% elif book.started_at %}<p class="book-date">Started: {% language "en" %}{{ book.started_at|date:"F j, Y" }}{% endlanguage %}</p>{% endif %}
       {% if book.status == "reading" %}<div class="progress-row journal-progress"><progress value="{{ book.progress }}" max="100">{{ book.progress }}%</progress><span>{{ book.progress }}%</span></div>{% endif %}
     </div>

@@ -130,12 +130,10 @@ def reading_timeline(request):
         activity_date = book.finished_at or book.started_at
         if not activity_date:
             continue
-        rating = int(book.rating or 0)
         entries.append(
             {
                 "book": book,
                 "date": activity_date,
-                "stars": "★" * rating + "☆" * (5 - rating),
             }
         )
     entries.sort(key=lambda entry: (entry["date"], entry["book"].title), reverse=True)

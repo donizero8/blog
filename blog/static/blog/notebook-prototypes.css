@@ -167,7 +167,6 @@ a { color:inherit; }
 .field-timeline-month strong { font:700 21px/1.15 Georgia,serif; }
 .field-timeline-month small { margin-top:4px; color:#626254; font:12px system-ui,sans-serif; }
 .field-timeline-month b { margin-top:8px; color:#365b46; font:800 10px system-ui,sans-serif; }
-.field-timeline-month .field-rating { color:#8c3e34; letter-spacing:1px; }
 
 @media (max-width:760px) {
   .prototype-back { position:absolute; }

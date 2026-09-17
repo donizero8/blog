@@ -192,6 +192,8 @@ class ReadingTimelineTests(TestCase):
         self.assertContains(response, "Sedang Dibaca")
         self.assertContains(response, "Sudah Selesai")
         self.assertNotContains(response, "Daftar Nanti")
+        self.assertNotContains(response, "★")
+        self.assertNotContains(response, "4/5")
         self.assertContains(response, "field-notes-subpage")
         self.assertContains(response, "field-timeline-sheet")
 
