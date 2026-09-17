@@ -624,9 +624,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function initializeEditorsWithin(root) {
+    if (root.matches?.("[data-medium-editor]")) initializeEditor(root);
+    root.querySelectorAll?.("[data-medium-editor]").forEach(initializeEditor);
+  }
+
   document.querySelectorAll("[data-medium-editor]").forEach(initializeEditor);
   document.addEventListener("formset:added", (event) => {
-    if (event.target.matches?.("[data-medium-editor]")) initializeEditor(event.target);
-    event.target.querySelectorAll?.("[data-medium-editor]").forEach(initializeEditor);
+    initializeEditorsWithin(event.target);
   });
+  // Django admin has emitted formset events through both native DOM events and
+  // jQuery across releases. Observing inserted inline rows keeps dynamically
+  // added BookNote editors working regardless of which event implementation is
+  // present. Initialization remains safe because each wrapper is marked once.
+  new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        window.queueMicrotask(() => initializeEditorsWithin(node));
+      });
+    });
+  }).observe(document.body, {childList: true, subtree: true});
 });
