@@ -30,6 +30,8 @@ class HomepageCopyTests(TestCase):
         self.assertContains(response, "field-notes-home")
         self.assertContains(response, "FIELD")
         self.assertContains(response, "Search the notebook")
+        self.assertContains(response, "field-profile-photo")
+        self.assertNotContains(response, "Archive search")
 
     def test_notebook_prototypes_are_available_without_changing_homepage(self):
         for variant in ("classic", "study", "field-notes"):

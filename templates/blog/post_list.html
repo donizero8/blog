@@ -39,20 +39,37 @@
       </div>
       <aside class="field-home-aside">
         <div class="field-index">
-          <strong>Notebook keeper</strong><h2>{{ site_profile.name }}</h2>
+          <div class="field-profile-head">
+            {% if site_profile.photo %}
+              <img class="field-profile-photo" src="{{ site_profile.photo.url }}" alt="{{ site_profile.name }}" width="72" height="72">
+            {% else %}
+              <span class="field-profile-photo field-profile-initial" aria-hidden="true">{{ site_profile.name|first|upper|default:"D" }}</span>
+            {% endif %}
+            <div><strong>Notebook keeper</strong><h2>{{ site_profile.name }}</h2></div>
+          </div>
           {% if site_profile.headline %}<p>{{ site_profile.headline }}</p>{% endif %}
           {% if site_profile.location %}<small>⌖ {{ site_profile.location }}</small>{% endif %}
         </div>
         {% if currently_reading_book %}
           <a class="field-reading" href="{{ currently_reading_book.get_absolute_url }}">
-            <span>CURRENTLY READING</span><strong>{{ currently_reading_book.title }}</strong>
-            <small>{{ currently_reading_book.author }}</small><b>{{ currently_reading_book.progress }}% complete →</b>
+            <span class="field-reading-label">CURRENTLY READING</span>
+            <span class="field-reading-body">
+              {% if currently_reading_book.cover %}
+                <img class="field-reading-cover" src="{{ currently_reading_book.cover.url }}" alt="Cover of {{ currently_reading_book.title }}" width="64" height="90">
+              {% else %}
+                <span class="field-reading-cover field-reading-cover-placeholder" aria-hidden="true">BOOK</span>
+              {% endif %}
+              <span class="field-reading-copy">
+                <strong>{{ currently_reading_book.title }}</strong>
+                <small>{{ currently_reading_book.author }}</small>
+                <b>{{ currently_reading_book.progress }}% complete →</b>
+              </span>
+            </span>
           </a>
         {% endif %}
         <div class="field-index field-directory">
           <strong>Directory</strong>
           <a href="{% url 'blog:library' %}">Reading log →</a>
-          <a href="{% url 'blog:search' %}">Archive search →</a>
         </div>
       </aside>
     </section>
