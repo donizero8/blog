@@ -32,6 +32,7 @@ class HomepageCopyTests(TestCase):
         self.assertContains(response, "Search the notebook")
         self.assertContains(response, "field-profile-photo")
         self.assertNotContains(response, "Archive search")
+        self.assertNotContains(response, "Directory")
 
     def test_notebook_prototypes_are_available_without_changing_homepage(self):
         for variant in ("classic", "study", "field-notes"):
@@ -197,6 +198,7 @@ class ReadingTimelineTests(TestCase):
         self.assertContains(response, "field-notes-subpage")
         self.assertContains(response, "field-timeline-sheet")
         self.assertContains(response, "field-subpage-aside")
+        self.assertNotContains(response, "Field index")
 
 
 class YouTubeSanitizationTests(TestCase):

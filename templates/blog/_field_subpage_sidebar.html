@@ -8,10 +8,4 @@
       <small>Currently reading</small><strong>{{ currently_reading_book.title }}</strong><span>{{ currently_reading_book.progress }}% complete →</span>
     </a>
   {% endif %}
-  <nav class="field-subpage-index" aria-label="Reading sections">
-    <small>Field index</small>
-    <a{% if request.resolver_match.url_name == "reading_timeline" %} aria-current="page"{% endif %} href="{% url 'blog:reading_timeline' %}"><span>01</span> Reading timeline</a>
-    <a{% if request.resolver_match.url_name == "library" %} aria-current="page"{% endif %} href="{% url 'blog:library' %}"><span>02</span> My library</a>
-    <a href="{% url 'blog:list' %}"><span>03</span> Recent logs</a>
-  </nav>
 </aside>

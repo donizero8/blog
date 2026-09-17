@@ -103,8 +103,6 @@ a { color:inherit; }
 .field-reading strong { font:700 20px/1.15 Georgia,serif; }
 .field-reading small { color:#cfc8b3; font:12px system-ui,sans-serif; }
 .field-reading b { margin-top:8px; font:800 11px system-ui,sans-serif; }
-.field-directory { display:grid; gap:12px; }
-.field-directory strong { margin-bottom:5px; }
 .load-more-wrap { display:grid; justify-items:center; gap:8px; padding:34px 0 8px; }
 .load-more { padding:11px 18px; border:2px solid #4e503e; background:transparent; color:#343b32; font:800 12px system-ui,sans-serif; letter-spacing:.5px; text-decoration:none; text-transform:uppercase; }
 .load-more:hover { background:#343b32; color:#f4efdf; }
@@ -123,16 +121,11 @@ a { color:inherit; }
 .field-subpage-profile { display:grid; grid-template-columns:58px 1fr; gap:12px; align-items:center; }
 .field-subpage-profile img,.field-subpage-profile > span { display:grid; width:58px; height:58px; place-items:center; border:1px solid #4e503e; background:#e6ddc5; object-fit:cover; font:700 27px Georgia,serif; transform:rotate(-2deg); }
 .field-subpage-profile small,.field-subpage-profile strong { display:block; }
-.field-subpage-profile small,.field-subpage-reading small,.field-subpage-index > small { font-size:8px; font-weight:800; letter-spacing:1.1px; text-transform:uppercase; }
+.field-subpage-profile small,.field-subpage-reading small { font-size:8px; font-weight:800; letter-spacing:1.1px; text-transform:uppercase; }
 .field-subpage-profile strong { margin-top:4px; font:700 16px/1.1 Georgia,serif; }
 .field-subpage-reading { display:grid; gap:6px; padding:17px; background:#303b34; color:#f4efdf; text-decoration:none; transform:rotate(.7deg); }
 .field-subpage-reading strong { font:700 16px/1.15 Georgia,serif; }
 .field-subpage-reading span { color:#d5cdb8; font-size:10px; font-weight:700; }
-.field-subpage-index { display:grid; }
-.field-subpage-index > small { margin-bottom:8px; color:#666553; }
-.field-subpage-index a { display:grid; grid-template-columns:25px 1fr; gap:8px; padding:10px 0; border-bottom:1px solid rgb(78 80 62 / 25%); font-size:11px; font-weight:700; text-decoration:none; }
-.field-subpage-index a span { color:#8c3e34; font-size:9px; }
-.field-subpage-index a[aria-current="page"] { color:#315f75; }
 .field-library-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; margin:0 0 52px; padding:0; }
 .field-library-stats div { display:flex; flex-direction:column-reverse; gap:5px; padding:8px 0; }
 .field-library-stats dt { color:#5e5e4e; font:700 10px system-ui,sans-serif; letter-spacing:.5px; text-transform:uppercase; }
