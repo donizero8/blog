@@ -10,6 +10,7 @@
   </nav>
   <main class="field-book field-subpage-book">
     <header class="field-subpage-header"><div><p class="kicker">Reading history · chronological log</p><h1>Reading Timeline</h1><p>Books accompanying me now and throughout my reading journey.</p></div><span class="field-stamp">TRAIL<br>LOG</span></header>
+    <div class="field-subpage-layout"><div class="field-subpage-content">
     {% for year_group in timeline_years %}
       <section class="field-timeline-year" aria-labelledby="year-{{ year_group.year }}">
         <h2 id="year-{{ year_group.year }}">{{ year_group.year }}</h2>
@@ -22,6 +23,7 @@
         </div>
       </section>
     {% empty %}<div class="field-empty"><strong>No reading trail yet.</strong><p>Add a start or finish date to a book in the CMS.</p></div>{% endfor %}
+    </div>{% include "blog/_field_subpage_sidebar.html" %}</div>
   </main>
   <footer class="field-home-footer">Dony’s Notebook · Collected with curiosity.</footer>
 </body></html>

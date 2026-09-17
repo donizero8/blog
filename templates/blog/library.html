@@ -10,6 +10,7 @@
   </nav>
   <main class="field-book field-subpage-book">
     <header class="field-subpage-header"><div><p class="kicker">Reading journal · collection index</p><h1>My Library</h1><p>Books, ideas, and notes collected along the way.</p></div><span class="field-stamp">BOOK<br>LOG</span></header>
+    <div class="field-subpage-layout"><div class="field-subpage-content">
     <dl class="field-library-stats"><div><dt>Books I've Read</dt><dd>{{ stats.read }}</dd></div><div><dt>Currently Reading</dt><dd>{{ stats.reading }}</dd></div><div><dt>Want to Read</dt><dd>{{ stats.want }}</dd></div></dl>
     {% if reading_books %}
       <section class="field-library-section">
@@ -29,6 +30,7 @@
     {% if finished_books %}{% include "blog/_field_book_shelf.html" with heading="Finished" note="Completed logs" books=finished_books list_id="finished-books-list" %}{% endif %}
     {% if want_books %}{% include "blog/_field_book_shelf.html" with heading="Want to Read" note="Future expeditions" books=want_books list_id="want-books-list" %}{% endif %}
     {% if not reading_books and not favorite_books and not finished_books and not want_books %}<div class="field-empty"><strong>No books logged yet.</strong><p>Add your first book from the CMS.</p></div>{% endif %}
+    </div>{% include "blog/_field_subpage_sidebar.html" %}</div>
   </main>
   <footer class="field-home-footer">Dony’s Notebook · Collected with curiosity.</footer><script src="{% static 'blog/library.js' %}" defer></script>
 </body></html>

@@ -196,6 +196,7 @@ class ReadingTimelineTests(TestCase):
         self.assertNotContains(response, "4/5")
         self.assertContains(response, "field-notes-subpage")
         self.assertContains(response, "field-timeline-sheet")
+        self.assertContains(response, "field-subpage-aside")
 
 
 class YouTubeSanitizationTests(TestCase):
@@ -317,6 +318,7 @@ class LibraryDisplayLimitTests(TestCase):
         self.assertContains(response, "Show more", count=3)
         self.assertContains(response, "field-notes-subpage")
         self.assertContains(response, "field-book-shelf")
+        self.assertContains(response, "field-subpage-aside")
 
 
 class SearchTests(TestCase):

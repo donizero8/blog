@@ -1,0 +1,17 @@
+<aside class="field-subpage-aside" aria-label="Notebook sidebar">
+  <div class="field-subpage-profile">
+    {% if site_profile.photo %}<img src="{{ site_profile.photo.url }}" alt="{{ site_profile.name }}" width="58" height="58">{% else %}<span aria-hidden="true">{{ site_profile.name|first|upper|default:"D" }}</span>{% endif %}
+    <div><small>Notebook keeper</small><strong>{{ site_profile.name }}</strong></div>
+  </div>
+  {% if currently_reading_book %}
+    <a class="field-subpage-reading" href="{{ currently_reading_book.get_absolute_url }}">
+      <small>Currently reading</small><strong>{{ currently_reading_book.title }}</strong><span>{{ currently_reading_book.progress }}% complete →</span>
+    </a>
+  {% endif %}
+  <nav class="field-subpage-index" aria-label="Reading sections">
+    <small>Field index</small>
+    <a{% if request.resolver_match.url_name == "reading_timeline" %} aria-current="page"{% endif %} href="{% url 'blog:reading_timeline' %}"><span>01</span> Reading timeline</a>
+    <a{% if request.resolver_match.url_name == "library" %} aria-current="page"{% endif %} href="{% url 'blog:library' %}"><span>02</span> My library</a>
+    <a href="{% url 'blog:list' %}"><span>03</span> Recent logs</a>
+  </nav>
+</aside>
