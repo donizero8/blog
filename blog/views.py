@@ -1,14 +1,57 @@
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import CommentForm
 from .models import Book, Comment, Post
 
+
+NOTEBOOK_PROTOTYPES = {
+    "classic": {
+        "number": "01",
+        "name": "Classic Notebook",
+        "description": "A quiet ruled-paper journal with handwritten details.",
+    },
+    "study": {
+        "number": "02",
+        "name": "Study Journal",
+        "description": "A structured study desk for articles, books, and progress.",
+    },
+    "field-notes": {
+        "number": "03",
+        "name": "Field Notes",
+        "description": "A compact explorer’s log with cards, stamps, and annotations.",
+    },
+}
+
+
+def notebook_prototype(request, variant):
+    prototype = NOTEBOOK_PROTOTYPES.get(variant)
+    if prototype is None:
+        raise Http404("Prototype tidak ditemukan.")
+    posts = (
+        Post.objects.filter(status=Post.Status.PUBLISHED)
+        .select_related("author")
+        .prefetch_related("tags")[:6]
+    )
+    books = Book.objects.all()[:4]
+    return render(
+        request,
+        "blog/notebook_prototype.html",
+        {
+            "prototype": prototype,
+            "prototype_key": variant,
+            "prototype_choices": NOTEBOOK_PROTOTYPES,
+            "posts": posts,
+            "books": books,
+        },
+    )
+
 def post_list(request):
     posts = Post.objects.filter(status=Post.Status.PUBLISHED).select_related("author").prefetch_related("tags")
     page = Paginator(posts, 5).get_page(request.GET.get("page"))
-    context = {"posts": page.object_list, "page": page}
+    context = {"posts": page.object_list, "page": page, "field_notes_home": True}
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         response = render(request, "blog/_post_cards.html", context)
         response["X-Next-Page"] = page.next_page_number() if page.has_next() else ""

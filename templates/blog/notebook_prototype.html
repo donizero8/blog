@@ -1,0 +1,97 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ prototype.name }} · Dony’s Notebook</title>
+  <link rel="stylesheet" href="{% static 'blog/notebook-prototypes.css' %}">
+</head>
+<body class="notebook-prototype notebook-{{ prototype_key }}">
+  <a class="prototype-back" href="{% url 'blog:list' %}">← Back to current site</a>
+  <nav class="prototype-switcher" aria-label="Notebook prototypes">
+    {% for key, item in prototype_choices.items %}
+      <a href="{% url 'blog:notebook_prototype' key %}"{% if key == prototype_key %} aria-current="page"{% endif %}>{{ item.number }}</a>
+    {% endfor %}
+  </nav>
+
+  {% if prototype_key == "classic" %}
+    <main class="classic-sheet">
+      <header class="classic-header">
+        <span class="hand-note">Issue No. {{ prototype.number }}</span>
+        <p class="kicker">Personal notes on books, code &amp; everyday discoveries</p>
+        <h1>Dony’s<br>Notebook</h1>
+        <p class="classic-intro">{{ site_profile.hero_description }}</p>
+        <div class="classic-date">Jakarta · {% now "F Y" %}</div>
+      </header>
+      <section class="classic-entries" aria-label="Recent notes">
+        {% for post in posts %}
+          <article>
+            <span class="entry-number">0{{ forloop.counter }}</span>
+            <div>
+              <p class="entry-meta">{% language "en" %}{{ post.published_at|date:"M j, Y" }}{% endlanguage %}</p>
+              <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+              <p>{{ post.excerpt|default:"A note from the notebook, saved for another day." }}</p>
+            </div>
+          </article>
+        {% empty %}<p>No entries yet.</p>{% endfor %}
+      </section>
+    </main>
+  {% elif prototype_key == "study" %}
+    <main class="study-desk">
+      <header class="study-header">
+        <div><p class="kicker">Dony’s learning desk</p><h1>Study Journal</h1></div>
+        <div class="study-mark">DN<br><small>EST. 2026</small></div>
+      </header>
+      <section class="study-grid">
+        <div class="study-notes">
+          <div class="section-heading"><span>01</span><h2>Latest notes</h2></div>
+          {% for post in posts|slice:":4" %}
+            <article class="study-entry">
+              <p>{% language "en" %}{{ post.published_at|date:"M d" }}{% endlanguage %}</p>
+              <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+              <span>{{ post.excerpt|truncatewords:17 }}</span>
+            </article>
+          {% endfor %}
+        </div>
+        <aside class="study-books">
+          <div class="section-heading"><span>02</span><h2>Reading shelf</h2></div>
+          {% for book in books %}
+            <a class="study-book" href="{{ book.get_absolute_url }}">
+              <span class="book-index">{{ forloop.counter|stringformat:"02d" }}</span>
+              <span><strong>{{ book.title }}</strong><small>{{ book.author }}</small></span>
+              <b>{{ book.progress }}%</b>
+            </a>
+          {% empty %}<p>No books yet.</p>{% endfor %}
+          <blockquote>“Notes turn passing thoughts into things we can revisit.”</blockquote>
+        </aside>
+      </section>
+    </main>
+  {% else %}
+    <main class="field-book">
+      <header class="field-header">
+        <div class="field-badge">FIELD<br>NOTES</div>
+        <div><p class="kicker">Collected observations</p><h1>Dony’s Notebook</h1><p>{{ site_profile.hero_description }}</p></div>
+        <span class="field-stamp">VOL.<br>2026</span>
+      </header>
+      <section class="field-board">
+        {% for post in posts %}
+          <article class="field-card field-card-{{ forloop.counter }}">
+            <span class="tape" aria-hidden="true"></span>
+            <p class="entry-meta">LOG {{ forloop.counter|stringformat:"02d" }} · {% language "en" %}{{ post.published_at|date:"M j" }}{% endlanguage %}</p>
+            <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+            <p>{{ post.excerpt|truncatewords:22 }}</p>
+            {% if post.tags.all %}<div class="field-tags">{% for tag in post.tags.all %}<span>#{{ tag.name }}</span>{% endfor %}</div>{% endif %}
+          </article>
+        {% endfor %}
+        <aside class="field-index">
+          <strong>Current coordinates</strong>
+          <p>{{ site_profile.location|default:"Jakarta, Indonesia" }}</p>
+          <hr>
+          <a href="{% url 'blog:library' %}">Open reading log →</a>
+        </aside>
+      </section>
+    </main>
+  {% endif %}
+</body>
+</html>

@@ -25,6 +25,20 @@ from .widgets import MediumEditorWidget, ProfileImageWidget
 
 
 class HomepageCopyTests(TestCase):
+    def test_homepage_uses_selected_field_notes_design(self):
+        response = self.client.get(reverse("blog:list"))
+        self.assertContains(response, "field-notes-home")
+        self.assertContains(response, "FIELD")
+        self.assertContains(response, "Search the notebook")
+
+    def test_notebook_prototypes_are_available_without_changing_homepage(self):
+        for variant in ("classic", "study", "field-notes"):
+            response = self.client.get(reverse("blog:notebook_prototype", args=[variant]))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, f"notebook-{variant}")
+
+        self.assertEqual(self.client.get("/prototypes/notebook/unknown/").status_code, 404)
+
     def test_homepage_uses_copy_from_site_profile(self):
         profile = SiteProfile.load()
         profile.hero_title = "Judul beranda pilihan saya"

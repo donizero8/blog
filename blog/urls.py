@@ -5,6 +5,7 @@ from . import views
 app_name = "blog"
 urlpatterns = [
     path("", views.post_list, name="list"),
+    path("prototypes/notebook/<slug:variant>/", views.notebook_prototype, name="notebook_prototype"),
     path("search/", views.search, name="search"),
     path("reading/", views.reading_timeline, name="reading_timeline"),
     path("library/", views.library, name="library"),

@@ -1,13 +1,63 @@
-{% extends "base.html" %}
 {% load static %}
-{% block content %}
-<section class="hero"><h1>{{ site_profile.hero_title }}</h1><p>{{ site_profile.hero_description }}</p></section>
-<div id="post-list" data-post-list>{% include "blog/_post_cards.html" %}</div>
-{% if page.has_next %}
-  <div class="load-more-wrap">
-    <a class="load-more" href="?page={{ page.next_page_number }}" data-load-more data-next-page="{{ page.next_page_number }}">Load more</a>
-    <p class="load-more-status" data-load-status role="status" aria-live="polite"></p>
-  </div>
-{% endif %}
-{% endblock %}
-{% block extra_js %}<script src="{% static 'blog/load-more.js' %}" defer></script>{% endblock %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dony’s Notebook</title>
+  <link rel="stylesheet" href="{% static 'blog/notebook-prototypes.css' %}">
+</head>
+<body class="notebook-field-notes field-notes-home">
+  <nav class="field-home-nav" aria-label="Main navigation">
+    <a class="field-home-brand" href="{% url 'blog:list' %}">DN / Field Notes</a>
+    <form class="field-home-search" action="{% url 'blog:search' %}" method="get" role="search">
+      <label class="visually-hidden" for="field-search">Search articles and books</label>
+      <input id="field-search" name="q" type="search" placeholder="Search the notebook" maxlength="100">
+      <button type="submit">Search</button>
+    </form>
+    <div class="field-home-links">
+      <a href="{% url 'blog:reading_timeline' %}">Reading</a>
+      <a href="{% url 'blog:library' %}">Library</a>
+    </div>
+  </nav>
+  <main class="field-book field-home-book">
+    <header class="field-header">
+      <div class="field-badge">FIELD<br>NOTES</div>
+      <div><p class="kicker">Collected observations</p><h1>{{ site_profile.hero_title }}</h1><p>{{ site_profile.hero_description }}</p></div>
+      <span class="field-stamp">VOL.<br>{% now "Y" %}</span>
+    </header>
+    <section class="field-home-layout">
+      <div>
+        <div class="field-section-label"><span>RECENT LOGS</span><small>Notes, ideas &amp; stories</small></div>
+        <div class="field-board" id="post-list" data-post-list>{% include "blog/_post_cards.html" %}</div>
+        {% if page.has_next %}
+          <div class="load-more-wrap">
+            <a class="load-more" href="?page={{ page.next_page_number }}" data-load-more data-next-page="{{ page.next_page_number }}">Load more notes</a>
+            <p class="load-more-status" data-load-status role="status" aria-live="polite"></p>
+          </div>
+        {% endif %}
+      </div>
+      <aside class="field-home-aside">
+        <div class="field-index">
+          <strong>Notebook keeper</strong><h2>{{ site_profile.name }}</h2>
+          {% if site_profile.headline %}<p>{{ site_profile.headline }}</p>{% endif %}
+          {% if site_profile.location %}<small>⌖ {{ site_profile.location }}</small>{% endif %}
+        </div>
+        {% if currently_reading_book %}
+          <a class="field-reading" href="{{ currently_reading_book.get_absolute_url }}">
+            <span>CURRENTLY READING</span><strong>{{ currently_reading_book.title }}</strong>
+            <small>{{ currently_reading_book.author }}</small><b>{{ currently_reading_book.progress }}% complete →</b>
+          </a>
+        {% endif %}
+        <div class="field-index field-directory">
+          <strong>Directory</strong>
+          <a href="{% url 'blog:library' %}">Reading log →</a>
+          <a href="{% url 'blog:search' %}">Archive search →</a>
+        </div>
+      </aside>
+    </section>
+  </main>
+  <footer class="field-home-footer">Dony’s Notebook · Collected with curiosity.</footer>
+  <script src="{% static 'blog/load-more.js' %}" defer></script>
+</body>
+</html>
