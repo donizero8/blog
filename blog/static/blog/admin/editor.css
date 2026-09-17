@@ -8,6 +8,16 @@
 .medium-editor textarea[data-youtube-html] { display: block; box-sizing: border-box; width: 100%; resize: vertical; padding: 10px; border: 1px solid #aaa; border-radius: 6px; background: inherit; color: inherit; font: 13px/1.5 monospace; }
 .form-row.has-medium-editor { overflow: visible; }
 .form-row.has-medium-editor > div, .form-row.has-medium-editor .flex-container { overflow: visible; }
+/* Django's stacked inline containers clip sticky descendants by default. Keep the
+   compact BookNote toolbar attached to the viewport just like the main editor. */
+.inline-group:has(.medium-editor-compact),
+.inline-related:has(.medium-editor-compact),
+.inline-related:has(.medium-editor-compact) fieldset,
+.inline-related:has(.medium-editor-compact) .form-row,
+.inline-related:has(.medium-editor-compact) .flex-container {
+  overflow: visible !important;
+}
+.medium-editor-compact .medium-toolbar { top: 8px; z-index: 25; }
 .medium-toolbar { position: sticky; top: 8px; z-index: 20; display: flex; align-items: center; gap: 4px; padding: 9px; background: #fff; border: 1px solid #ddd; border-radius: 10px 10px 0 0; box-shadow: 0 3px 14px rgb(0 0 0 / 6%); }
 .medium-toolbar span { width: 1px; height: 24px; margin: 0 5px; background: #ddd; }
 .medium-toolbar button { min-width: 34px; height: 34px; border: 0; border-radius: 7px; background: transparent; color: #343434; cursor: pointer; font: 15px Georgia, serif; }
