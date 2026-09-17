@@ -223,13 +223,22 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.addEventListener("mouseup", updateToolbar);
     canvas.addEventListener("input", updateToolbar);
 
+    function prepareToolbarAction(event) {
+      rememberSelection();
+      event.preventDefault();
+      canvas.focus({preventScroll: true});
+      restoreSelection();
+    }
+
     wrapper.querySelectorAll("[data-command]").forEach((button) => {
-      button.addEventListener("mousedown", (event) => {
-        event.preventDefault();
+      button.addEventListener("click", (event) => {
+        prepareToolbarAction(event);
         let value = button.dataset.value || null;
         if (button.dataset.command === "createLink") {
           value = window.prompt("Alamat tautan (https://…)");
           if (!value) return;
+          canvas.focus({preventScroll: true});
+          restoreSelection();
         }
         if (
           button.dataset.command === "formatBlock"
@@ -244,8 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
     wrapper.querySelectorAll("[data-block]").forEach((button) => {
-      button.addEventListener("mousedown", (event) => {
-        event.preventDefault();
+      button.addEventListener("click", (event) => {
+        prepareToolbarAction(event);
         if (button.dataset.block === "p" && currentCodeBlock()) {
           exitCodeBlock();
           return;
@@ -471,8 +480,8 @@ document.addEventListener("DOMContentLoaded", () => {
       sync();
       updateToolbar();
     };
-    wrapper.querySelector("[data-code]").addEventListener("mousedown", (event) => {
-      event.preventDefault();
+    wrapper.querySelector("[data-code]").addEventListener("click", (event) => {
+      prepareToolbarAction(event);
       toggleCode();
     });
     canvas.addEventListener("keydown", (event) => {
