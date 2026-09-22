@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateToolbar() {
       const node = selectionElement();
       if (!node) return;
-      wrapper.querySelectorAll(".medium-toolbar > button, [data-emoji-toggle]").forEach((button) => {
+      wrapper.querySelectorAll("[data-block], [data-command], [data-code]").forEach((button) => {
         let active = false;
         if (button.dataset.block) {
           const block = node.closest("p, h2, h3, blockquote, pre, li, div");
@@ -217,8 +217,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    wrapper.querySelectorAll(".medium-toolbar > button, [data-emoji-toggle]").forEach((button) => {
+    wrapper.querySelectorAll("[data-block], [data-command], [data-code]").forEach((button) => {
       button.setAttribute("aria-pressed", "false");
+      button.addEventListener("mousedown", (event) => {
+        rememberSelection();
+        event.preventDefault();
+      });
     });
     document.addEventListener("selectionchange", () => {
       rememberSelection();
@@ -233,17 +237,106 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
       canvas.focus({preventScroll: true});
       restoreSelection();
+      // Older formatBlock calls can leave headings around lists/paragraphs.
+      // Remove invalid outer blocks while keeping the selection's text nodes.
+      const range = window.getSelection()?.rangeCount ? window.getSelection().getRangeAt(0) : null;
+      const endpoints = range && [range.startContainer, range.startOffset, range.endContainer, range.endOffset];
+      canvas.querySelectorAll('h2, h3, p').forEach((block) => {
+        if (block.querySelector('p, h2, h3, ul, ol, pre, blockquote')) {
+          block.replaceWith(...block.childNodes);
+        }
+      });
+      if (endpoints && canvas.contains(endpoints[0]) && canvas.contains(endpoints[2])) {
+        const restored = document.createRange();
+        restored.setStart(endpoints[0], Math.min(endpoints[1], endpoints[0].length ?? endpoints[0].childNodes.length));
+        restored.setEnd(endpoints[2], Math.min(endpoints[3], endpoints[2].length ?? endpoints[2].childNodes.length));
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(restored);
+      }
+      rememberSelection();
     }
+
+    const linkDialog = document.createElement('dialog');
+    linkDialog.className = 'medium-image-dialog';
+    linkDialog.setAttribute('data-link-dialog', '');
+    linkDialog.setAttribute('aria-label', 'Sisipkan atau ubah tautan');
+    linkDialog.innerHTML = `<div class="medium-dialog-body">
+      <div class="medium-dialog-header"><h3>Tautan</h3><button type="button" data-link-cancel aria-label="Tutup">×</button></div>
+      <label>Teks tautan<input type="text" data-link-text></label>
+      <label>URL tautan<input type="url" data-link-url placeholder="https://example.com"></label>
+      <p data-link-status role="status"></p>
+      <div class="medium-dialog-actions"><button type="button" data-link-remove>Hapus tautan</button><button type="button" data-link-cancel>Batal</button><button type="button" data-link-save>Simpan tautan</button></div>
+    </div>`;
+    wrapper.append(linkDialog);
+    const linkUrl = linkDialog.querySelector('[data-link-url]');
+    const linkText = linkDialog.querySelector('[data-link-text]');
+    const linkStatus = linkDialog.querySelector('[data-link-status]');
+    let editedLink = null;
+    function openLinkDialog() {
+      editedLink = selectionElement()?.closest('a');
+      if (editedLink?.classList.contains('place-card')) return;
+      linkUrl.value = editedLink?.getAttribute('href') || '';
+      linkText.value = editedLink?.textContent || window.getSelection().toString();
+      linkStatus.textContent = '';
+      linkDialog.querySelector('[data-link-remove]').hidden = !editedLink;
+      rememberSelection();
+      linkDialog.showModal();
+      linkUrl.focus();
+    }
+    function closeLinkDialog() {
+      linkDialog.close();
+      canvas.focus({preventScroll:true});
+      restoreSelection();
+      updateToolbar();
+    }
+    linkDialog.querySelectorAll('[data-link-cancel]').forEach(button => button.addEventListener('click', closeLinkDialog));
+    linkDialog.addEventListener('cancel', event => { event.preventDefault(); closeLinkDialog(); });
+    linkDialog.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && event.target.matches('input')) {
+        event.preventDefault();
+        linkDialog.querySelector('[data-link-save]').click();
+      }
+    });
+    linkDialog.querySelector('[data-link-save]').addEventListener('click', () => {
+      let url;
+      try {
+        url = new URL(linkUrl.value.trim());
+        if (!['https:', 'http:', 'mailto:'].includes(url.protocol)) throw new Error();
+      } catch {
+        linkStatus.textContent = 'Masukkan URL lengkap dengan https://, http://, atau mailto:.';
+        return;
+      }
+      closeLinkDialog();
+      if (editedLink && canvas.contains(editedLink)) {
+        editedLink.setAttribute('href', url.href);
+        if (linkText.value && linkText.value !== editedLink.textContent) editedLink.textContent = linkText.value;
+      } else {
+        const selection = window.getSelection();
+        if (selection.isCollapsed || linkText.value !== selection.toString()) {
+          document.execCommand('insertText', false, linkText.value || url.href);
+          const range = window.getSelection().getRangeAt(0);
+          const length = (linkText.value || url.href).length;
+          range.setStart(range.endContainer, Math.max(0, range.endOffset - length));
+          selection.removeAllRanges(); selection.addRange(range);
+        }
+        document.execCommand('createLink', false, url.href);
+      }
+      rememberSelection(); sync(); updateToolbar();
+    });
+    linkDialog.querySelector('[data-link-remove]').addEventListener('click', () => {
+      closeLinkDialog();
+      if (editedLink && canvas.contains(editedLink)) editedLink.replaceWith(...editedLink.childNodes);
+      rememberSelection(); sync(); updateToolbar();
+    });
 
     wrapper.querySelectorAll("[data-command]").forEach((button) => {
       button.addEventListener("click", (event) => {
         prepareToolbarAction(event);
+        let command = button.dataset.command;
         let value = button.dataset.value || null;
-        if (button.dataset.command === "createLink") {
-          value = window.prompt("Alamat tautan (https://…)");
-          if (!value) return;
-          canvas.focus({preventScroll: true});
-          restoreSelection();
+        if (command === "createLink") {
+          openLinkDialog();
+          return;
         }
         if (
           button.dataset.command === "formatBlock"
@@ -252,7 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
           value = "p";
         }
-        document.execCommand(button.dataset.command, false, value);
+        document.execCommand(command, false, value);
         sync();
         updateToolbar();
       });
@@ -260,11 +353,9 @@ document.addEventListener("DOMContentLoaded", () => {
     wrapper.querySelectorAll("[data-block]").forEach((button) => {
       button.addEventListener("click", (event) => {
         prepareToolbarAction(event);
-        if (button.dataset.block === "p" && currentCodeBlock()) {
-          exitCodeBlock();
-          return;
-        }
-        document.execCommand("formatBlock", false, button.dataset.block);
+        const block = button.dataset.block;
+        const active = selectionElement()?.closest("p, h2, h3, pre")?.tagName.toLowerCase() === block;
+        document.execCommand("formatBlock", false, active ? "p" : block);
         sync();
         updateToolbar();
       });
@@ -434,14 +525,14 @@ document.addEventListener("DOMContentLoaded", () => {
     emojiToggle.addEventListener("mousedown", (event) => {
       event.preventDefault();
       rememberSelection();
+    });
+    emojiToggle.addEventListener("click", () => {
       emojiPicker.hidden = !emojiPicker.hidden;
       emojiToggle.setAttribute("aria-expanded", String(!emojiPicker.hidden));
     });
     emojiPicker.querySelectorAll("[data-emoji]").forEach((button) => {
-      button.addEventListener("mousedown", (event) => {
-        event.preventDefault();
-        restoreSelection();
-        canvas.focus();
+      button.addEventListener("click", (event) => {
+        prepareToolbarAction(event);
         document.execCommand("insertText", false, button.dataset.emoji);
         rememberSelection();
         closeEmojiPicker();
@@ -487,7 +578,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     wrapper.querySelector("[data-code]").addEventListener("click", (event) => {
       prepareToolbarAction(event);
-      toggleCode();
+      document.execCommand("formatBlock", false, currentCodeBlock() ? "p" : "pre");
+      sync();
+      updateToolbar();
     });
     canvas.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !emojiPicker.hidden) {
@@ -542,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sync();
     });
 
-    wrapper.querySelector("[data-image]").addEventListener("mousedown", (event) => {
+    wrapper.querySelector("[data-image]").addEventListener("click", (event) => {
       event.preventDefault();
       rememberSelection();
       imageDialog.querySelector("[data-image-file]").value = "";
