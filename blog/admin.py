@@ -83,7 +83,7 @@ class BookAdmin(admin.ModelAdmin):
     form = BookAdminForm
     inlines = (BookNoteInline,)
     list_display = ("title", "author", "status", "progress", "rating", "updated_at")
-    list_filter = ("status", "rating")
+    list_filter = ("status",)
     search_fields = ("title", "author", "thoughts", "lessons")
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("created_at", "updated_at")
