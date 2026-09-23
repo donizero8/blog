@@ -583,6 +583,33 @@ document.addEventListener("DOMContentLoaded", () => {
       updateToolbar();
     });
     canvas.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing) {
+        const selection = window.getSelection();
+        const quote = selectionElement()?.closest("blockquote");
+        if (quote && canvas.contains(quote) && selection?.rangeCount && selection.isCollapsed) {
+          const trailing = selection.getRangeAt(0).cloneRange();
+          trailing.setEnd(quote, quote.childNodes.length);
+          const remainder = trailing.cloneContents();
+          // A trailing placeholder <br> is not content. Leave mid-quote edits
+          // and Shift+Enter to the browser; Enter at the end exits the quote.
+          if (!remainder.textContent && !remainder.querySelector("img, iframe, video, hr")) {
+            event.preventDefault();
+            const paragraph = document.createElement("p");
+            paragraph.appendChild(document.createElement("br"));
+            quote.after(paragraph);
+            if (!quote.textContent && !quote.querySelector("img, iframe, video, hr")) quote.remove();
+            const cursor = document.createRange();
+            cursor.setStart(paragraph, 0);
+            cursor.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(cursor);
+            rememberSelection();
+            sync();
+            updateToolbar();
+            return;
+          }
+        }
+      }
       if (event.key === "Escape" && !emojiPicker.hidden) {
         event.preventDefault();
         closeEmojiPicker();

@@ -55,6 +55,27 @@ window.addEventListener('load', async () => {
         assert(editor.querySelector('textarea').value.includes('Alpha beta'), 'Form not synchronized');
       });
     }
+    for (const html of ['<blockquote>Alpha beta</blockquote>', '<blockquote><p><b>Alpha beta</b></p></blockquote>', '<blockquote><br></blockquote>']) {
+      await test(`${name}: Enter exits quote ${html}`, async () => {
+        await reset(html);
+        window.getSelection().collapseToEnd();
+        const event = new KeyboardEvent('keydown', {key:'Enter', bubbles:true, cancelable:true});
+        canvas.dispatchEvent(event);
+        assert(event.defaultPrevented, 'Native quote continuation not prevented');
+        assert(canvas.lastElementChild.tagName === 'P', 'New block not a paragraph');
+        assert(button('[data-value="blockquote"]').getAttribute('aria-pressed') === 'false', 'Quote still active');
+        document.execCommand('insertText', false, 'Next paragraph');
+        assert(canvas.lastElementChild.textContent === 'Next paragraph', 'Caret not in new paragraph');
+        assert(editor.querySelector('textarea').value.includes('<p>Next paragraph</p>'), 'Form not synchronized');
+      });
+    }
+    await test(`${name}: Shift+Enter leaves quote handling to browser`, async () => {
+      await reset('<blockquote>Alpha beta</blockquote>');
+      window.getSelection().collapseToEnd();
+      const event = new KeyboardEvent('keydown', {key:'Enter', shiftKey:true, bubbles:true, cancelable:true});
+      canvas.dispatchEvent(event);
+      assert(!event.defaultPrevented && canvas.children.length === 1, 'Shift+Enter intercepted');
+    });
     await test(`${name}: paragraph converts heading without losing text`, async () => {
       await reset('<h2>Alpha beta</h2>'); activate('[data-block="p"]');
       assert(canvas.querySelector('p') && !canvas.querySelector('h2'), 'Not a paragraph');
