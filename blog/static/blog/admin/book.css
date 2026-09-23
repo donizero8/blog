@@ -32,4 +32,4 @@
   .book-range-field-label { float: none; width: auto; margin-bottom: 7px; padding: 0; white-space: normal; }
   .book-range-popover { width: 100%; }
 }
-.form-row.field-thoughts[hidden] { display: none !important; }
+.book-journal-section[hidden] { display: none !important; }

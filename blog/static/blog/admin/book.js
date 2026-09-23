@@ -4,7 +4,8 @@
   const initialize = () => {
     const status = document.getElementById("id_status");
     const progressSection = document.querySelector("fieldset.book-progress-section");
-    const thoughtsRow = document.querySelector(".form-row.field-thoughts");
+    const journalSection = document.querySelector(".form-row.field-thoughts")?.closest("fieldset");
+    journalSection?.classList.add("book-journal-section");
     const isAddingBook = /\/book\/add\/$/.test(window.location.pathname);
     const startedAt = document.getElementById("id_started_at");
     const finishedAt = document.getElementById("id_finished_at");
@@ -15,10 +16,10 @@
       const isWantToRead = status.value === "want";
       progressSection.hidden = isWantToRead;
       progressSection.setAttribute("aria-hidden", String(isWantToRead));
-      if (thoughtsRow) {
-        const hideThoughts = isAddingBook && isWantToRead;
-        thoughtsRow.hidden = hideThoughts;
-        thoughtsRow.setAttribute("aria-hidden", String(hideThoughts));
+      if (journalSection) {
+        const hideJournal = isAddingBook && isWantToRead;
+        journalSection.hidden = hideJournal;
+        journalSection.setAttribute("aria-hidden", String(hideJournal));
       }
     };
 
