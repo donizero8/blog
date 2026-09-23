@@ -179,8 +179,39 @@ window.addEventListener('load', async () => {
       window.getSelection().removeAllRanges(); window.getSelection().addRange(range);
       document.dispatchEvent(new Event('selectionchange'));
       activate('[data-block="p"]');
-      assert(!canvas.querySelector('h2,h3') && canvas.querySelector('li'), 'List conversion failed');
+      assert(!canvas.querySelector('h2,h3,ul,li') && canvas.querySelector('p'), 'List conversion failed');
       assert(canvas.textContent === 'List heading', 'List text changed');
+    });
+    for (const collapsed of [false, true]) {
+      await test(`${name}: bullet to paragraph removes bullets (caret=${collapsed})`, async () => {
+        await reset(); activate('[data-command="insertUnorderedList"]');
+        assert(canvas.querySelector('li'), 'Bullet not created');
+        if (collapsed) window.getSelection().collapseToEnd();
+        document.dispatchEvent(new Event('selectionchange'));
+        activate('[data-block="p"]');
+        assert(!canvas.querySelector('ul,ol,li'), 'Bullet remains after paragraph conversion');
+        assert(canvas.querySelector('p')?.textContent === 'Alpha beta', 'Paragraph text changed');
+        assert(button('[data-command="insertUnorderedList"]').getAttribute('aria-pressed') === 'false', 'Bullet button active');
+        window.getSelection().collapseToEnd();
+        document.execCommand('insertParagraph');
+        document.execCommand('insertText', false, 'Next line');
+        assert(!canvas.querySelector('li') && canvas.lastElementChild.tagName === 'P', 'Bullet returned below paragraph');
+        assert(editor.querySelector('textarea').value.includes('Next line'), 'Form not synchronized');
+      });
+    }
+    await test(`${name}: leaving empty last bullet preserves earlier items`, async () => {
+      await reset('<ul><li>Keep this bullet</li><li><br></li></ul>');
+      const range = document.createRange();
+      range.setStart(canvas.querySelector('li:last-child'), 0); range.collapse(true);
+      window.getSelection().removeAllRanges(); window.getSelection().addRange(range);
+      document.dispatchEvent(new Event('selectionchange'));
+      activate('[data-block="p"]');
+      document.execCommand('insertText', false, 'Plain paragraph');
+      document.execCommand('insertParagraph');
+      document.execCommand('insertText', false, 'Still plain');
+      assert(canvas.querySelectorAll('li').length === 1, 'Extra bullet remains');
+      assert(canvas.querySelector('li').textContent === 'Keep this bullet', 'Earlier bullet modified');
+      assert(canvas.lastElementChild.tagName === 'P' && canvas.lastElementChild.textContent === 'Still plain', 'Next line not plain paragraph');
     });
   }
   await test('Repeated formset events do not register duplicate toggles', async () => {

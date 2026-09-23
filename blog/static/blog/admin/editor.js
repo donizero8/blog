@@ -354,6 +354,15 @@ document.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("click", (event) => {
         prepareToolbarAction(event);
         const block = button.dataset.block;
+        if (block === "p") {
+          // formatBlock alone wraps list text in <p> but leaves its bullet.
+          // Remove list formatting from the selection before making paragraphs.
+          if (document.queryCommandState("insertUnorderedList")) {
+            document.execCommand("insertUnorderedList", false, null);
+          } else if (document.queryCommandState("insertOrderedList")) {
+            document.execCommand("insertOrderedList", false, null);
+          }
+        }
         const active = selectionElement()?.closest("p, h2, h3, pre")?.tagName.toLowerCase() === block;
         document.execCommand("formatBlock", false, active ? "p" : block);
         sync();
