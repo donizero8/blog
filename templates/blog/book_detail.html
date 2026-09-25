@@ -22,7 +22,26 @@
     <section class="journal-section">
       <h2>My Notes</h2>
         <div class="journal-notes">
-          {% for note in book.notes.all %}<article><h3>{{ note.heading }}</h3><div class="journal-copy">{{ note.body|editor_content }}</div></article>{% endfor %}
+          {% for note in book.notes.all %}
+            <article>
+              <h3>{{ note.heading }}</h3>
+              {% if note.is_public or request.user.is_staff %}
+                <div class="journal-copy">{{ note.body|editor_content }}</div>
+              {% else %}
+                <div class="private-notes-preview">
+                  <div class="private-notes-blur" aria-hidden="true">
+                    <span class="private-note-line"></span>
+                    <span class="private-note-line"></span>
+                    <span class="private-note-line private-note-line-short"></span>
+                  </div>
+                  <div class="private-notes-notice" role="note">
+                    <strong>Catatan privat</strong>
+                    <p>Isi catatan ini tidak ditampilkan untuk umum.</p>
+                  </div>
+                </div>
+              {% endif %}
+            </article>
+          {% endfor %}
         </div>
     </section>
   {% endif %}

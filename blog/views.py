@@ -113,7 +113,5 @@ def reading_timeline(request):
 
 def book_detail(request, slug):
     notes = BookNote.objects.all()
-    if not request.user.is_staff:
-        notes = notes.filter(is_public=True)
     book = get_object_or_404(Book.objects.prefetch_related(Prefetch("notes", queryset=notes)), slug=slug)
     return render(request, "blog/book_detail.html", {"book": book})

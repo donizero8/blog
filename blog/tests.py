@@ -531,8 +531,9 @@ class BookJournalEditorTests(TestCase):
 
         response = self.client.get(book.get_absolute_url())
 
-        self.assertNotContains(response, "My Notes")
-        self.assertNotContains(response, "A private chapter")
+        self.assertContains(response, "My Notes")
+        self.assertContains(response, "A private chapter")
+        self.assertContains(response, 'class="private-notes-blur"')
         self.assertNotContains(response, "This complete note must not be sent")
 
     def test_public_notes_visibility_can_be_toggled(self):
@@ -542,7 +543,8 @@ class BookJournalEditorTests(TestCase):
         self.assertIn("is_public", BookNoteAdminForm().fields)
         response = self.client.get(book.get_absolute_url())
         self.assertContains(response, "Public content")
-        self.assertNotContains(response, "Secret chapter")
+        self.assertContains(response, "Secret chapter")
+        self.assertContains(response, 'class="private-notes-blur"', count=1)
         self.assertNotContains(response, "Secret content")
         note.is_public = False
         note.save()
