@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import CommentForm
-from .models import Book, Comment, Post
+from .models import Book, BookNote, Comment, Post
 
 def post_list(request):
     posts = Post.objects.filter(status=Post.Status.PUBLISHED).select_related("author").prefetch_related("tags")
@@ -112,5 +112,8 @@ def reading_timeline(request):
 
 
 def book_detail(request, slug):
-    book = get_object_or_404(Book.objects.prefetch_related("notes"), slug=slug)
+    notes = BookNote.objects.all()
+    if not request.user.is_staff:
+        notes = notes.filter(is_public=True)
+    book = get_object_or_404(Book.objects.prefetch_related(Prefetch("notes", queryset=notes)), slug=slug)
     return render(request, "blog/book_detail.html", {"book": book})

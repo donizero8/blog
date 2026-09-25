@@ -126,6 +126,7 @@ class BookNote(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="notes")
     heading = models.CharField("judul catatan", max_length=140)
     body = models.TextField("isi catatan")
+    is_public = models.BooleanField("tampilkan di situs", default=False, help_text="Centang agar isi catatan dapat dilihat pengunjung.")
     order = models.PositiveSmallIntegerField("urutan", default=0)
 
     class Meta:

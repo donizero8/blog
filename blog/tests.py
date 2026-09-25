@@ -531,9 +531,22 @@ class BookJournalEditorTests(TestCase):
 
         response = self.client.get(book.get_absolute_url())
 
-        self.assertContains(response, "Only the admin can view the full notes.")
+        self.assertNotContains(response, "My Notes")
         self.assertNotContains(response, "A private chapter")
         self.assertNotContains(response, "This complete note must not be sent")
+
+    def test_public_notes_visibility_can_be_toggled(self):
+        book = Book.objects.create(title="Mixed notes", slug="mixed-notes", author="Writer")
+        note = BookNote.objects.create(book=book, heading="Public chapter", body="<p>Public content</p>", is_public=True)
+        BookNote.objects.create(book=book, heading="Secret chapter", body="<p>Secret content</p>")
+        self.assertIn("is_public", BookNoteAdminForm().fields)
+        response = self.client.get(book.get_absolute_url())
+        self.assertContains(response, "Public content")
+        self.assertNotContains(response, "Secret chapter")
+        self.assertNotContains(response, "Secret content")
+        note.is_public = False
+        note.save()
+        self.assertNotContains(self.client.get(book.get_absolute_url()), "Public content")
 
     def test_staff_can_view_complete_book_notes(self):
         staff = get_user_model().objects.create_user(username="staff-reader", is_staff=True)
