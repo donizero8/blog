@@ -14,6 +14,16 @@
 
     const updateProgressVisibility = () => {
       const isWantToRead = status.value === "want";
+      const isFinished = status.value === "finished";
+      const progress = document.getElementById("id_progress");
+      if (progress) {
+        if (isFinished) progress.value = "100";
+        progress.readOnly = isFinished;
+      }
+      document.querySelectorAll(".form-row.field-current_chapter, .form-row.field-total_chapters").forEach(row => {
+        row.hidden = isFinished;
+        row.style.display = isFinished ? "none" : "";
+      });
       progressSection.hidden = isWantToRead;
       progressSection.setAttribute("aria-hidden", String(isWantToRead));
       if (journalSection) {

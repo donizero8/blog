@@ -206,6 +206,11 @@ class BookAdminForm(forms.ModelForm):
     def clean_thoughts(self):
         return sanitize_editor_html(self.cleaned_data["thoughts"])
 
+    def clean_progress(self):
+        if self.cleaned_data.get("status") == Book.Status.FINISHED:
+            return 100
+        return self.cleaned_data["progress"]
+
     def clean_cover(self):
         cover = self.cleaned_data.get("cover")
         if cover and getattr(cover, "size", 0) > 5 * 1024 * 1024:

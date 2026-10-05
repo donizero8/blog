@@ -40,8 +40,20 @@ Maintain **Dony’s Notebook**, an Indonesian-language Django blog running in Do
 3. Run lightweight syntax checks before rebuilding.
 4. Rebuild with `docker compose up --build -d` when Python, templates, or static assets change because source files are copied into the image rather than bind-mounted.
 5. Confirm that PostgreSQL is healthy, migrations ran, static files were collected, and Gunicorn started.
-6. Test the changed endpoint or form. For write-path tests, prefer a database transaction that is rolled back after assertions.
+6. Add or update regression tests for every bug fix or feature enhancement, then run the relevant tests against the changed code. Test the changed endpoint or form. For write-path tests, use an isolated test database or a transaction rolled back after assertions.
 7. Report what changed, verification results, and any required hard refresh.
+
+## Required regression testing
+
+- Every bug fix or feature enhancement must include a new or updated test covering the requested behavior. For a bug fix, reproduce the failure before applying the fix when feasible, then confirm the same test passes afterward.
+- Test both the expected result and relevant edge cases or reverse transitions. For example, Finished must set progress to 100 and hide chapter fields; switching back to Reading must restore chapter fields without losing their values.
+- Use Django tests for model/form validation, persistence, permissions, and public/private rendering. UI-only restrictions must not replace server-side validation where data correctness or access control is involved.
+- For JavaScript interactions, add browser regression coverage and verify the actual UI flow. Editor changes must cover the main editor, existing note editors, and dynamically added note editors. Keyboard behavior must also be checked with real browser key input; synthetic events alone are not sufficient evidence for native editing behavior.
+- For responsive layout changes, test representative mobile and desktop widths, including the reported failing width when known. Check long URLs, relevant rich content, horizontal overflow, and clipping; do not treat successful CSS delivery as proof that the layout is correct.
+- Reuse the existing test infrastructure (`blog/tests.py`, `tests/browser/`) where appropriate. Do not weaken assertions merely to make a failing test pass.
+- Run tests against the updated build. A passing check against an old Docker image does not validate unbuilt changes. If a build, dependency, or test is blocked, report exactly what was and was not verified; never claim the feature is fully verified.
+- Do not save, alter, or delete production data for testing without explicit authorization. Prefer local fixtures and isolated test databases, and respect any instruction not to save forms.
+- Include test commands or scenarios and pass/fail results in the completion summary. Documentation-only edits require a diff/content check, not an application rebuild or unrelated test suite.
 
 ## Validation commands
 
@@ -52,10 +64,16 @@ node --check blog/static/blog/admin/tags.js
 docker compose config --quiet
 docker compose up --build -d
 docker compose exec -T web python manage.py check
+docker compose exec -T web python manage.py test blog --noinput
 docker compose exec -T web python manage.py showmigrations --plan
 docker compose ps
 docker compose logs --no-color --tail=80 web
 curl -fsS http://127.0.0.1:8000/ >/dev/null
 ```
+
+For editor browser regressions, follow `tests/browser/README.md`: start
+`python3 tests/browser/editor_server.py`, open `http://localhost:8765/` in a
+browser, and inspect the pass/fail summary. Starting the server alone does not
+run or verify the browser tests.
 
 Run only the checks relevant to the change, but always run `manage.py check` after Django changes. If Docker Desktop is stopped, start it and wait for `docker info` to succeed before retrying Compose.

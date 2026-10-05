@@ -87,6 +87,7 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .article-body h2 { margin: 1.7em 0 .4em; font-size: 32px; line-height: 1.2; }
 .article-body h3 { margin-top: 1.6em; font-size: 25px; }
 .article-body a { color: var(--green); }
+.article-body a, .journal-copy a { overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
 .article-body strong, .article-body b, .journal-copy strong, .journal-copy b { font-weight: 700; }
 .article-body em, .article-body i, .journal-copy em, .journal-copy i { font-style: italic; }
 .article-body u, .journal-copy u { text-decoration: underline; }
@@ -107,7 +108,7 @@ body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--page);
 .article-body .place-card, .journal-copy .place-card { display: flex; align-items: center; gap: 15px; margin: 1.5em 0; padding: 17px 19px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: 16px/1.4 system-ui, sans-serif; text-decoration: none; box-shadow: 0 5px 18px var(--shadow); transition: border-color .15s, transform .15s; }
 .article-body .place-card:hover, .journal-copy .place-card:hover { border-color: var(--green); transform: translateY(-1px); }
 .place-card-icon { font-size: 26px; line-height: 1; }
-.place-card-copy { display: grid; gap: 3px; }
+.place-card-copy { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; overflow-wrap: anywhere; gap: 3px; }
 .place-card-copy strong { color: var(--ink); font-size: 16px; }
 .place-card-copy small { color: var(--muted); font-size: 13px; }
 @media (max-width: 600px) { .container { padding-top: 40px; } .hero h1 { font-size: 32px; } .article-header h1 { font-size: 38px; } .article-body .article-image.image-small { width: 62%; } .article-body .article-image.image-medium { width: 86%; } }

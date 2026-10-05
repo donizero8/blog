@@ -536,6 +536,17 @@ class BookJournalEditorTests(TestCase):
         self.assertContains(response, 'class="private-notes-blur"')
         self.assertNotContains(response, "This complete note must not be sent")
 
+    def test_finished_admin_form_sets_progress_without_changing_chapters(self):
+        for status, expected in [("finished", 100), ("reading", 28)]:
+            form = BookAdminForm(data={
+                "title": "Progress test", "slug": "progress-test", "author": "Writer",
+                "status": status, "progress": 28, "current_chapter": 3, "total_chapters": 10,
+            })
+            self.assertTrue(form.is_valid(), form.errors)
+            book = form.save(commit=False)
+            self.assertEqual(book.progress, expected)
+            self.assertEqual((book.current_chapter, book.total_chapters), (3, 10))
+
     def test_public_notes_visibility_can_be_toggled(self):
         book = Book.objects.create(title="Mixed notes", slug="mixed-notes", author="Writer")
         note = BookNote.objects.create(book=book, heading="Public chapter", body="<p>Public content</p>", is_public=True)
