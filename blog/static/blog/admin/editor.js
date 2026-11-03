@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const baselineHtml = textarea.value;
     const draftKey = `dony-notebook:editor-draft:${window.location.pathname}:${textarea.name}`;
     const localDraftEnabled = !/^\/admin\/blog\/post\/add\/?$/.test(window.location.pathname);
+    let sourceMode = false;
+    const htmlToggle = wrapper.querySelector("[data-html-toggle]");
     let savedRange = null;
     let selectedImage = null;
     let draftTimer = null;
@@ -26,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.execCommand("styleWithCSS", false, false);
 
     function normalizedHtml() {
+      if (sourceMode) return textarea.value;
       const clone = canvas.cloneNode(true);
       clone.querySelectorAll("[data-video-block]").forEach((block) => {
         const frame = block.querySelector("iframe.youtube-embed");
@@ -101,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         draftTemplate.content.querySelectorAll("iframe.youtube-embed").forEach((frame) => {
           frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
         });
-        canvas.innerHTML = draftTemplate.innerHTML;
+        canvas.innerHTML = safeSourceHtml(draftTemplate.innerHTML);
         textarea.value = savedDraft.html;
         setDraftStatus("Draft lokal dipulihkan. Perubahan Anda belum disimpan ke server.");
       } else if (localDraftEnabled && savedDraft) {
@@ -160,6 +163,71 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.addEventListener("input", sync);
     canvas.addEventListener("blur", sync);
     window.addEventListener("pagehide", persistLocalDraft);
+
+    // Parse source in an inert document; never insert executable pasted markup.
+    function safeSourceHtml(html) {
+      const parsed = new DOMParser().parseFromString(html, "text/html");
+      const tags = new Set("p br h2 h3 strong em b i u s a span small blockquote ul ol li pre code img iframe".split(" "));
+      parsed.body.querySelectorAll("script,style,object,embed,svg,math,template").forEach(node => node.remove());
+      parsed.body.querySelectorAll("*").forEach(node => {
+        const tag = node.localName;
+        if (!tags.has(tag)) { node.replaceWith(...node.childNodes); return; }
+        const allowed = {
+          a: ["href", "title", "target", "rel", "class"],
+          span: ["class"], img: ["src", "alt", "class", "loading", "width", "height", "referrerpolicy"],
+          iframe: ["src", "class", "title", "allowfullscreen", "loading", "referrerpolicy"],
+        }[tag] || [];
+        for (const attr of [...node.attributes]) {
+          if (!allowed.includes(attr.name)) node.removeAttribute(attr.name);
+        }
+        for (const attr of ["href", "src"]) {
+          if (!node.hasAttribute(attr)) continue;
+          try {
+            const url = new URL(node.getAttribute(attr), window.location.href);
+            if (!["http:", "https:", ...(tag === "a" ? ["mailto:"] : [])].includes(url.protocol)) node.removeAttribute(attr);
+          } catch { node.removeAttribute(attr); }
+        }
+        if (tag === "iframe") {
+          if (!/^https:\/\/www\.youtube-nocookie\.com\/embed\/[A-Za-z0-9_-]{11}$/.test(node.getAttribute("src") || "")) {
+            node.remove();
+          } else {
+            node.className = "youtube-embed";
+            node.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+          }
+        }
+      });
+      return parsed.body.innerHTML;
+    }
+
+    htmlToggle.addEventListener("click", () => {
+      if (!sourceMode) {
+        sync();
+        sourceMode = true;
+        closeEmojiPicker();
+        imageControls.hidden = true;
+        selectedImage = null;
+      } else {
+        canvas.innerHTML = safeSourceHtml(textarea.value) || "<p><br></p>";
+        sourceMode = false;
+        savedRange = null;
+        enhanceVideos();
+        sync();
+      }
+      wrapper.classList.toggle("is-source-mode", sourceMode);
+      canvas.hidden = sourceMode;
+      htmlToggle.textContent = sourceMode ? "Visual" : "HTML";
+      htmlToggle.setAttribute("aria-pressed", String(sourceMode));
+      htmlToggle.title = sourceMode ? "Kembali ke tampilan visual" : "Edit kode HTML";
+      wrapper.querySelectorAll(".medium-toolbar button").forEach(button => {
+        if (button !== htmlToggle) button.disabled = sourceMode;
+      });
+      wrapper.querySelector(".medium-hint").textContent = sourceMode
+        ? "Edit atau hapus tag HTML di sini. Tag dan atribut yang tidak diizinkan dibuang saat kembali ke tampilan visual atau menyimpan."
+        : "⌘/Ctrl + Enter untuk masuk/keluar blok kode. Tekan Esc atau Enter dua kali untuk kembali ke paragraf.";
+      (sourceMode ? textarea : canvas).focus();
+      updateToolbar();
+    });
+    textarea.addEventListener("input", () => { if (sourceMode) sync(); });
 
     function rememberSelection() {
       const selection = window.getSelection();

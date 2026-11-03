@@ -24,15 +24,16 @@ widgets = widgets[widgets.index('<form'):]
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         assets = {
+            '/editor.css': ROOT / 'blog/static/blog/admin/editor.css',
             '/editor.js': ROOT / 'blog/static/blog/admin/editor.js',
             '/tests.js': ROOT / 'tests/browser/editor.test.js',
         }
         if self.path in assets:
             body = assets[self.path].read_bytes()
-            content_type = 'text/javascript'
+            content_type = 'text/css' if self.path.endswith('.css') else 'text/javascript'
         elif self.path == '/':
             body = ('''<!doctype html><html lang="en"><meta charset="utf-8">
-<title>Editor toggle regression tests</title>
+<title>Editor toggle regression tests</title><link rel="stylesheet" href="/editor.css">
 <style>textarea,.empty-form {display:none} .medium-canvas {border:1px solid #999;min-height:40px}
 body {font:16px system-ui} .pass {color:green} .fail {color:red}</style>
 <h1>Editor toggle regression tests</h1><p id="summary">Running…</p><ol id="results"></ol>

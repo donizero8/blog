@@ -38,6 +38,7 @@
         <path d="m4 17 4.5-4.5 3.5 3 2.5-2.5L20 18"></path>
       </svg>
     </button>
+    <button type="button" data-html-toggle aria-pressed="false" title="Edit kode HTML">HTML</button>
   </div>
   <div class="medium-image-controls" data-image-controls hidden aria-label="Ukuran gambar">
     <span>Ukuran:</span>
@@ -47,7 +48,7 @@
     <button type="button" data-image-remove>Hapus</button>
   </div>
   <div class="medium-canvas" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Ceritakan sesuatu…">{{ widget.value|editor_content }}</div>
-  <textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{{ widget.value|default_if_none:"" }}</textarea>
+  <textarea class="medium-source" aria-label="Kode HTML" spellcheck="false" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{{ widget.value|default_if_none:"" }}</textarea>
   <p class="medium-hint"><kbd>⌘/Ctrl + Enter</kbd> untuk masuk/keluar blok kode. Tekan <kbd>Esc</kbd> atau Enter dua kali untuk kembali ke paragraf.</p>
   <p class="medium-draft-status" data-draft-status role="status" aria-live="polite">Perubahan editor disimpan otomatis di browser.</p>
   <dialog class="medium-image-dialog" data-youtube-dialog aria-label="Sematkan video YouTube">

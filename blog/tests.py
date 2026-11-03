@@ -640,3 +640,26 @@ class ArticleImageUploadTests(TestCase):
         self.assertIn('class="article-image image-medium"', cleaned)
         self.assertNotIn("onclick", cleaned)
         self.assertNotIn("style=", cleaned)
+
+
+class HtmlSourceEditorTests(TestCase):
+    def test_source_toggle_is_available_in_both_widget_variants(self):
+        for variant in ("default", "compact"):
+            html = MediumEditorWidget(variant=variant).render("body", "<p>Text</p>")
+            self.assertIn('data-html-toggle', html)
+            self.assertIn('aria-label="Kode HTML"', html)
+            self.assertIn('&lt;p&gt;Text&lt;/p&gt;', html)
+
+    def test_post_source_edits_are_sanitized_and_persisted(self):
+        author = get_user_model().objects.create_user(username="source-editor")
+        form = PostAdminForm(data={
+            "title": "HTML edit", "slug": "html-edit", "author": author.pk,
+            "status": "draft", "body": '<h2>Edited</h2><p onclick="bad()">Keep</p><img src="javascript:bad()" onerror="bad()">',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        post = form.save()
+        post.refresh_from_db()
+        self.assertIn("<h2>Edited</h2>", post.body)
+        self.assertNotIn("onclick", post.body)
+        self.assertNotIn("onerror", post.body)
+        self.assertNotIn("javascript:", post.body)

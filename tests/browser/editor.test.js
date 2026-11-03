@@ -39,6 +39,38 @@ window.addEventListener('load', async () => {
       // Focus leaves the editable area, as with keyboard toolbar activation.
       target.focus(); target.click();
     }
+    await test(`${name}: HTML mode edits, submits, clears and returns to visual`, async () => {
+      await reset('<p>Keep <strong>bold</strong></p><div contenteditable="false">Unwanted</div>');
+      const source = editor.querySelector('textarea');
+      activate('[data-html-toggle]');
+      assert(!source.hidden && canvas.hidden && getComputedStyle(source).display !== 'none', 'Source not visible');
+      assert(source.value.includes('Unwanted'), 'Existing HTML unavailable');
+      assert(button('[data-command="bold"]').disabled, 'Visual tools still enabled');
+      source.value = '<h2>Edited</h2><p>https://example.com/' + 'x'.repeat(200) + '</p>';
+      source.dispatchEvent(new Event('input', {bubbles:true}));
+      editor.closest('form').dispatchEvent(new Event('submit', {cancelable:true}));
+      assert(new FormData(editor.closest('form')).get(source.name) === source.value, 'Submit lost source edits');
+      window.dispatchEvent(new Event('pagehide'));
+      assert(JSON.parse(localStorage.getItem(`dony-notebook:editor-draft:/:${source.name}`)).html === source.value, 'Draft lost source');
+      activate('[data-html-toggle]');
+      assert(!canvas.hidden && canvas.querySelector('h2').textContent === 'Edited', 'Visual content not updated');
+      assert(!canvas.textContent.includes('Unwanted'), 'Removed HTML returned');
+      assert(!button('[data-command="bold"]').disabled, 'Visual tools not restored');
+      activate('[data-html-toggle]');
+      source.value = '';
+      activate('[data-html-toggle]');
+      assert(!canvas.textContent.trim(), 'Cleared HTML restored old content');
+      await reset();
+    });
+    await test(`${name}: HTML preview strips executable markup`, async () => {
+      activate('[data-html-toggle]');
+      const source = editor.querySelector('textarea');
+      source.value = '<p onclick="alert(1)">Safe</p><img src="javascript:alert(1)" onerror="alert(1)"><iframe src="https://example.com"></iframe><script>alert(1)</script>';
+      activate('[data-html-toggle]');
+      assert(!canvas.querySelector('script,iframe,[onclick],[onerror],[src^="javascript:"]'), 'Unsafe preview markup');
+      assert(canvas.textContent === 'Safe', 'Safe text lost');
+      await reset();
+    });
     for (const [selector, tag] of [
       ['[data-command="bold"]','strong,b'], ['[data-command="italic"]','em,i'],
       ['[data-command="insertUnorderedList"]','ul'], ['[data-value="blockquote"]','blockquote'],
