@@ -663,3 +663,17 @@ class HtmlSourceEditorTests(TestCase):
         self.assertNotIn("onclick", post.body)
         self.assertNotIn("onerror", post.body)
         self.assertNotIn("javascript:", post.body)
+
+
+class FloatingPostActionsTests(TestCase):
+    def test_add_and_change_keep_original_save_actions(self):
+        user = get_user_model().objects.create_superuser(username="floating-editor", password="test-password")
+        self.client.force_login(user)
+        post = Post.objects.create(title="Draft", slug="floating-draft", body="<p>Text</p>", author=user)
+        for url in (reverse("admin:blog_post_add"), reverse("admin:blog_post_change", args=[post.pk])):
+            response = self.client.get(url)
+            self.assertContains(response, "blog/admin/post-actions.css")
+            for action in ("_save", "_addanother", "_continue"):
+                self.assertContains(response, f'name="{action}"', count=1)
+        other = self.client.get(reverse("admin:blog_book_add"))
+        self.assertNotContains(other, "blog/admin/post-actions.css")

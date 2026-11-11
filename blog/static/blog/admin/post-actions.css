@@ -1,0 +1,28 @@
+/* Keep the original submit controls in the form and its normal tab order. */
+#post_form > div > .submit-row {
+  position: sticky;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 24px;
+  background: var(--body-bg, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 18%);
+}
+#post_form > div > .submit-row input,
+#post_form > div > .submit-row a {
+  margin: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#post_form > div > .submit-row .deletelink { margin-left: auto; }
+@media (max-width: 767px) {
+  #post_form > div > .submit-row { bottom: 0; gap: 8px; padding: 10px; }
+  #post_form > div > .submit-row input,
+  #post_form > div > .submit-row a { flex: 1 1 100%; width: 100%; min-height: 40px; }
+}

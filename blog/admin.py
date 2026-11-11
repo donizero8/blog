@@ -104,6 +104,10 @@ class BookAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
+
+    class Media:
+        css = {"all": ("blog/admin/post-actions.css",)}
+
     list_display = ("title", "author", "status", "published_at", "updated_at")
     list_filter = ("status", "author")
     search_fields = ("title", "excerpt", "body")
