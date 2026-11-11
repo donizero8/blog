@@ -28,3 +28,12 @@ implementations. Click activation and pointer sequences are dispatched by the
 test script; they are not OS-level keyboard, touch, or layout tests.
 Upload/network flows are outside
 this suite. `manage.py test blog` runs the separate server-side tests.
+
+## Floating save/delete actions
+
+After rebuilding Docker, run `python3 -m http.server 8766 --bind 127.0.0.1 --directory tests/browser`
+and open <http://localhost:8766/floating-actions.html>. The fixture loads the built
+Django and application CSS from localhost:8000. It checks post/book action rows
+at 1078, 768, and 390 pixels, at three scroll positions: equal button heights,
+contained delete text, visible controls, and no action-row overflow. Expected:
+`18 passed, 0 failed`. This fixture does not submit forms or change stored data.

@@ -98,7 +98,7 @@ class BookAdmin(admin.ModelAdmin):
     )
 
     class Media:
-        css = {"all": ("blog/admin/book.css",)}
+        css = {"all": ("blog/admin/book.css", "blog/admin/form-actions.css")}
         js = ("blog/admin/book.js",)
 
 @admin.register(Post)
@@ -106,7 +106,7 @@ class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
 
     class Media:
-        css = {"all": ("blog/admin/post-actions.css",)}
+        css = {"all": ("blog/admin/form-actions.css",)}
 
     list_display = ("title", "author", "status", "published_at", "updated_at")
     list_filter = ("status", "author")

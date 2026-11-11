@@ -672,8 +672,15 @@ class FloatingPostActionsTests(TestCase):
         post = Post.objects.create(title="Draft", slug="floating-draft", body="<p>Text</p>", author=user)
         for url in (reverse("admin:blog_post_add"), reverse("admin:blog_post_change", args=[post.pk])):
             response = self.client.get(url)
-            self.assertContains(response, "blog/admin/post-actions.css")
+            self.assertContains(response, "blog/admin/form-actions.css")
             for action in ("_save", "_addanother", "_continue"):
                 self.assertContains(response, f'name="{action}"', count=1)
-        other = self.client.get(reverse("admin:blog_book_add"))
-        self.assertNotContains(other, "blog/admin/post-actions.css")
+        book = Book.objects.create(title="Book", author="Writer")
+        for url in (reverse("admin:blog_book_add"), reverse("admin:blog_book_change", args=[book.pk])):
+            response = self.client.get(url)
+            self.assertContains(response, "blog/admin/form-actions.css")
+            for action in ("_save", "_addanother", "_continue"):
+                self.assertContains(response, f'name="{action}"', count=1)
+        for model, obj in (("post", post), ("book", book)):
+            response = self.client.get(reverse(f"admin:blog_{model}_change", args=[obj.pk]))
+            self.assertContains(response, reverse(f"admin:blog_{model}_delete", args=[obj.pk]))

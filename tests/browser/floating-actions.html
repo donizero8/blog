@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8"><title>Floating actions regression</title>
+<h1>Floating actions regression</h1><p id="result">Running…</p>
+<script>
+(async () => {
+  let passed = 0;
+  for (const model of ["post", "book"]) for (const width of [1078, 768, 390]) {
+    const frame = document.createElement('iframe');
+    frame.style.cssText = `width:${width}px;height:500px;border:0;display:block`;
+    const loaded = new Promise(resolve => frame.onload = resolve);
+    frame.srcdoc = `<link rel="stylesheet" href="http://localhost:8000/static/admin/css/base.css">
+<link rel="stylesheet" href="http://localhost:8000/static/admin/css/forms.css">
+<link rel="stylesheet" href="http://localhost:8000/static/blog/admin/form-actions.css">
+<form id="${model}_form"><div><div style="height:900px">Konten panjang</div><div class="submit-row">
+<input type="submit" class="default" value="Simpan" name="_save">
+<input type="submit" value="Simpan dan tambahkan lagi" name="_addanother">
+<input type="submit" value="Simpan dan terus mengedit" name="_continue">
+<a class="deletelink" href="#confirmation">Hapus</a></div></div></form>`;
+    document.body.append(frame); await loaded;
+    const doc = frame.contentDocument, win = frame.contentWindow;
+    for (const scroll of [0, 450, 900]) {
+      win.scrollTo(0, scroll);
+      const row = doc.querySelector('.submit-row');
+      const save = row.querySelector('input').getBoundingClientRect();
+      const link = row.querySelector('a'); const del = link.getBoundingClientRect();
+      const range = doc.createRange(); range.selectNodeContents(link);
+      const text = range.getBoundingClientRect();
+      if (Math.abs(del.height-save.height)>1 || text.top<del.top || text.bottom>del.bottom ||
+          del.top<0 || del.bottom>win.innerHeight || row.scrollWidth>row.clientWidth ||
+          (width>=768 && Math.abs(del.top-save.top)>1)) throw Error(`Layout failed at ${width}, scroll ${scroll}`);
+      passed++;
+    }
+  }
+  document.querySelector('#result').textContent = `${passed} passed, 0 failed`;
+})().catch(error => document.querySelector('#result').textContent = `FAIL: ${error.message}`);
+</script>
