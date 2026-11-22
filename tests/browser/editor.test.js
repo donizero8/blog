@@ -39,6 +39,30 @@ window.addEventListener('load', async () => {
       // Focus leaves the editable area, as with keyboard toolbar activation.
       target.focus(); target.click();
     }
+    await test(`${name}: image controls stick below toolbar and still resize/remove`, async () => {
+      await reset('<p>Image test</p><img class="article-image image-medium" alt="Fixture"><p>' + 'https://example.com/'.repeat(30) + '</p><pre><code>Code sample</code></pre>' + '<p>Long content</p>'.repeat(30));
+      const img = canvas.querySelector('img');
+      img.click();
+      const controls = button('[data-image-controls]');
+      assert(!controls.hidden, 'Image controls did not open');
+      const sticky = button('.medium-sticky-tools');
+      for (const offset of [100, 300]) {
+        window.scrollTo(0, window.scrollY + editor.getBoundingClientRect().top + offset);
+        await tick();
+        const toolbarBox = button('.medium-toolbar').getBoundingClientRect();
+        const controlsBox = controls.getBoundingClientRect();
+        assert(Math.abs(sticky.getBoundingClientRect().top - 8) < 2, 'Tools not sticky');
+        assert(Math.abs(controlsBox.top - toolbarBox.bottom) < 2, 'Controls separated from toolbar');
+        assert(controls.scrollWidth <= controls.clientWidth, 'Controls overflow');
+      }
+      activate('[data-image-size="small"]');
+      assert(img.classList.contains('image-small'), 'Resize failed while sticky');
+      activate('[data-image-size="large"]');
+      assert(img.classList.contains('image-large'), 'Reverse resize failed');
+      activate('[data-image-remove]');
+      assert(!canvas.querySelector('img') && controls.hidden, 'Remove failed');
+      await reset();
+    });
     await test(`${name}: HTML mode edits, submits, clears and returns to visual`, async () => {
       await reset('<p>Keep <strong>bold</strong></p><div contenteditable="false">Unwanted</div>');
       const source = editor.querySelector('textarea');

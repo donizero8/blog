@@ -1,5 +1,6 @@
 {% load editor_content %}
 <div class="medium-editor medium-editor-{{ widget.variant }}" data-medium-editor>
+  <div class="medium-sticky-tools">
   <div class="medium-toolbar" role="toolbar" aria-label="Format tulisan">
     <button type="button" data-block="p" title="Paragraf">P</button>
     <button type="button" data-block="h2" title="Judul besar">H2</button>
@@ -46,6 +47,7 @@
     <button type="button" data-image-size="medium">Sedang</button>
     <button type="button" data-image-size="large">Besar</button>
     <button type="button" data-image-remove>Hapus</button>
+  </div>
   </div>
   <div class="medium-canvas" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Ceritakan sesuatu…">{{ widget.value|editor_content }}</div>
   <textarea class="medium-source" aria-label="Kode HTML" spellcheck="false" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{{ widget.value|default_if_none:"" }}</textarea>

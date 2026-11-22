@@ -722,7 +722,7 @@ document.addEventListener("DOMContentLoaded", () => {
       selectImage(event.target.closest("img.article-image"));
     });
     wrapper.querySelectorAll("[data-image-size]").forEach((button) => {
-      button.addEventListener("mousedown", (event) => {
+      button.addEventListener("click", (event) => {
         event.preventDefault();
         if (!selectedImage) return;
         selectedImage.classList.remove("image-small", "image-medium", "image-large");
@@ -731,7 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectImage(selectedImage);
       });
     });
-    wrapper.querySelector("[data-image-remove]").addEventListener("mousedown", (event) => {
+    wrapper.querySelector("[data-image-remove]").addEventListener("click", (event) => {
       event.preventDefault();
       if (!selectedImage) return;
       selectedImage.remove();

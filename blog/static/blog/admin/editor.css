@@ -17,8 +17,9 @@
 .inline-related:has(.medium-editor-compact) .flex-container {
   overflow: visible !important;
 }
-.medium-editor-compact .medium-toolbar { top: 8px; z-index: 25; }
-.medium-toolbar { position: sticky; top: 8px; z-index: 20; display: flex; align-items: center; gap: 4px; padding: 9px; background: #fff; border: 1px solid #ddd; border-radius: 10px 10px 0 0; box-shadow: 0 3px 14px rgb(0 0 0 / 6%); }
+.medium-sticky-tools { position: sticky; top: 8px; z-index: 20; }
+.medium-editor-compact .medium-sticky-tools { z-index: 25; }
+.medium-toolbar { display: flex; align-items: center; gap: 4px; padding: 9px; background: #fff; border: 1px solid #ddd; border-radius: 10px 10px 0 0; box-shadow: 0 3px 14px rgb(0 0 0 / 6%); }
 .medium-toolbar span { width: 1px; height: 24px; margin: 0 5px; background: #ddd; }
 .medium-toolbar button { min-width: 34px; height: 34px; border: 0; border-radius: 7px; background: transparent; color: #343434; cursor: pointer; font: 15px Georgia, serif; }
 .medium-toolbar .medium-image-button { display: inline-grid; place-items: center; }
