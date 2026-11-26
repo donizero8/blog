@@ -107,14 +107,14 @@ class PostAdmin(admin.ModelAdmin):
 
     class Media:
         css = {"all": ("blog/admin/form-actions.css",)}
+        js = ("admin/js/urlify.js", "blog/admin/post.js")
 
     list_display = ("title", "author", "status", "published_at", "updated_at")
     list_filter = ("status", "author")
     search_fields = ("title", "excerpt", "body")
-    prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
-        (None, {"fields": ("title", "slug", "excerpt", "tags_input", "body")}),
+        (None, {"fields": ("title", "language", "slug", "excerpt", "tags_input", "body")}),
         ("Publikasi", {"fields": ("author", "status", "published_at")}),
         ("Informasi", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
     )

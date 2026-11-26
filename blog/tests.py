@@ -623,6 +623,7 @@ class ArticleImageUploadTests(TestCase):
 
     def test_post_form_keeps_safe_image_attributes_only(self):
         form = PostAdminForm(data={
+            "language": "id",
             "title": "Artikel bergambar",
             "slug": "artikel-bergambar",
             "excerpt": "",
@@ -653,6 +654,7 @@ class HtmlSourceEditorTests(TestCase):
     def test_post_source_edits_are_sanitized_and_persisted(self):
         author = get_user_model().objects.create_user(username="source-editor")
         form = PostAdminForm(data={
+            "language": "id",
             "title": "HTML edit", "slug": "html-edit", "author": author.pk,
             "status": "draft", "body": '<h2>Edited</h2><p onclick="bad()">Keep</p><img src="javascript:bad()" onerror="bad()">',
         })
@@ -829,3 +831,130 @@ class SitemapTests(TestCase):
         self.assertIn('text/plain', response['Content-Type'])
         self.assertEqual(response.content.decode(),
                          'User-agent: *\nDisallow: /admin/\nSitemap: https://example.org/sitemap.xml\n')
+
+
+class PostLanguageSlugTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_superuser(username='slug-editor', password='test')
+        self.post = Post.objects.create(title='Judul lama', slug='judul-lama', author=self.user, status='published', body='<p>Isi</p>')
+
+    def form(self, **overrides):
+        data = dict(title=self.post.title, slug=self.post.slug, language=self.post.language,
+                    author=self.user.pk, status=self.post.status, body=self.post.body)
+        data.update(overrides)
+        return PostAdminForm(data=data, instance=self.post)
+
+    def test_language_validation_rendering_and_admin_fields(self):
+        self.assertEqual(self.post.language, 'id')
+        for language in ['en', 'id']:
+            form = self.form(language=language)
+            self.assertTrue(form.is_valid(), form.errors)
+            self.post = form.save()
+            self.assertContains(self.client.get(self.post.get_absolute_url()), f'<html lang="{language}">')
+        form = self.form(language='xx')
+        self.assertFalse(form.is_valid())
+        self.assertIn('language', form.errors)
+        self.client.force_login(self.user)
+        for url in [reverse('admin:blog_post_add'), reverse('admin:blog_post_change', args=[self.post.pk])]:
+            response = self.client.get(url)
+            self.assertContains(response, 'id_language')
+            self.assertContains(response, 'blog/admin/post.js')
+
+    def test_form_auto_manual_and_no_change(self):
+        form = self.form(title='Judul Baru')
+        self.assertTrue(form.is_valid(), form.errors)
+        self.post = form.save()
+        self.assertEqual(self.post.slug, 'judul-baru')
+        form = self.form(title='Judul Berikutnya', slug='pilihan-manual')
+        self.assertTrue(form.is_valid(), form.errors)
+        self.post = form.save()
+        self.assertEqual(self.post.slug, 'pilihan-manual')
+        form = self.form()
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.save().slug, 'pilihan-manual')
+        form = self.form(title='Judul Kosong Slug', slug='')
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.save().slug, 'judul-kosong-slug')
+
+    def test_invalid_and_reserved_slugs(self):
+        other = Post.objects.create(title='Other', slug='reserved', author=self.user, body='Isi')
+        other.slug = 'current'
+        other.save()
+        for slug in ['reserved', 'current', 'a' * 241, 'invalid slug']:
+            form = self.form(slug=slug)
+            self.assertFalse(form.is_valid(), slug)
+            self.assertIn('slug', form.errors)
+        form = self.form(title='!!!', slug='')
+        self.assertFalse(form.is_valid())
+        self.assertIn('slug', form.errors)
+        from django.core.exceptions import ValidationError
+        self.post.slug = 'reserved'
+        with self.assertRaises(ValidationError):
+            self.post.save()
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.slug, 'judul-lama')
+
+    def test_history_redirects_directly_and_disallows_drafts(self):
+        urls = [self.post.get_absolute_url()]
+        for title in ['Judul Baru', 'Judul Ketiga']:
+            self.post.title = title
+            self.post.save(update_fields=['title'])
+            urls.append(self.post.get_absolute_url())
+        for url in urls[:-1]:
+            self.assertRedirects(self.client.get(url), urls[-1], status_code=301)
+        self.assertContains(self.client.get(urls[-1]), f'href="https://donysnotebook.page{urls[-1]}"')
+        sitemap = self.client.get('/sitemap.xml')
+        self.assertContains(sitemap, urls[-1])
+        for url in urls[:-1]:
+            self.assertNotContains(sitemap, url)
+        self.post.slug = 'judul-lama'
+        self.post.save()
+        self.assertRedirects(self.client.get(urls[-1]), urls[0], status_code=301)
+        self.post.status = 'draft'
+        self.post.save(update_fields=['status'])
+        for url in urls:
+            self.assertEqual(self.client.get(url).status_code, 404)
+        self.post.status = 'published'
+        self.post.save()
+        self.assertRedirects(self.client.get(urls[-1]), urls[0], status_code=301)
+
+    def test_admin_save_persists_language_slug_and_redirect(self):
+        self.client.force_login(self.user)
+        url = reverse('admin:blog_post_change', args=[self.post.pk])
+        response = self.client.post(url, {
+            'title': 'Judul dari admin', 'slug': 'judul-lama', 'language': 'en',
+            'author': self.user.pk, 'status': 'published', 'body': '<p>Isi</p>',
+            '_save': 'Simpan',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.post.refresh_from_db()
+        self.assertEqual((self.post.slug, self.post.language), ('judul-dari-admin', 'en'))
+        self.assertRedirects(self.client.get('/posts/judul-lama/'), self.post.get_absolute_url(), status_code=301)
+
+
+from django.test import TransactionTestCase
+
+
+class PostLanguageMigrationTests(TransactionTestCase):
+    def test_existing_posts_keep_english_and_reserve_current_slug(self):
+        from django.db import connection
+        from django.db.migrations.executor import MigrationExecutor
+        executor = MigrationExecutor(connection)
+        latest = executor.loader.graph.leaf_nodes()
+        old_target = [('blog', '0011_booknote_is_public')]
+        try:
+            executor.migrate(old_target)
+            old_apps = executor.loader.project_state(old_target).apps
+            user = old_apps.get_model('auth', 'User').objects.create(username='migration-author')
+            post = old_apps.get_model('blog', 'Post').objects.create(
+                title='Existing', slug='existing-slug', body='Content', author_id=user.pk,
+            )
+            executor = MigrationExecutor(connection)
+            executor.migrate(latest)
+            migrated = Post.objects.get(pk=post.pk)
+            self.assertEqual(migrated.language, 'en')
+            self.assertTrue(migrated.slug_history.filter(slug='existing-slug').exists())
+            new_post = Post.objects.create(title='New', slug='new-post', body='Isi', author_id=user.pk)
+            self.assertEqual(new_post.language, 'id')
+        finally:
+            MigrationExecutor(connection).migrate(latest)

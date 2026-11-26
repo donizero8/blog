@@ -37,3 +37,12 @@ Django and application CSS from localhost:8000. It checks post/book action rows
 at 1078, 768, and 390 pixels, at three scroll positions: equal button heights,
 contained delete text, visible controls, and no action-row overflow. Expected:
 `18 passed, 0 failed`. This fixture does not submit forms or change stored data.
+
+## Bahasa dan slug post
+
+Setelah rebuild, jalankan `python3 -m http.server 8766 --bind 127.0.0.1 --directory tests/browser`
+dan buka `/post-fields.html`. Fixture memakai JavaScript dari build Docker, tanpa menyimpan data.
+Dengan keyboard: pastikan slug manual awal tidak berubah saat dimuat; ubah judul;
+koreksi slug manual; ubah judul lagi; pilih Indonesia/Inggris. Ulangi dengan field
+judul/slug kosong untuk form tambah dan pada lebar 880 serta 390 piksel.
+Validasi penyimpanan, konflik slug, bahasa HTML, dan redirect dijalankan oleh tes Django.

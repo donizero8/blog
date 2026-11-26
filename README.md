@@ -39,3 +39,13 @@ URL menggunakan `SITE_URL`, sama dengan canonical. `lastmod` tulisan memakai
 waktu pembaruan; buku tidak mengirim `lastmod` karena catatan bisa berubah terpisah.
 `/robots.txt` mencantumkan alamat sitemap dan meminta crawler melewati `/admin/`.
 Setelah deploy, kirim `https://donysnotebook.page/sitemap.xml` melalui Google Search Console.
+
+Pada admin Post, pilihan Bahasa mengatur `lang` halaman detail: Indonesia (`id`)
+atau Inggris (`en`). Post baru default Indonesia; migrasi mempertahankan Inggris
+untuk post lama. Ini tidak menerjemahkan isi maupun label antarmuka.
+Mengedit judul memperbarui slug; koreksi manual setelahnya tetap digunakan sampai
+judul diubah lagi. Slug lama dicatat sejak fitur ini dipasang dan mengarahkan ke
+URL terbaru dengan 301, hanya ketika post terbit. Slug milik post lain, termasuk
+riwayatnya, tidak dapat digunakan ulang. Perubahan slug historis sebelum migrasi
+tidak dapat dipulihkan otomatis. Gunakan penyimpanan model/form, bukan QuerySet.update
+atau bulk_create, saat mengubah judul/slug agar riwayat URL tetap tercatat.

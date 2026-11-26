@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction, IntegrityError
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -139,6 +140,12 @@ class BookNote(models.Model):
 
 
 class Post(models.Model):
+    class Language(models.TextChoices):
+        INDONESIAN = "id", "Indonesia"
+        ENGLISH = "en", "Inggris"
+
+    language = models.CharField("bahasa", max_length=2, choices=Language.choices, default=Language.INDONESIAN)
+
     class Status(models.TextChoices):
         DRAFT = "draft", "Draf"
         PUBLISHED = "published", "Terbit"
@@ -160,13 +167,51 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+    def clean(self):
+        super().clean()
+        if PostSlug.objects.filter(slug=self.slug).exclude(post_id=self.pk).exists():
+            raise ValidationError({"slug": "Slug ini sudah digunakan oleh tulisan lain atau URL lamanya."})
+
     def save(self, *args, **kwargs):
-        if self.status == self.Status.PUBLISHED and not self.published_at:
-            self.published_at = timezone.now()
-        super().save(*args, **kwargs)
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and not update_fields:
+            return
+        with transaction.atomic():
+            previous = Post.objects.select_for_update().filter(pk=self.pk).first() if self.pk else None
+            saves_title = update_fields is None or "title" in update_fields
+            saves_slug = update_fields is None or "slug" in update_fields
+            if not saves_slug and previous:
+                self.slug = previous.slug
+            if (saves_slug and not self.slug) or (
+                previous and saves_title and self.title != previous.title and self.slug == previous.slug
+            ):
+                self.slug = slugify(self.title)
+                if update_fields is not None:
+                    kwargs["update_fields"] = set(update_fields) | {"slug"}
+            self._meta.get_field("slug").clean(self.slug, self)
+            self._meta.get_field("language").clean(self.language, self)
+            self.clean()
+            if self.status == self.Status.PUBLISHED and not self.published_at:
+                self.published_at = timezone.now()
+                if update_fields is not None:
+                    kwargs["update_fields"] = set(kwargs["update_fields"]) | {"published_at"}
+            try:
+                with transaction.atomic():
+                    super().save(*args, **kwargs)
+                    reservation, _ = PostSlug.objects.get_or_create(slug=self.slug, defaults={"post": self})
+                    if reservation.post_id != self.pk:
+                        raise ValidationError({"slug": "Slug ini sudah digunakan oleh tulisan lain atau URL lamanya."})
+            except IntegrityError as exc:
+                raise ValidationError({"slug": "Slug sudah digunakan. Pilih slug lain."}) from exc
 
     def get_absolute_url(self):
         return reverse("blog:detail", kwargs={"slug": self.slug})
+
+
+class PostSlug(models.Model):
+    """Reserve both current and previous URLs so links never change ownership."""
+    slug = models.SlugField(max_length=240, unique=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="slug_history")
 
 
 class Comment(models.Model):

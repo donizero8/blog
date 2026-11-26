@@ -7,7 +7,7 @@ from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import CommentForm
 from .seo import detail_metadata
-from .models import Book, BookNote, Comment, Post
+from .models import Book, BookNote, Comment, Post, PostSlug
 
 def post_list(request):
     posts = Post.objects.filter(status=Post.Status.PUBLISHED).select_related("author").prefetch_related("tags")
@@ -20,6 +20,9 @@ def post_list(request):
     return render(request, "blog/post_list.html", context)
 
 def post_detail(request, slug):
+    if not Post.objects.filter(slug=slug, status=Post.Status.PUBLISHED).exists():
+        alias = get_object_or_404(PostSlug.objects.select_related("post"), slug=slug, post__status=Post.Status.PUBLISHED)
+        return redirect(alias.post.get_absolute_url(), permanent=True)
     post = get_object_or_404(
         Post.objects.select_related("author").prefetch_related(
             "tags",

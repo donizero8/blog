@@ -4,6 +4,7 @@ from io import BytesIO
 from pathlib import Path
 
 from django import forms
+from django.utils.text import slugify
 from django.core.files.base import ContentFile
 from PIL import Image, ImageOps
 
@@ -96,6 +97,8 @@ def optimize_article_image(upload):
     return ContentFile(output.getvalue(), name="article-image.webp"), width, height
 
 class PostAdminForm(forms.ModelForm):
+    slug = forms.SlugField(max_length=240, required=False)
+
     tags_input = forms.CharField(label="Tags", required=False)
 
     class Meta:
@@ -109,6 +112,18 @@ class PostAdminForm(forms.ModelForm):
         self.fields["tags_input"].widget = TagInputWidget(suggestions=suggestions)
         if self.instance.pk:
             self.initial["tags_input"] = ", ".join(self.instance.tags.values_list("name", flat=True))
+
+    def clean(self):
+        data = super().clean()
+        title = data.get("title")
+        if title and "slug" not in self.errors:
+            slug = data.get("slug")
+            if not slug or (self.instance.pk and title != self.instance.title and slug == self.instance.slug):
+                slug = slugify(title)
+                data["slug"] = slug
+            if not slug:
+                self.add_error("slug", "Isi slug dengan huruf atau angka yang valid.")
+        return data
 
     def clean_body(self):
         return sanitize_editor_html(self.cleaned_data["body"])

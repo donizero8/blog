@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n editor_content %}
+{% block page_language %}{{ post.language }}{% endblock %}
 {% block title %}{{ post.title }} — Dony’s Notebook{% endblock %}
 {% block content %}
 <article>

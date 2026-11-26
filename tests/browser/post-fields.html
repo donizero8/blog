@@ -1,0 +1,10 @@
+<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Regresi bahasa dan slug post</title>
+<style>body{font:16px system-ui;padding:20px}label{display:block;margin:15px 0}input,select{box-sizing:border-box;width:100%;max-width:600px;padding:10px}#result{color:green}</style>
+<h1>Form edit post — fixture tanpa penyimpanan</h1>
+<label>Judul <input id="id_title" value="Judul Lama"></label>
+<label>Bahasa <select id="id_language"><option value="id">Indonesia</option><option value="en" selected>Inggris</option></select></label>
+<label>Slug <input id="id_slug" maxlength="240" value="slug-manual-lama"></label>
+<p id="result">Periksa bahwa slug awal tetap slug-manual-lama. Ketik judul baru untuk memperbarui slug; koreksi slug manual; ubah judul kembali.</p>
+<script src="http://localhost:8000/static/admin/js/urlify.js"></script>
+<script src="http://localhost:8000/static/blog/admin/post.js"></script>
