@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import CommentForm
+from .seo import detail_metadata
 from .models import Book, BookNote, Comment, Post
 
 def post_list(request):
@@ -31,7 +32,10 @@ def post_detail(request, slug):
         comment.save()
         messages.success(request, "Thank you. Your comment is awaiting approval.")
         return redirect(f"{post.get_absolute_url()}#comments")
-    return render(request, "blog/post_detail.html", {"post": post, "comment_form": form})
+    return render(request, "blog/post_detail.html", {
+        "post": post, "comment_form": form,
+        **detail_metadata(post, post.excerpt, post.body, post.title),
+    })
 
 
 def search(request):
@@ -114,4 +118,7 @@ def reading_timeline(request):
 def book_detail(request, slug):
     notes = BookNote.objects.all()
     book = get_object_or_404(Book.objects.prefetch_related(Prefetch("notes", queryset=notes)), slug=slug)
-    return render(request, "blog/book_detail.html", {"book": book})
+    return render(request, "blog/book_detail.html", {
+        "book": book,
+        **detail_metadata(book, book.thoughts, book.lessons, f"{book.title} — {book.author}. Jurnal bacaan di Dony’s Notebook."),
+    })

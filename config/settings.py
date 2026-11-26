@@ -4,6 +4,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-development-key")
 DEBUG = os.getenv("DEBUG", "0") == "1"
+# Public origin stays stable even for tracking URLs or alternate request hosts.
+SITE_URL = os.getenv("SITE_URL", "https://donysnotebook.page").rstrip("/")
 ALLOWED_HOSTS = [x.strip() for x in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if x.strip()]
 CSRF_TRUSTED_ORIGINS = [
     x.strip()

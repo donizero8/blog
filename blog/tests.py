@@ -684,3 +684,89 @@ class FloatingPostActionsTests(TestCase):
         for model, obj in (("post", post), ("book", book)):
             response = self.client.get(reverse(f"admin:blog_{model}_change", args=[obj.pk]))
             self.assertContains(response, reverse(f"admin:blog_{model}_delete", args=[obj.pk]))
+
+
+class DetailMetadataTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username="seo-author", is_staff=True)
+        self.post = Post.objects.create(
+            title="Judul artikel", slug="seo-post", author=self.user,
+            status=Post.Status.PUBLISHED, excerpt="Ringkasan pilihan", body="<p>Isi artikel</p>",
+        )
+        self.book = Book.objects.create(title="Buku pilihan", author="Penulis", thoughts="<p>Pemikiran publik</p>")
+
+    def metadata(self, response):
+        from html.parser import HTMLParser
+
+        class HeadParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.descriptions = []
+                self.canonicals = []
+
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == "meta" and attrs.get("name") == "description":
+                    self.descriptions.append(attrs["content"])
+                if tag == "link" and attrs.get("rel") == "canonical":
+                    self.canonicals.append(attrs["href"])
+
+        parser = HeadParser()
+        parser.feed(response.content.decode().split("</head>")[0])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(parser.descriptions), 1)
+        self.assertEqual(len(parser.canonicals), 1)
+        return parser.descriptions[0], parser.canonicals[0]
+
+    def test_detail_metadata_uses_public_origin_without_query_parameters(self):
+        with self.settings(SITE_URL="https://donysnotebook.page/"):
+            for obj, expected in ((self.post, "Ringkasan pilihan"), (self.book, "Pemikiran publik")):
+                result = self.metadata(self.client.get(obj.get_absolute_url() + "?utm_source=test&page=2"))
+                self.assertEqual(result, (expected, "https://donysnotebook.page" + obj.get_absolute_url()))
+        with self.settings(SITE_URL="https://example.org"):
+            self.assertEqual(self.metadata(self.client.get(self.post.get_absolute_url()))[1], "https://example.org/posts/seo-post/")
+
+    def test_post_fallback_strips_html_decodes_entities_and_normalizes_spaces(self):
+        self.post.excerpt = "  "
+        self.post.body = '<p>Halo <strong>dunia</strong> &amp; buku.</p><p>Baris\nbaru.</p><script>secret()</script>'
+        self.post.save()
+        self.assertEqual(self.metadata(self.client.get(self.post.get_absolute_url()))[0], "Halo dunia & buku. Baris baru.")
+        self.post.body = '<p>&nbsp;<br></p><img src="/example.webp">'
+        self.post.save()
+        self.assertEqual(self.metadata(self.client.get(self.post.get_absolute_url()))[0], self.post.title)
+
+    def test_description_is_escaped_and_limited(self):
+        self.post.excerpt = 'Kutipan " onclick="bad() & <b>aman</b>'
+        self.post.save()
+        response = self.client.get(self.post.get_absolute_url())
+        self.assertEqual(self.metadata(response)[0], 'Kutipan " onclick="bad() & aman')
+        self.assertContains(response, '&quot; onclick=&quot;bad() &amp; aman')
+        self.post.excerpt = "Kata panjang " * 24
+        self.post.save()
+        text = self.metadata(self.client.get(self.post.get_absolute_url()))[0]
+        self.assertEqual(len(text), 160)
+        self.assertTrue(text.endswith("…"))
+
+    def test_book_fallback_never_uses_private_notes_even_for_staff(self):
+        BookNote.objects.create(book=self.book, heading="Privat", body="RAHASIA CATATAN", is_public=False)
+        self.book.thoughts = "<p><br></p>"
+        self.book.lessons = "Pelajaran satu\nPelajaran dua"
+        self.book.save()
+        self.assertEqual(self.metadata(self.client.get(self.book.get_absolute_url()))[0], "Pelajaran satu Pelajaran dua")
+        self.book.lessons = ""
+        self.book.save()
+        for authenticated in (False, True):
+            if authenticated:
+                self.client.force_login(self.user)
+            text = self.metadata(self.client.get(self.book.get_absolute_url()))[0]
+            self.assertEqual(text, "Buku pilihan — Penulis. Jurnal bacaan di Dony’s Notebook.")
+            self.assertNotIn("RAHASIA", text)
+
+    def test_draft_and_missing_pages_do_not_expose_detail_metadata(self):
+        self.post.status = Post.Status.DRAFT
+        self.post.save()
+        for url in (self.post.get_absolute_url(), "/library/missing-book/"):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 404)
+            self.assertNotIn(b'name="description"', response.content)
+            self.assertNotIn(b'rel="canonical"', response.content)
