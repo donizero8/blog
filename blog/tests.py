@@ -770,3 +770,62 @@ class DetailMetadataTests(TestCase):
             self.assertEqual(response.status_code, 404)
             self.assertNotIn(b'name="description"', response.content)
             self.assertNotIn(b'rel="canonical"', response.content)
+
+
+class SitemapTests(TestCase):
+    def setUp(self):
+        # Remove migration seed books only inside the isolated test transaction.
+        Book.objects.all().delete()
+
+    def sitemap_locations(self):
+        from xml.etree import ElementTree
+        response = self.client.get('/sitemap.xml?utm_source=test')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('application/xml', response['Content-Type'])
+        root = ElementTree.fromstring(response.content)
+        ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+        return response, root, ns, [node.text for node in root.findall('s:url/s:loc', ns)]
+
+    def test_empty_sitemap_contains_only_public_landing_pages(self):
+        with self.settings(SITE_URL='https://donysnotebook.page/'):
+            _, _, _, urls = self.sitemap_locations()
+        self.assertEqual(set(urls), {
+            'https://donysnotebook.page/', 'https://donysnotebook.page/library/',
+            'https://donysnotebook.page/reading/',
+        })
+        self.assertEqual(len(urls), 3)
+
+    def test_published_posts_books_and_status_transitions(self):
+        user = get_user_model().objects.create_user(username='sitemap-author')
+        post = Post.objects.create(title='Post', slug='sitemap-post', body='Isi', author=user)
+        book = Book.objects.create(title='Buku', author='Penulis')
+        BookNote.objects.create(book=book, heading='Privat', body='RAHASIA', is_public=False)
+        with self.settings(SITE_URL='https://example.org/'):
+            response, _, _, urls = self.sitemap_locations()
+            self.assertIn('https://example.org' + book.get_absolute_url(), urls)
+            self.assertNotIn('https://example.org' + post.get_absolute_url(), urls)
+            self.assertNotContains(response, 'RAHASIA')
+            post.status = Post.Status.PUBLISHED
+            post.save()
+            _, root, ns, urls = self.sitemap_locations()
+            self.assertEqual(len(urls), 5)
+            post_url = 'https://example.org' + post.get_absolute_url()
+            self.assertIn(post_url, urls)
+            entry = next(node for node in root.findall('s:url', ns) if node.find('s:loc', ns).text == post_url)
+            self.assertEqual(entry.find('s:lastmod', ns).text, post.updated_at.date().isoformat())
+            for url in urls:
+                from urllib.parse import urlsplit
+                self.assertEqual(self.client.get(urlsplit(url).path).status_code, 200)
+            post.status = Post.Status.DRAFT
+            post.save()
+            book.delete()
+            _, _, _, urls = self.sitemap_locations()
+            self.assertEqual(len(urls), 3)
+
+    def test_robots_advertises_sitemap_using_public_origin(self):
+        with self.settings(SITE_URL='https://example.org/'):
+            response = self.client.get('/robots.txt')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('text/plain', response['Content-Type'])
+        self.assertEqual(response.content.decode(),
+                         'User-agent: *\nDisallow: /admin/\nSitemap: https://example.org/sitemap.xml\n')

@@ -31,3 +31,11 @@ Deskripsi tulisan memakai ringkasan, lalu teks isi, lalu judul. Deskripsi buku m
 pemikiran, lalu pelajaran, lalu judul dan penulis. HTML dibuang dan spasi dirapikan;
 catatan buku, termasuk catatan privat, tidak dipakai untuk metadata. Tidak diperlukan
 migrasi database. Rebuild container setelah perubahan kode atau `SITE_URL`.
+
+Sitemap XML otomatis tersedia di `/sitemap.xml`: beranda, perpustakaan, timeline
+bacaan, tulisan berstatus Terbit, dan halaman detail buku. Draf, pencarian,
+URL admin, URL lama yang redirect, dan catatan privat tidak dicantumkan.
+URL menggunakan `SITE_URL`, sama dengan canonical. `lastmod` tulisan memakai
+waktu pembaruan; buku tidak mengirim `lastmod` karena catatan bisa berubah terpisah.
+`/robots.txt` mencantumkan alamat sitemap dan meminta crawler melewati `/admin/`.
+Setelah deploy, kirim `https://donysnotebook.page/sitemap.xml` melalui Google Search Console.

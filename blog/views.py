@@ -1,4 +1,7 @@
 from django.contrib import messages
+from django.conf import settings
+from django.http import HttpResponse
+from django.urls import reverse
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -122,3 +125,11 @@ def book_detail(request, slug):
         "book": book,
         **detail_metadata(book, book.thoughts, book.lessons, f"{book.title} — {book.author}. Jurnal bacaan di Dony’s Notebook."),
     })
+
+
+def robots(request):
+    sitemap_url = settings.SITE_URL.rstrip("/") + reverse("sitemap")
+    return HttpResponse(
+        f"User-agent: *\nDisallow: /admin/\nSitemap: {sitemap_url}\n",
+        content_type="text/plain",
+    )
