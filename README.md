@@ -49,3 +49,7 @@ URL terbaru dengan 301, hanya ketika post terbit. Slug milik post lain, termasuk
 riwayatnya, tidak dapat digunakan ulang. Perubahan slug historis sebelum migrasi
 tidak dapat dipulihkan otomatis. Gunakan penyimpanan model/form, bukan QuerySet.update
 atau bulk_create, saat mengubah judul/slug agar riwayat URL tetap tercatat.
+
+Pilihan Bahasa juga tersedia pada Buku dan mengatur `lang` halaman detail buku.
+Buku baru default Indonesia; buku lama dipertahankan dalam Inggris saat migrasi.
+Pilihan ini menyatakan bahasa isi jurnal, bukan menerjemahkan isi atau label antarmuka.

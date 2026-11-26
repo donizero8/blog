@@ -1,0 +1,13 @@
+/* Fill the space beside the label without widening the form on mobile. */
+#post_form .field-title .flex-container,
+#post_form .field-slug .flex-container {
+  width: 100%;
+}
+#post_form #id_title,
+#post_form #id_slug {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}

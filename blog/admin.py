@@ -88,7 +88,7 @@ class BookAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
-        ("Buku", {"fields": ("cover_url", "cover", "title", "slug", "author", "status")}),
+        ("Buku", {"fields": ("cover_url", "cover", "title", "language", "slug", "author", "status")}),
         ("Progres", {
             "fields": ("progress", ("current_chapter", "total_chapters"), ("started_at", "finished_at")),
             "classes": ("book-progress-section",),
@@ -106,7 +106,7 @@ class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
 
     class Media:
-        css = {"all": ("blog/admin/form-actions.css",)}
+        css = {"all": ("blog/admin/form-actions.css", "blog/admin/post.css")}
         js = ("admin/js/urlify.js", "blog/admin/post.js")
 
     list_display = ("title", "author", "status", "published_at", "updated_at")

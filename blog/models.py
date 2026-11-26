@@ -69,6 +69,12 @@ class Tag(models.Model):
 
 
 class Book(models.Model):
+    class Language(models.TextChoices):
+        INDONESIAN = "id", "Indonesia"
+        ENGLISH = "en", "Inggris"
+
+    language = models.CharField("bahasa", max_length=2, choices=Language.choices, default=Language.INDONESIAN)
+
     class Status(models.TextChoices):
         WANT = "want", "Want to Read"
         READING = "reading", "Reading"

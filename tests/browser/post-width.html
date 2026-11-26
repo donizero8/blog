@@ -1,0 +1,31 @@
+<!doctype html><meta charset="utf-8"><title>Regresi lebar Judul dan Slug</title>
+<h1>Regresi lebar Judul dan Slug</h1><p id="result">Running…</p>
+<script>
+(async () => {
+  let passed = 0;
+  for (const model of ["post", "book"]) for (const width of [1280, 880, 390]) {
+    const frame = document.createElement('iframe');
+    frame.style.cssText = `width:${width}px;height:300px;border:0;display:block`;
+    const loaded = new Promise(resolve => frame.onload = resolve);
+    frame.srcdoc = `<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="http://localhost:8000/static/admin/css/base.css">
+<link rel="stylesheet" href="http://localhost:8000/static/admin/css/forms.css">
+<link rel="stylesheet" href="http://localhost:8000/static/admin/css/responsive.css">
+<link rel="stylesheet" href="http://localhost:8000/static/blog/admin/${model}.css">
+<div style="padding:20px"><form id="${model}_form"><fieldset class="module aligned">
+${['title', 'slug'].map(name => `<div class="form-row field-${name}"><div><div class="flex-container"><label for="id_${name}">${name}</label><input id="id_${name}" class="vTextField" value="${'judul-panjang-'.repeat(18)}"></div></div></div>`).join('')}
+</fieldset></form></div>`;
+    document.body.append(frame); await loaded;
+    const doc = frame.contentDocument;
+    for (const input of doc.querySelectorAll('input')) {
+      const rect = input.getBoundingClientRect();
+      const parent = input.parentElement.getBoundingClientRect();
+      if (Math.abs(rect.right - parent.right) > 2 || rect.left < 0 || rect.right > width || rect.width < width * 0.5 || doc.documentElement.scrollWidth > width) {
+        throw Error(`${model} ${input.id}: lebar/clipping salah pada ${width}px`);
+      }
+      passed++;
+    }
+  }
+  document.querySelector('#result').textContent = `${passed} passed, 0 failed`;
+})().catch(error => document.querySelector('#result').textContent = `FAIL: ${error.message}`);
+</script>

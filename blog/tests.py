@@ -73,7 +73,7 @@ class BookCoverUrlTests(TestCase):
         source = BytesIO()
         Image.new("RGB", (100, 140), "red").save(source, format="PNG")
         download.return_value = SimpleUploadedFile("url-cover.webp", source.getvalue(), content_type="image/png")
-        form = BookAdminForm(data={"title": "A book", "slug": "a-book", "author": "Author", "status": "want", "progress": 0, "cover_url": "https://example.com/cover.jpg"})
+        form = BookAdminForm(data={"language": "id", "title": "A book", "slug": "a-book", "author": "Author", "status": "want", "progress": 0, "cover_url": "https://example.com/cover.jpg"})
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(form.cleaned_data["cover"].name, "url-cover.webp")
         download.assert_called_once_with("https://example.com/cover.jpg")
@@ -456,7 +456,7 @@ class BookJournalEditorTests(TestCase):
         self.assertEqual(form.fields["started_at"].widget.format, "%Y-%m-%d")
 
     def test_finished_date_cannot_precede_started_date(self):
-        form = BookAdminForm(data={
+        form = BookAdminForm(data={"language": "id",
             "title": "Invalid dates", "slug": "invalid-dates", "author": "Writer",
             "status": "finished", "progress": 100, "started_at": "2026-09-17",
             "finished_at": "2026-09-16", "thoughts": "", "lessons": "",
@@ -465,7 +465,7 @@ class BookJournalEditorTests(TestCase):
         self.assertIn("Tanggal selesai tidak boleh sebelum tanggal mulai.", form.errors["finished_at"])
 
     def test_book_and_note_html_is_sanitized(self):
-        book_form = BookAdminForm(data={
+        book_form = BookAdminForm(data={"language": "id",
             "title": "Safe Book",
             "slug": "safe-book",
             "author": "Writer",
@@ -538,7 +538,7 @@ class BookJournalEditorTests(TestCase):
 
     def test_finished_admin_form_sets_progress_without_changing_chapters(self):
         for status, expected in [("finished", 100), ("reading", 28)]:
-            form = BookAdminForm(data={
+            form = BookAdminForm(data={"language": "id",
                 "title": "Progress test", "slug": "progress-test", "author": "Writer",
                 "status": status, "progress": 28, "current_chapter": 3, "total_chapters": 10,
             })
@@ -680,6 +680,7 @@ class FloatingPostActionsTests(TestCase):
         book = Book.objects.create(title="Book", author="Writer")
         for url in (reverse("admin:blog_book_add"), reverse("admin:blog_book_change", args=[book.pk])):
             response = self.client.get(url)
+            self.assertContains(response, "blog/admin/book.css")
             self.assertContains(response, "blog/admin/form-actions.css")
             for action in ("_save", "_addanother", "_continue"):
                 self.assertContains(response, f'name="{action}"', count=1)
@@ -859,6 +860,7 @@ class PostLanguageSlugTests(TestCase):
             response = self.client.get(url)
             self.assertContains(response, 'id_language')
             self.assertContains(response, 'blog/admin/post.js')
+            self.assertContains(response, 'blog/admin/post.css')
 
     def test_form_auto_manual_and_no_change(self):
         form = self.form(title='Judul Baru')
@@ -956,5 +958,55 @@ class PostLanguageMigrationTests(TransactionTestCase):
             self.assertTrue(migrated.slug_history.filter(slug='existing-slug').exists())
             new_post = Post.objects.create(title='New', slug='new-post', body='Isi', author_id=user.pk)
             self.assertEqual(new_post.language, 'id')
+        finally:
+            MigrationExecutor(connection).migrate(latest)
+
+
+class BookLanguageTests(TestCase):
+    def test_language_choices_persist_and_render_in_both_directions(self):
+        book = Book.objects.create(title='Language book', author='Writer')
+        self.assertEqual(book.language, 'id')
+        for language in ['en', 'id']:
+            form = BookAdminForm(data={
+                'title': book.title, 'slug': book.slug, 'author': book.author,
+                'language': language, 'status': 'want', 'progress': 0,
+            }, instance=book)
+            self.assertTrue(form.is_valid(), form.errors)
+            book = form.save()
+            book.refresh_from_db()
+            self.assertEqual(book.language, language)
+            self.assertContains(self.client.get(book.get_absolute_url()), f'<html lang="{language}">')
+        form = BookAdminForm(data={
+            'title': book.title, 'slug': book.slug, 'author': book.author,
+            'language': 'xx', 'status': 'want', 'progress': 0,
+        }, instance=book)
+        self.assertFalse(form.is_valid())
+        self.assertIn('language', form.errors)
+
+    def test_admin_add_and_change_expose_language(self):
+        user = get_user_model().objects.create_superuser(username='book-language', password='test')
+        self.client.force_login(user)
+        book = Book.objects.create(title='Test language', author='Writer')
+        for url in [reverse('admin:blog_book_add'), reverse('admin:blog_book_change', args=[book.pk])]:
+            response = self.client.get(url)
+            self.assertContains(response, 'id_language')
+            self.assertContains(response, '<option value="id" selected>Indonesia</option>', html=True)
+            self.assertContains(response, '<option value="en">Inggris</option>', html=True)
+
+
+class BookLanguageMigrationTests(TransactionTestCase):
+    def test_existing_books_keep_english(self):
+        from django.db import connection
+        from django.db.migrations.executor import MigrationExecutor
+        executor = MigrationExecutor(connection)
+        latest = executor.loader.graph.leaf_nodes()
+        old = [('blog', '0012_post_language_postslug')]
+        try:
+            executor.migrate(old)
+            apps = executor.loader.project_state(old).apps
+            book = apps.get_model('blog', 'Book').objects.create(title='Old book', slug='old-language-book', author='Writer')
+            MigrationExecutor(connection).migrate(latest)
+            self.assertEqual(Book.objects.get(pk=book.pk).language, 'en')
+            self.assertEqual(Book.objects.create(title='New book', author='Writer').language, 'id')
         finally:
             MigrationExecutor(connection).migrate(latest)

@@ -46,3 +46,9 @@ Dengan keyboard: pastikan slug manual awal tidak berubah saat dimuat; ubah judul
 koreksi slug manual; ubah judul lagi; pilih Indonesia/Inggris. Ulangi dengan field
 judul/slug kosong untuk form tambah dan pada lebar 880 serta 390 piksel.
 Validasi penyimpanan, konflik slug, bahasa HTML, dan redirect dijalankan oleh tes Django.
+
+## Lebar kolom Judul dan Slug
+
+Dengan server fixture di port 8766, buka `/post-width.html` setelah rebuild Docker.
+Menggunakan CSS build terbaru dan nilai panjang pada lebar 1280, 880, dan 390 piksel;
+memeriksa input memenuhi area yang tersedia tanpa overflow/clipping. Mencakup form Post dan Buku. Hasil: `12 passed, 0 failed`.

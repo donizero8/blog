@@ -33,3 +33,17 @@
   .book-range-popover { width: 100%; }
 }
 .book-journal-section[hidden] { display: none !important; }
+
+/* Match the full-width title and slug fields in the post editor. */
+#book_form .field-title .flex-container,
+#book_form .field-slug .flex-container {
+  width: 100%;
+}
+#book_form #id_title,
+#book_form #id_slug {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}

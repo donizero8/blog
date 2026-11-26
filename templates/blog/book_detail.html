@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n editor_content %}
+{% block page_language %}{{ book.language }}{% endblock %}
 {% block title %}{{ book.title }} — My Library{% endblock %}
 {% block content %}
 <article class="book-journal">
